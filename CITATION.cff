@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use pyRadBio, please cite it as below, together with the papers of the models you use (listed in docs/references/)."
+title: "pyRadBio: radiobiological modelling for ion-beam therapy"
+abstract: "LQ-centred implementations of the LEM, MKM and related radiobiological models: alpha-beta and z* tables, survival and RBE for single ions and mixed fields."
+type: software
+authors:
+  - family-names: Wahl
+    given-names: Niklas
+    email: n.wahl@dkfz-heidelberg.de
+    affiliation: "German Cancer Research Center (DKFZ), Heidelberg, Germany"
+license: MIT
+repository-code: "https://github.com/e0404/pyRadBio"
+keywords:
+  - radiobiology
+  - hadrontherapy
+  - RBE
+  - LEM
+  - MKM
+  - linear-quadratic
+  - iontherapy

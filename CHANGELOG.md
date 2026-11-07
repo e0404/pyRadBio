@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [0.0.18] - 2026-11-07
+
+### Added
+- **Documentation:** the README, `docs/architecture.md`, paper digests and reconstruction notes in `docs/references/`, the model inventory and open work in `ROADMAP.md`, and the contributor and coding-agent rules in `AGENTS.md` / `CLAUDE.md`.
+- **Data provenance:** every shipped data file names its source and DOI (or its provenance record) in its header; `THIRD_PARTY_NOTICES.md` credits the publications and RadPhysBio (CC BY 4.0) the data come from; PIDE and other registration-gated data are never bundled.
+- `CITATION.cff`.
+
 ## [0.0.17] - 2026-11-07
 
 ### Added
@@ -121,7 +128,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Time axis** (`core/protraction.py`): dose schedules and the Lea-Catcheside `G` factor; `survival`, `log_kill`, `dose_for_survival` and `rbe` take a keyword-only `g` (default `1.0`, an acute dose).
 - **Packaging:** extras `tables`, `benchmark`, `fast` (numba), `plot`, `dev` and `all`, plus `mkm` (pyMKM, not in `all`); numpy below 2.3 on Python 3.10-3.13 and >= 2.3 on 3.14; `pyradbio.__version__` read from the installed distribution.
 
-[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.17...HEAD
+[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.18...HEAD
+[0.0.18]: https://github.com/e0404/pyRadBio/compare/v0.0.17...v0.0.18
 [0.0.17]: https://github.com/e0404/pyRadBio/compare/v0.0.16...v0.0.17
 [0.0.16]: https://github.com/e0404/pyRadBio/compare/v0.0.15...v0.0.16
 [0.0.15]: https://github.com/e0404/pyRadBio/compare/v0.0.14...v0.0.15
