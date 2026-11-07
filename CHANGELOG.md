@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [0.0.8] - 2026-11-07
+
+### Added
+- **Microdosimetry** (`pyradbio.micro`): single-event lineal-energy spectra from an analytic engine, an amorphous-track engine with optional stochastic delta rays, Sato's analytical microdosimetric function and tabulated spectra (incl. the Hartzell 2025 AMF curves); multi-event specific-energy densities; and an analytic impact-parameter integrator.
+- MCDS DSB yields (`micro/mcds.py`, Semenenko & Stewart 2006).
+
 ## [0.0.7] - 2026-11-07
 
 ### Added
@@ -59,7 +65,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Time axis** (`core/protraction.py`): dose schedules and the Lea-Catcheside `G` factor; `survival`, `log_kill`, `dose_for_survival` and `rbe` take a keyword-only `g` (default `1.0`, an acute dose).
 - **Packaging:** extras `tables`, `benchmark`, `fast` (numba), `plot`, `dev` and `all`, plus `mkm` (pyMKM, not in `all`); numpy below 2.3 on Python 3.10-3.13 and >= 2.3 on 3.14; `pyradbio.__version__` read from the installed distribution.
 
-[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.7...HEAD
+[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.8...HEAD
+[0.0.8]: https://github.com/e0404/pyRadBio/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/e0404/pyRadBio/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/e0404/pyRadBio/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/e0404/pyRadBio/compare/v0.0.4...v0.0.5

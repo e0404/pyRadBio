@@ -1,0 +1,21 @@
+figure,ion,Z,A,method,energy_MeV_u,site_radius_um,doi,source_page,note
+fig4,hydrogen,1,1,AMF,10.0,0.3,10.1088/1361-6560/adcfec,9,manual WebPlotDigitizer digitization of the high-resolution figure
+lineal_energy,yd_y
+keV/um,dimensionless
+0.1,0.00153
+0.603893,0.00802
+0.922484,0.02313
+1.51471,0.06895
+2.02245,0.15337
+2.6724,0.26088
+3.38813,0.37610
+4.4765,0.51438
+5.5599,0.59885
+6.55895,0.62951
+10.0242,0.49845
+11.7092,0.39835
+14.1088,0.28284
+17.5369,0.14423
+22.2496,0.05177
+26.8014,0.02087
+40.5242,0.00521

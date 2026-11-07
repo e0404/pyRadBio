@@ -1,0 +1,20 @@
+figure,ion,Z,A,method,energy_MeV_u,site_radius_um,doi,source_page,note
+fig7,carbon,6,12,AMF,1.0,0.3,10.1088/1361-6560/adcfec,11,PyMuPDF raster digitization (two-colour split AMF/nBio)
+lineal_energy,yd_y
+keV/um,dimensionless
+0.0555808,0.00990
+299.167,0.02970
+331.791,0.04950
+367.973,0.07921
+408.101,0.11386
+452.605,0.18812
+501.963,0.26733
+556.702,0.35644
+617.411,0.49010
+684.741,0.66832
+759.413,0.96535
+842.228,1.32178
+1000.8,2.32178
+1109.94,1.26238
+1230.98,0.39604
+1274.2,0.12871
