@@ -1,0 +1,4 @@
+# The shipped stopping-power tables are compared byte for byte with a fresh rebuild
+# (scripts/stopping/build_tables.py --check), which writes LF. Keep them LF in every
+# checkout, whatever core.autocrlf says.
+pyradbio/track/stopping/data/* text eol=lf

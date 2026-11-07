@@ -1,0 +1,150 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyradbio"
+version = "0.0.1"
+description = "Radiobiological modelling for ion-beam therapy: LQ-centred MKM/LEM implementations, alpha-beta and z* tables, survival and RBE."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Niklas Wahl" , email = "n.wahl@dkfz-heidelberg.de"}]
+keywords = ["radiobiology", "hadrontherapy", "RBE", "LEM", "MKM", "linear-quadratic", "iontherapy"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+
+# Keep the runtime core dependency-light. Heavy / model-specific deps are extras.
+dependencies = [
+    # numpy capped < 2.3: numpy >= 2.3 ships PEP 695 `type` statements in its
+    # stubs that mypy rejects under python_version = 3.10 (our minimum).
+    # Python 3.14 has no numpy < 2.3 wheels, so it takes >= 2.3 there and CI
+    # skips mypy on 3.14. Revisit if/when 3.10 support is dropped.
+    "numpy>=1.24,<2.3; python_version < '3.14'",
+    "numpy>=2.3; python_version >= '3.14'",
+    "scipy>=1.10",
+]
+
+[project.optional-dependencies]
+# Optional validation reference for the MKM family: the external, MIT-licensed
+# pyMKM package (Magro et al., Computation 2025, doi:10.3390/computation13110264).
+# Not a default and not part of `all`; the `requires_pymkm` tests and their CI
+# job use it as an independent cross-check.
+# numpy < 2.4: numpy 2.4 removed np.trapz, which pyMKM 1.0.0 still calls
+# (pymkm/physics/specific_energy.py). Only binds on Python 3.14 (numpy 2.3.x).
+mkm = ["pymkm>=0.1.0", "numpy<2.4"]
+# Tabular I/O and the PIDE benchmark harness.
+tables = ["pandas>=2.0", "pyarrow>=14.0", "openpyxl>=3.1"]
+# Cross-implementation / PIDE benchmarks against non-committed external reference
+# data whose paths come from a local .env (see pyradbio/datasets.py, .env.example).
+benchmark = ["python-dotenv>=1.0"]
+# Optional acceleration for the LEM Monte-Carlo / radial-dose integrals.
+fast = ["numba>=0.59"]
+plot = ["matplotlib>=3.7"]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "hypothesis>=6.100",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "pre-commit>=3.7",
+    "python-dotenv>=1.0",
+    # BSD-licensed PDF reader for scripts/stopping/fetch_sources.py (ICRU 90 tables);
+    # never imported by the pyradbio package.
+    "pypdf>=4.0",
+]
+all = ["pyradbio[tables,benchmark,fast,plot,dev]"]
+
+[project.scripts]
+pyradbio = "pyradbio.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/e0404/pyRadBio"
+Issues = "https://github.com/e0404/pyRadBio/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pyradbio"]
+
+[tool.hatch.build.targets.wheel.force-include]
+# The MSTAR port (pyradbio/track/stopping/mstar/) is under its authors' notice, not MIT.
+"THIRD_PARTY_NOTICES.md" = "pyradbio/THIRD_PARTY_NOTICES.md"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "golden: regression tests pinned to published reference values (cite the DOI in the test).",
+    "benchmark: PIDE benchmark tests; require a user-supplied PIDE file (skipped otherwise).",
+    "slow: long-running Monte-Carlo / full-simulation tests.",
+    "requires_pymkm: tests that need the optional pyMKM dependency.",
+]
+
+[tool.coverage.run]
+source = ["pyradbio"]
+branch = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "NPY", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+# Examples use Greek letters (alpha/beta) in plot labels and strings on purpose.
+"examples/*" = ["RUF001", "RUF002", "RUF003"]
+# Validation scripts (paper reconstructions) likewise.
+"validation/*" = ["RUF001", "RUF002", "RUF003"]
+# The numba MC kernels must use the legacy np.random API (numba nopython does not
+# support np.random.Generator) and explicit int(floor()/round()) (numba floor/round
+# -> float).
+"pyradbio/models/lem/_mc_kernel.py" = ["NPY002", "RUF046"]
+"pyradbio/models/lem/_intertrack_kernel.py" = ["NPY002", "RUF046"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_unused_ignores = true
+plugins = []
+# pymkm has no published type stubs yet; scipy ships only partial stubs.
+[[tool.mypy.overrides]]
+module = [
+    "pymkm.*",
+    "numba.*",
+    "scipy.*",
+    "pandas",
+    "pandas.*",
+    "pyarrow.*",
+    "dotenv.*",
+    "openpyxl",
+    "openpyxl.*",
+    "matplotlib",
+    "matplotlib.*",
+]
+ignore_missing_imports = true
+
+[tool.codespell]
+# "Fertil" is a real author surname (Fertil B, Malaise EP -- cited in
+# LEM_IV_Friedrich2012.md), not a typo for "fertile".
+# "HEL" and "WIL" are the conventional three-letter model tags in
+# models/phenomenological/ (Mairani 2016 helium; Wilkens & Oelfke 2004), and
+# "fLE"/"fLE2" are names of Mairani 2016's candidate weighting functions.
+ignore-words-list = "fertil,hel,wil,fle"
+# Tabulated stopping-power data is keyed by chemical element symbol, and codespell
+# reads the two-letter symbols for tellurium and neodymium as misspellings of
+# "The" and "And". Skip the data directory rather than widen ignore-words-list,
+# which would also stop those words being caught in prose.
+skip = "pyradbio/track/data/*,pyradbio/track/stopping/data/*"
