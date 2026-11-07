@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+  # Manual runs add the validation quick-mode smoke job (validation-quick).
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[all]"
+      - name: Lint
+        run: ruff check .
+      - name: Format check
+        run: ruff format --check .
+      - name: Types
+        # mypy checks against python_version = 3.10 on every interpreter; 3.14
+        # needs numpy >= 2.3, whose stubs mypy rejects under that target (see
+        # pyproject.toml). The other four jobs cover it.
+        if: matrix.python-version != '3.14'
+        run: mypy pyradbio
+      - name: Test
+        # @slow tests (Monte-Carlo / full-simulation reconstructions) take
+        # multiple CPU-hours and are run locally, not in CI. PIDE-gated tests are
+        # skipped automatically (no --pide path in CI). The examples smoke tests
+        # (tests/examples) run in every job WITH coverage, so branches that only
+        # one Python version takes are covered once the per-version reports are
+        # combined; their 120 s duration guard is off under coverage and on CI.
+        env:
+          MPLBACKEND: Agg
+        run: >-
+          pytest -m "not slow and not benchmark" --cov=pyradbio
+          --cov-report=term-missing
+          --cov-report=xml:coverage-${{ matrix.python-version }}.xml
+      - name: Upload coverage to Codecov
+        # One report per interpreter, flagged by version; Codecov merges them.
+        # Needs the CODECOV_TOKEN repository secret; a failed upload does not fail CI.
+        if: ${{ !cancelled() }}
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage-${{ matrix.python-version }}.xml
+          flags: py${{ matrix.python-version }}
+          disable_search: true
+          fail_ci_if_error: false
+      - name: Upload coverage report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.python-version }}
+          path: coverage-${{ matrix.python-version }}.xml
+          if-no-files-found: warn
+
+  pymkm-validation:
+    # pyMKM is an optional validation reference (the `mkm` extra, not in `all`).
+    # This job installs it and runs only the tests that cross-check pyRadBio's
+    # native MKM engine and the Bethe stopping power against it.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[all,mkm]"
+      - name: pyMKM cross-check tests
+        run: pytest -m "requires_pymkm and not slow and not benchmark"
+
+  validation-quick:
+    # The validation/ scripts in quick mode (PYRADBIO_QUICK=1). Manual only: it
+    # is @slow, and without the external datasets most scripts skip themselves
+    # (MissingDataExit / MissingExtraExit in validation/_common.py).
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[all]"
+      - name: Validation smoke (quick mode)
+        env:
+          MPLBACKEND: Agg
+          PYRADBIO_QUICK: "1"
+        run: pytest -m slow tests/validation

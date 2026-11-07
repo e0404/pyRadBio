@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [0.0.19] - 2026-11-07
+
+### Added
+- **CI:** GitHub Actions on Python 3.10-3.14 with Codecov upload, a `pymkm-validation` job (`pytest -m requires_pymkm`) and a manual validation quick-mode job; a GitLab pipeline with code-quality and coverage reports. `@slow` Monte-Carlo tests run locally.
+
 ## [0.0.18] - 2026-11-07
 
 ### Added
@@ -128,7 +133,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Time axis** (`core/protraction.py`): dose schedules and the Lea-Catcheside `G` factor; `survival`, `log_kill`, `dose_for_survival` and `rbe` take a keyword-only `g` (default `1.0`, an acute dose).
 - **Packaging:** extras `tables`, `benchmark`, `fast` (numba), `plot`, `dev` and `all`, plus `mkm` (pyMKM, not in `all`); numpy below 2.3 on Python 3.10-3.13 and >= 2.3 on 3.14; `pyradbio.__version__` read from the installed distribution.
 
-[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.18...HEAD
+[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.19...HEAD
+[0.0.19]: https://github.com/e0404/pyRadBio/compare/v0.0.18...v0.0.19
 [0.0.18]: https://github.com/e0404/pyRadBio/compare/v0.0.17...v0.0.18
 [0.0.17]: https://github.com/e0404/pyRadBio/compare/v0.0.16...v0.0.17
 [0.0.16]: https://github.com/e0404/pyRadBio/compare/v0.0.15...v0.0.16
