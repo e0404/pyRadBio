@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [0.0.9] - 2026-11-07
+
+### Added
+- **MKM** (`models/mkm/`): an engine-agnostic `MKMModel` behind the `MKMBackend` protocol, with `NativeMKMBackend` (analytic impact-parameter `z*_1D`) as the default and `PyMKMBackend` as an optional cross-check (`mkm` extra, the only module that imports pyMKM).
+- An import-layer test: `core/`, `track/` and `micro/` never import `models/`, `benchmark/`, `tables/` or `cli`, and only the MKM adapter imports pyMKM.
+- z* tables, CSV and Parquet table output (`tables` extra) and pyMKM `.txt` interop (`tables/zstar.py`, `tables/io.py`).
+- Spectrum-based MKMs with a default microdosimetry engine: MCF MKM (Parisi et al. 2022), modified MKM (Kase et al. 2006; Inaniwa et al. 2010) and SMK (Inaniwa & Kanematsu 2018, with Sato & Furusawa 2012's domain and nucleus treatments); the impact-parameter microdosimetry is cached per geometry (`clear_microdosimetry_cache()`).
+- Published parameter sets as constructors, e.g. `StochasticMKM.hsg_inaniwa2018()`.
+- Paper reconstructions: digitized figures with loaders and golden tests for Inaniwa & Kanematsu 2018 and Sato & Furusawa 2012.
+
 ## [0.0.8] - 2026-11-07
 
 ### Added
@@ -65,7 +75,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Time axis** (`core/protraction.py`): dose schedules and the Lea-Catcheside `G` factor; `survival`, `log_kill`, `dose_for_survival` and `rbe` take a keyword-only `g` (default `1.0`, an acute dose).
 - **Packaging:** extras `tables`, `benchmark`, `fast` (numba), `plot`, `dev` and `all`, plus `mkm` (pyMKM, not in `all`); numpy below 2.3 on Python 3.10-3.13 and >= 2.3 on 3.14; `pyradbio.__version__` read from the installed distribution.
 
-[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.8...HEAD
+[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.9...HEAD
+[0.0.9]: https://github.com/e0404/pyRadBio/compare/v0.0.8...v0.0.9
 [0.0.8]: https://github.com/e0404/pyRadBio/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/e0404/pyRadBio/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/e0404/pyRadBio/compare/v0.0.5...v0.0.6
