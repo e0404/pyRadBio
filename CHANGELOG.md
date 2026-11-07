@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [0.0.12] - 2026-11-07
+
+### Added
+- **RMF** (`models/rmf/`, Carlson et al. 2008; Frese et al. 2012) on the MCDS DSB yields.
+
 ## [0.0.11] - 2026-11-07
 
 ### Added
@@ -87,7 +92,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Time axis** (`core/protraction.py`): dose schedules and the Lea-Catcheside `G` factor; `survival`, `log_kill`, `dose_for_survival` and `rbe` take a keyword-only `g` (default `1.0`, an acute dose).
 - **Packaging:** extras `tables`, `benchmark`, `fast` (numba), `plot`, `dev` and `all`, plus `mkm` (pyMKM, not in `all`); numpy below 2.3 on Python 3.10-3.13 and >= 2.3 on 3.14; `pyradbio.__version__` read from the installed distribution.
 
-[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.11...HEAD
+[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.12...HEAD
+[0.0.12]: https://github.com/e0404/pyRadBio/compare/v0.0.11...v0.0.12
 [0.0.11]: https://github.com/e0404/pyRadBio/compare/v0.0.10...v0.0.11
 [0.0.10]: https://github.com/e0404/pyRadBio/compare/v0.0.9...v0.0.10
 [0.0.9]: https://github.com/e0404/pyRadBio/compare/v0.0.8...v0.0.9
