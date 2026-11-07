@@ -1,0 +1,27 @@
+figure,cell_line,particle,series,variant,doi,source_page,note
+fig4_hypothetical_vs_let,hypothetical,carbon,full_simulation,alpha,10.3109/09553002.2011.611213,107,"hand-digitized (Fig. 4, solid line), y axis spans [0,1.5], cross-checked against pyRadBio's own alpha_I, RMS 0.028; LEM IV full intertrack-cDSB Monte-Carlo simulation, hypothetical-cell carbon alpha_I vs LET"
+let,alpha_I
+keV/um,Gy^-1
+10.000,0.267624
+11.220,0.276820
+12.589,0.287608
+14.125,0.300016
+15.849,0.312202
+17.783,0.332492
+19.953,0.351047
+22.387,0.383513
+25.119,0.418971
+28.184,0.459254
+31.623,0.511879
+35.481,0.574763
+39.811,0.646525
+44.668,0.729900
+50.119,0.824035
+56.234,0.923283
+63.096,1.019834
+70.795,1.112478
+79.433,1.204299
+89.125,1.292842
+101.885,1.387147
+113.967,1.465517
+130.000,1.556426

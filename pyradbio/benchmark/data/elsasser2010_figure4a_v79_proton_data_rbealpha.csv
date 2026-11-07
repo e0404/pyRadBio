@@ -1,0 +1,15 @@
+figure,cell_line,particle,series,variant,energy_MeV_u,doi,source_page,note
+fig4a_v79_rbealpha_vs_let,V79,proton,data,rbe_alpha,,10.1016/j.ijrobp.2010.05.014,1181,"digitized from the publisher's PDF vector paths, with the axis calibration measured from the tick segments (x: 70 pt/decade from LET 1 at 60.73 pt; y: 0..11 over 147 pt -- the panel's top tick is an UNLABELLED 11, not the labelled 10). Belli et al. 1998 proton experimental RBE_alpha (open triangles); y_err is the half-height of the drawn bar"
+let,rbe_alpha
+keV/um,dimensionless
+5.810128,1.469685,0.225029
+7.790095,2.239773,0.295000
+10.239666,2.379906,0.629961
+10.869975,2.869847,0.360031
+11.989865,3.059856,0.450021
+17.729643,3.379926,0.705058
+19.939500,3.599939,0.430077
+27.349090,5.690044,1.015100
+30.159317,5.640016,0.610018
+33.858789,5.060008,0.570056
+37.288816,4.420019,0.545061

@@ -1,0 +1,17 @@
+figure,cell_line,particle,series,variant,energy_MeV_u,doi,source_page,note
+fig4b_hsg_rbe_vs_let,HSG,helium,data,rbe_alpha,,10.1016/j.ijrobp.2010.05.014,1181,"digitized from the publisher's PDF vector paths, with the axis calibration measured from the tick segments (x: 70 pt/decade from LET 1 at 60.73 pt; y: 0..11 over 147 pt -- the panel's top tick is an UNLABELLED 11, not the labelled 10). Fig. 4b has no error bars, so neighbouring-LET points are distinct measurements; Furusawa et al. 2000 helium experimental rbe_alpha (filled squares)"
+let,rbe_alpha
+keV/um,dimensionless
+18.499685,1.731454
+18.599442,1.699540
+18.599442,1.929529
+23.599348,2.114806
+23.999380,2.718648
+32.399305,3.900736
+32.998942,4.181947
+45.998416,4.242596
+45.998416,5.552457
+53.797783,5.446984
+53.999003,6.034847
+70.297979,7.293639
+70.997453,8.191411

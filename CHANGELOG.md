@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [0.0.7] - 2026-11-07
+
+### Added
+- **LEM IV** (DSB-pattern / cluster-index formalism, Elsasser et al. 2010; Friedrich et al. 2012) with the `ClusterResponse` protocol.
+- LEM IV: the GLOBLE effect model, explicit-track and intertrack Monte-Carlo `beta`, the local-dose full simulation, a discrete-DSB engine, and selectable cluster-index estimators.
+- Paper reconstructions: digitized figures with loaders and golden tests for Elsasser et al. 2010 and Friedrich et al. 2012.
+
 ## [0.0.6] - 2026-11-07
 
 ### Added
@@ -52,7 +59,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Time axis** (`core/protraction.py`): dose schedules and the Lea-Catcheside `G` factor; `survival`, `log_kill`, `dose_for_survival` and `rbe` take a keyword-only `g` (default `1.0`, an acute dose).
 - **Packaging:** extras `tables`, `benchmark`, `fast` (numba), `plot`, `dev` and `all`, plus `mkm` (pyMKM, not in `all`); numpy below 2.3 on Python 3.10-3.13 and >= 2.3 on 3.14; `pyradbio.__version__` read from the installed distribution.
 
-[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.6...HEAD
+[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.7...HEAD
+[0.0.7]: https://github.com/e0404/pyRadBio/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/e0404/pyRadBio/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/e0404/pyRadBio/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/e0404/pyRadBio/compare/v0.0.3...v0.0.4

@@ -1,0 +1,9 @@
+figure,cell_line,particle,series,variant,energy_MeV_u,doi,source_page,note
+fig4a_v79_rbealpha_vs_let,V79,helium,data,rbe_alpha,,10.1016/j.ijrobp.2010.05.014,1181,"digitized from the publisher's PDF vector paths, with the axis calibration measured from the tick segments (x: 70 pt/decade from LET 1 at 60.73 pt; y: 0..11 over 147 pt -- the panel's top tick is an UNLABELLED 11, not the labelled 10). Helium experimental RBE_alpha (filled squares)"
+let,rbe_alpha
+keV/um,dimensionless
+20.319562,3.289900
+28.328820,3.699994
+49.178063,6.280007
+67.237927,6.600075
+78.930124,8.780097

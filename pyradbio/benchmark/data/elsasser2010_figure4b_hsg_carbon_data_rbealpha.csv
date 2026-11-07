@@ -1,0 +1,20 @@
+figure,cell_line,particle,series,variant,energy_MeV_u,doi,source_page,note
+fig4b_hsg_rbe_vs_let,HSG,carbon,data,rbe_alpha,,10.1016/j.ijrobp.2010.05.014,1181,"digitized from the publisher's PDF vector paths, with the axis calibration measured from the tick segments (x: 70 pt/decade from LET 1 at 60.73 pt; y: 0..11 over 147 pt -- the panel's top tick is an UNLABELLED 11, not the labelled 10). Furusawa et al. 2000 carbon experimental rbe_alpha (filled circles)"
+let,rbe_alpha
+keV/um,dimensionless
+29.994097,1.370512
+30.603018,1.543106
+40.206843,2.299824
+42.498985,2.571457
+50.006735,3.632396
+54.525543,3.226967
+80.597455,4.629428
+88.012195,5.366767
+136.973246,6.070093
+147.274847,5.564953
+198.988789,5.469319
+245.980072,4.546293
+266.742855,5.217070
+266.988646,5.217070
+332.966131,4.012719
+499.886665,2.948412
