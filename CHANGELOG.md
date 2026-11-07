@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [0.0.10] - 2026-11-07
+
+### Added
+- OSMK 2021 and 2023 (Inaniwa et al. 2021; Inaniwa & Kanematsu 2023) with the oxygen partial pressure as keyword `pO2_mmHg=`, and IMK (Matsuya et al. 2025) with its dose-rate dependence via `schedule=`.
+- Published parameter sets as constructors, e.g. `IMKModel.hsg_matsuya2025()`.
+- Paper reconstructions: digitized figures with loaders and golden tests for Inaniwa et al. 2021 and Matsuya et al. 2025.
+
 ## [0.0.9] - 2026-11-07
 
 ### Added
@@ -75,7 +82,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Time axis** (`core/protraction.py`): dose schedules and the Lea-Catcheside `G` factor; `survival`, `log_kill`, `dose_for_survival` and `rbe` take a keyword-only `g` (default `1.0`, an acute dose).
 - **Packaging:** extras `tables`, `benchmark`, `fast` (numba), `plot`, `dev` and `all`, plus `mkm` (pyMKM, not in `all`); numpy below 2.3 on Python 3.10-3.13 and >= 2.3 on 3.14; `pyradbio.__version__` read from the installed distribution.
 
-[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.9...HEAD
+[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.10...HEAD
+[0.0.10]: https://github.com/e0404/pyRadBio/compare/v0.0.9...v0.0.10
 [0.0.9]: https://github.com/e0404/pyRadBio/compare/v0.0.8...v0.0.9
 [0.0.8]: https://github.com/e0404/pyRadBio/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/e0404/pyRadBio/compare/v0.0.6...v0.0.7

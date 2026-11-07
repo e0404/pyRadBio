@@ -29,8 +29,10 @@ from pyradbio.models.mkm.base import (
     MKMAlphaBetaTableRow,
     MKMBackend,
 )
+from pyradbio.models.mkm.imk import IMKModel, matsuya2025_h_values
 from pyradbio.models.mkm.model import MKMModel
 from pyradbio.models.mkm.native_backend import NativeMKMBackend
+from pyradbio.models.mkm.osmk import OSMK2021, OSMK2023
 from pyradbio.models.mkm.spectrum_models import (
     MCFMKMModel,
     ModifiedMKM,
@@ -42,8 +44,11 @@ from pyradbio.models.mkm.spectrum_models import (
 )
 
 __all__ = [
+    "OSMK2021",
+    "OSMK2023",
     "BackendZStarRow",
     "BackendZStarTable",
+    "IMKModel",
     "MCFMKMModel",
     "MKMAlphaBetaTable",
     "MKMAlphaBetaTableRow",
@@ -53,6 +58,7 @@ __all__ = [
     "NativeMKMBackend",
     "SiteSpecificEnergies",
     "StochasticMKM",
+    "matsuya2025_h_values",
     "saturation_y0_keV_um",
     "specific_energy_Gy",
     "z_star_1D_from_dose_spectrum",

@@ -1,0 +1,9 @@
+# Digitized from Fig. 5 of Inaniwa T, Kanematsu N, Shinoto M, Koto M & Yamada S 2021, Phys. Med. Biol. 66(20):205007, doi:10.1088/1361-6560/ac29cc.
+# Reproduced for validation with attribution; loader: pyradbio/benchmark/inaniwa2021.py.
+let_keV_um,oer
+18.5295,2.88123
+23.5967,2.96338
+32.4263,2.75648
+46.0167,2.49236
+53.7908,2.16245
+70.2269,1.72305
