@@ -1,0 +1,9 @@
+figure,particle,series,survival_level,energy_MeV_u,doi,source_page,note
+fig2_sigma_vs_let_v79,xenon,data,,,10.1016/0273-1177(95)00784-C,6,hand-digitized (Fig. 2 raster)
+let,sigma_inact
+keV/um,um^2
+7096.87,76.261
+7481.66,69.420
+8001.86,77.132
+8462.68,55.339
+10060.65,44.734

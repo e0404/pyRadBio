@@ -1,0 +1,17 @@
+figure,particle,series,survival_level,energy_MeV_u,doi,source_page,note
+fig3_sigma_vs_energy_v79,uranium,data,,,10.1016/0273-1177(95)00784-C,6,hand-digitized (Fig. 3 raster)
+energy,sigma_inact
+MeV/u,um^2
+1.211,41.040
+1.811,45.939
+2.777,47.488
+3.526,54.058
+3.772,48.619
+3.901,55.996
+4.214,55.043
+5.887,65.531
+6.023,69.490
+8.228,64.892
+12.490,92.421
+13.310,93.723
+13.754,92.366

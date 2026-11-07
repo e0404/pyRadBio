@@ -1,0 +1,17 @@
+figure,particle,calculation,energy_MeV_u,doi,source_page,note
+fig3_beta_vs_energy,carbon,approximation,,10.1007/s004110050055,4,PyMuPDF 900dpi raster; axis-calibrated re-digitization
+energy,beta
+MeV/u,Gy^-2
+1,0.001
+1.5,0.0014
+2,0.0022
+3,0.003
+5,0.0043
+7,0.0052
+10,0.007
+20,0.0104
+30,0.0125
+50,0.0155
+100,0.0186
+200,0.0212
+400,0.0233

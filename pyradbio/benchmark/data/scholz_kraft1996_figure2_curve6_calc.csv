@@ -1,0 +1,15 @@
+figure,particle,series,survival_level,energy_MeV_u,doi,source_page,note
+fig2_sigma_vs_let_v79,curve6,calc,,,10.1016/0273-1177(95)00784-C,6,hand-digitized (Fig. 2 raster)
+let,sigma_inact
+keV/um,um^2
+12780.00,109.101
+13570.39,101.391
+14168.60,96.181
+14906.10,91.534
+15291.72,86.205
+15694.52,79.642
+15866.44,56.754
+15873.73,75.062
+15963.39,59.948
+16078.23,63.895
+16080.41,68.987

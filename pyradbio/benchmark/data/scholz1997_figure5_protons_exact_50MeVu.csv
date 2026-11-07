@@ -1,0 +1,20 @@
+figure,particle,calculation,energy_MeV_u,doi,source_page,note
+fig5_survival_vs_dose,proton,exact,50,10.1007/s004110050055,5,derived from Fig. 2 LQ fit: S=exp(-(alpha*D+beta*D^2)); extent to S=0.01 (plot floor)
+dose,survival
+Gy,dimensionless
+0.000,1.00000
+0.578,0.82695
+1.156,0.67252
+1.733,0.53786
+2.311,0.42303
+2.889,0.32720
+3.467,0.24889
+4.044,0.18618
+4.622,0.13696
+5.200,0.09908
+5.778,0.07049
+6.355,0.04932
+6.933,0.03394
+7.511,0.02296
+8.089,0.01528
+8.666,0.01000

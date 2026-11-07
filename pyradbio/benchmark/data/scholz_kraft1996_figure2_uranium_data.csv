@@ -1,0 +1,13 @@
+figure,particle,series,survival_level,energy_MeV_u,doi,source_page,note
+fig2_sigma_vs_let_v79,uranium,data,,,10.1016/0273-1177(95)00784-C,6,hand-digitized (Fig. 2 raster)
+let,sigma_inact
+keV/um,um^2
+14463.35,46.414
+14790.79,118.309
+15472.44,42.135
+15509.59,68.018
+15684.60,105.923
+15735.98,77.687
+15973.15,58.094
+16354.62,49.343
+16492.24,71.109

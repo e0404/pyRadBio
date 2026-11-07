@@ -1,0 +1,10 @@
+figure,particle,series,survival_level,energy_MeV_u,doi,source_page,note
+fig2_sigma_vs_let_v79,helium,data,,,10.1016/0273-1177(95)00784-C,6,hand-digitized (Fig. 2 raster)
+let,sigma_inact
+keV/um,um^2
+20.35,2.175
+32.02,3.543
+33.96,2.599
+39.63,5.095
+49.94,5.524
+58.15,5.857

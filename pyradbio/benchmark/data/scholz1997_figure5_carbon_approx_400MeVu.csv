@@ -1,0 +1,20 @@
+figure,particle,calculation,energy_MeV_u,doi,source_page,note
+fig5_survival_vs_dose,carbon,approximation,400,10.1007/s004110050055,5,derived from Fig. 1 approx alpha + Fig. 3 approx beta: S=exp(-(alpha*D+beta*D^2)); extent to S=0.01 (plot floor)
+dose,survival
+Gy,dimensionless
+0.000,1.00000
+0.537,0.80829
+1.075,0.64461
+1.612,0.50720
+2.149,0.39375
+2.687,0.30159
+3.224,0.22791
+3.761,0.16993
+4.299,0.12501
+4.836,0.09073
+5.373,0.06498
+5.911,0.04591
+6.448,0.03200
+6.985,0.02201
+7.523,0.01494
+8.060,0.01000

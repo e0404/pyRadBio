@@ -1,0 +1,13 @@
+figure,particle,series,survival_level,energy_MeV_u,doi,source_page,note
+fig3_sigma_vs_energy_v79,argon,data,,,10.1016/0273-1177(95)00784-C,6,hand-digitized (Fig. 3 raster)
+energy,sigma_inact
+MeV/u,um^2
+2.977,33.215
+3.074,42.934
+6.659,52.394
+10.877,54.038
+11.040,57.912
+12.459,53.035
+16.492,58.595
+17.786,64.765
+18.034,68.841

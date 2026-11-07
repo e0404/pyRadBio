@@ -1,0 +1,6 @@
+figure,particle,calculation,energy_MeV_u,doi,source_page,note
+fig4_slope_vs_specific_energy,carbon,approximation,8,10.1007/s004110050055,4,manual digitization; LQ line fit slope=alpha_z+2*beta_z*z (R^2>=0.996); endpoints z=0 and 30 Gy
+specific_energy,slope
+Gy,Gy^-1
+0,1.1729
+30,1.8673

@@ -1,0 +1,20 @@
+figure,particle,calculation,energy_MeV_u,doi,source_page,note
+fig5_survival_vs_dose,proton,approximation,8,10.1007/s004110050055,5,derived from Fig. 1 approx alpha + Fig. 3 approx beta: S=exp(-(alpha*D+beta*D^2)); extent to S=0.01 (plot floor)
+dose,survival
+Gy,dimensionless
+0.000,1.00000
+0.414,0.77108
+0.829,0.59059
+1.243,0.44931
+1.658,0.33954
+2.072,0.25487
+2.487,0.19003
+2.901,0.14074
+3.316,0.10353
+3.730,0.07565
+4.144,0.05491
+4.559,0.03959
+4.973,0.02835
+5.388,0.02017
+5.802,0.01425
+6.217,0.01000

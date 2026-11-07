@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [0.0.5] - 2026-11-07
+
+### Added
+- **LEM I** (`models/lem/`, Scholz & Kraft 1996, with the Scholz et al. 1997 approximation) on a shared `LEMBase`.
+- LEM: selectable `initial_slope_model` and `beta_model` routes (slope matching, Scholz 1997 two-track, rapidLEM, local dose, Monte Carlo), including a TRiP98/rapidLEM compatibility mode, and one execution-engine literal, `Engine` (`"auto"`/`"numpy"`/`"numba"`).
+- A local-dose Monte Carlo for the LEM with `numpy` (reproducible), `numba` and multiprocess engines.
+- Paper reconstructions: digitized figures with loaders and golden tests for Scholz & Kraft 1996 and Scholz et al. 1997.
+- Benchmark helpers: `benchmark.sweeps` (`sweep_energies`, `sweep_lets`, `LetSweep`), `benchmark.metrics.shape_residuals` / `ratio_summary`, and `benchmark.checkpoint` (CSV/JSON Monte-Carlo checkpoints with a provenance header and a numeric-fingerprint check).
+
 ## [0.0.4] - 2026-11-07
 
 ### Added
@@ -37,7 +46,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Time axis** (`core/protraction.py`): dose schedules and the Lea-Catcheside `G` factor; `survival`, `log_kill`, `dose_for_survival` and `rbe` take a keyword-only `g` (default `1.0`, an acute dose).
 - **Packaging:** extras `tables`, `benchmark`, `fast` (numba), `plot`, `dev` and `all`, plus `mkm` (pyMKM, not in `all`); numpy below 2.3 on Python 3.10-3.13 and >= 2.3 on 3.14; `pyradbio.__version__` read from the installed distribution.
 
-[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.4...HEAD
+[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.5...HEAD
+[0.0.5]: https://github.com/e0404/pyRadBio/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/e0404/pyRadBio/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/e0404/pyRadBio/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/e0404/pyRadBio/compare/v0.0.1...v0.0.2

@@ -1,0 +1,7 @@
+figure,particle,series,survival_level,energy_MeV_u,doi,source_page,note
+fig2_sigma_vs_let_v79,krypton,data,,,10.1016/0273-1177(95)00784-C,6,hand-digitized (Fig. 2 raster)
+let,sigma_inact
+keV/um,um^2
+3136.05,68.323
+4228.43,54.638
+5635.92,37.316

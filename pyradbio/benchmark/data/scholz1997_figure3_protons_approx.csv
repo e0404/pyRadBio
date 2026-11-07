@@ -1,0 +1,19 @@
+figure,particle,calculation,energy_MeV_u,doi,source_page,note
+fig3_beta_vs_energy,proton,approximation,,10.1007/s004110050055,4,PyMuPDF 900dpi raster; axis-calibrated re-digitization
+energy,beta
+MeV/u,Gy^-2
+1,0.0005
+1.5,0.0018
+2,0.0039
+2.5,0.0064
+3,0.0095
+4,0.0142
+5,0.0166
+7,0.0189
+10,0.0209
+20,0.0239
+30,0.0251
+50,0.0258
+100,0.0273
+200,0.0277
+400,0.0279

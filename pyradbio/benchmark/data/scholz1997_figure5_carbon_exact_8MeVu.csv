@@ -1,0 +1,20 @@
+figure,particle,calculation,energy_MeV_u,doi,source_page,note
+fig5_survival_vs_dose,carbon,exact,8,10.1007/s004110050055,5,derived from Fig. 2 LQ fit: S=exp(-(alpha*D+beta*D^2)); extent to S=0.01 (plot floor)
+dose,survival
+Gy,dimensionless
+0.000,1.00000
+0.317,0.73851
+0.634,0.54510
+0.952,0.40211
+1.269,0.29647
+1.586,0.21846
+1.903,0.16089
+2.220,0.11842
+2.537,0.08712
+2.855,0.06405
+3.172,0.04707
+3.489,0.03457
+3.806,0.02537
+4.123,0.01861
+4.440,0.01365
+4.758,0.01000
