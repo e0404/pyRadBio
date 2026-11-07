@@ -1,0 +1,18 @@
+figure,cell_line,particle,series,variant,energy_MeV_u,doi,source_page,note
+fig12_survival_xrs,XRS,carbon,data,,11,10.1667/RR0467.1,9,"hand-digitized (Fig. 12); experimental survival, ref. 35"
+dose,survival
+Gy,1
+0.122289,0.708482
+0.124638,0.739804
+0.247253,0.489259
+0.248941,0.520339
+0.498419,0.259671
+0.499506,0.200335
+0.749903,0.0890951
+0.75142,0.120423
+0.987398,0.0833395
+1.00129,0.0540801
+1.24701,0.0403043
+1.25011,0.0882849
+1.49886,0.0181706
+1.74948,0.0120302

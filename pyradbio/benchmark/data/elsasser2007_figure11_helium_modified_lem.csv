@@ -1,0 +1,20 @@
+figure,cell_line,particle,series,variant,energy_MeV_u,doi,source_page,note
+fig11_alpha_vs_let,HSG,helium,calc,modified_lem,,10.1667/RR0467.1,9,"hand-digitized (Fig. 11); dashed; cluster extension (D_t=6.0 Gy); no error bars in the panel; y axis calibrated on the panel's own ticks, 0.25 apart (the lowest, unlabelled tick is alpha = 0.25 and the frame continues below it)"
+let,alpha
+keV/um,1/Gy
+18.987,1.021
+21.1398,1.07391
+23.4954,1.13238
+25.9214,1.20149
+28.6091,1.27285
+31.5002,1.34464
+34.5931,1.42127
+37.6818,1.50693
+40.8964,1.59483
+44.5648,1.68722
+48.1586,1.77191
+52.1766,1.8627
+56.0624,1.95067
+60.6024,2.05381
+65.0646,2.15125
+69.6216,2.24824

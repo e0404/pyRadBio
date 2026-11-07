@@ -1,0 +1,11 @@
+figure,cell_line,series,variant,energy_MeV_u,doi,source_page,note
+fig9_rbe10_vs_let,V79,data,,,10.1667/RR0467.1,8,"hand-digitized (Fig. 9); Weyrather 1999 open squares, error bars not captured; agrees with an independent trace to 1.2% RMS"
+let,rbe
+keV/um,1
+13.7095,1.40266
+16.8034,1.3593
+32.4642,1.58284
+153.096,3.53523
+274.659,3.12466
+339.224,2.64674
+482.529,2.0484

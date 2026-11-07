@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [0.0.6] - 2026-11-07
+
+### Added
+- **LEM II** (cluster extension, Elsasser & Scholz 2007) and **LEM III** (velocity-dependent track core, Elsasser et al. 2008), sharing `LEMBase` and the local-dose Monte Carlo with LEM I.
+- Paper reconstructions: digitized figures with loaders and golden tests for Elsasser & Scholz 2007 and Elsasser et al. 2008, the printed track-structure table of Elsasser et al. 2008b, and the Manganaro et al. 2018 parameters.
+
 ## [0.0.5] - 2026-11-07
 
 ### Added
@@ -46,7 +52,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Time axis** (`core/protraction.py`): dose schedules and the Lea-Catcheside `G` factor; `survival`, `log_kill`, `dose_for_survival` and `rbe` take a keyword-only `g` (default `1.0`, an acute dose).
 - **Packaging:** extras `tables`, `benchmark`, `fast` (numba), `plot`, `dev` and `all`, plus `mkm` (pyMKM, not in `all`); numpy below 2.3 on Python 3.10-3.13 and >= 2.3 on 3.14; `pyradbio.__version__` read from the installed distribution.
 
-[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.5...HEAD
+[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.6...HEAD
+[0.0.6]: https://github.com/e0404/pyRadBio/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/e0404/pyRadBio/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/e0404/pyRadBio/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/e0404/pyRadBio/compare/v0.0.2...v0.0.3

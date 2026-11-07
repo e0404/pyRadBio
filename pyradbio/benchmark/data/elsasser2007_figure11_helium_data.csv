@@ -1,0 +1,15 @@
+figure,cell_line,particle,series,variant,energy_MeV_u,doi,source_page,note
+fig11_alpha_vs_let,HSG,helium,data,,,10.1667/RR0467.1,9,"hand-digitized (Fig. 11); filled circles; 3He experimental data, Furusawa 2000 (ref. 37, doi:10.1667/0033-7587(2000)154[0485:IOAAHC]2.0.CO;2); no error bars in the panel; y axis calibrated on the panel's own ticks, 0.25 apart (the lowest, unlabelled tick is alpha = 0.25 and the frame continues below it)"
+let,alpha
+keV/um,1/Gy
+18.5801,0.539567
+23.6174,0.663892
+24.0336,0.853036
+32.4904,1.22064
+33.1206,1.30834
+46.1191,1.32996
+46.2624,1.74259
+53.916,1.70828
+54.1331,1.89259
+70.5303,2.28559
+71.2206,2.5647

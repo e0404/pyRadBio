@@ -1,0 +1,19 @@
+figure,cell_line,particle,series,variant,energy_MeV_u,doi,source_page,note
+fig11_alpha_vs_let,HSG,carbon,data,,,10.1667/RR0467.1,9,"hand-digitized (Fig. 11); grey squares; 12C experimental data, Furusawa 2000 (ref. 37); no error bars in the panel; y axis calibrated on the panel's own ticks, 0.25 apart (the lowest, unlabelled tick is alpha = 0.25 and the frame continues below it)"
+let,alpha
+keV/um,1/Gy
+30.0406,0.431035
+30.6154,0.482081
+40.2733,0.723683
+42.5983,0.806389
+50.2778,1.13519
+54.6397,1.01226
+80.9179,1.45213
+88.1279,1.683
+137.104,1.90409
+147.19,1.74062
+199.416,1.71611
+246.279,1.42574
+266.11,1.63863
+333.021,1.25846
+500.514,0.928547

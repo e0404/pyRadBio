@@ -1,0 +1,15 @@
+figure,cell_line,particle,series,variant,energy_MeV_u,doi,source_page,note
+fig4_radial_dose_vs_exp,,oxygen,data,,2.57,10.1667/RR0467.1,5,"hand-digitized (Fig. 4); filled circles; measured 16O radial dose; medium: tissue-equivalent gas (Varma, Baum & Kuehner 1977, Radiat. Res. 70:511)"
+radius,dose
+cm,Gy
+5.487469e-08,3.727743e+06
+1.066629e-07,1.307460e+06
+2.239839e-07,2.807780e+05
+4.511957e-07,7.073520e+04
+9.089511e-07,1.501570e+04
+1.809374e-06,4.004852e+03
+3.623362e-06,9.421159e+02
+7.220591e-06,2.116655e+02
+1.444967e-05,4.580887e+01
+2.519455e-05,1.001864e+01
+2.893073e-05,7.768703e+00

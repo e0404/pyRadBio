@@ -1,0 +1,12 @@
+figure,cell_line,series,variant,energy_MeV_u,doi,source_page,note
+fig8_rbealpha_vs_let,CHO,data,,,10.1667/RR0467.1,8,hand-digitized (Fig. 8); Weyrather 1999 symbols with error bars; y_err is the +-1 sigma half-bar (means and -1 sigma ends were exported in one point group and re-paired by LET)
+let,rbe_alpha,rbe_alpha_err
+keV/um,1,1
+13.7397,1.81968,0.432126
+16.786,1.63688,0.403843
+32.4558,2.83402,0.744183
+102.766,4.32863,0.587258
+152.896,6.72646,1.22604
+274.383,4.96719,0.853468
+338.759,3.70148,0.809819
+481.922,3.06308,0.568169

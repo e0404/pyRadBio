@@ -1,0 +1,15 @@
+figure,cell_line,particle,series,variant,energy_MeV_u,doi,source_page,note
+fig10_survival_v79,V79,carbon,data,,4.2,10.1667/RR0467.1,8,hand-digitized (Fig. 10); Weyrather 1999 (ref. 35) experimental survival
+dose,survival
+Gy,1
+0.460733,0.684258
+0.750481,0.498563
+1.08817,0.400527
+1.76987,0.186962
+2.24944,0.323569
+2.4709,0.128024
+2.87338,0.13994
+3.00771,0.0916005
+3.73407,0.0545455
+3.74194,0.0413259
+4.40095,0.0255268

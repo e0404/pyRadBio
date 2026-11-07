@@ -1,0 +1,11 @@
+figure,cell_line,particle,series,variant,energy_MeV_u,doi,source_page,note
+fig4_radial_dose_vs_exp,,neon,calc,original,377,10.1667/RR0467.1,5,"hand-digitized (Fig. 4); dashed; original profile, r_min = 10 nm; medium: water (Varma & Baum 1980, Radiat. Res. 81:355)"
+radius,dose
+cm,Gy
+1.000932e-07,5.542945e+02
+2.437821e-07,5.574726e+02
+1.003908e-06,5.526680e+02
+1.485605e-06,2.583158e+02
+1.791170e-04,1.835136e-02
+1.966780e-03,1.519566e-04
+2.159633e-02,1.214387e-06

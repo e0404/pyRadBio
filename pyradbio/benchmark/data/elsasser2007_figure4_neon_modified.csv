@@ -1,0 +1,9 @@
+figure,cell_line,particle,series,variant,energy_MeV_u,doi,source_page,note
+fig4_radial_dose_vs_exp,,neon,calc,modified,377,10.1667/RR0467.1,5,"hand-digitized (Fig. 4); solid; modified profile -- r_min = 0.3 nm, UN-convolved; digitized sparsely (piecewise-linear on log-log, which a 1/r^2 law is); medium: water (Varma & Baum 1980, Radiat. Res. 81:355)"
+radius,dose
+cm,Gy
+2.188872e-07,9.035295e+03
+4.646251e-06,2.056894e+01
+2.121642e-04,1.022834e-02
+2.309021e-03,8.320028e-05
+6.754286e-02,9.669811e-08

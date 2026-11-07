@@ -1,0 +1,18 @@
+figure,cell_line,particle,series,variant,energy_MeV_u,doi,source_page,note
+fig4_radial_dose_vs_exp,,neon,data,,377,10.1667/RR0467.1,5,"hand-digitized (Fig. 4); filled circles; measured 20Ne radial dose; medium: water (Varma & Baum 1980, Radiat. Res. 81:355)"
+radius,dose
+cm,Gy
+5.884111e-07,8.138250e+02
+6.518701e-06,6.982671e+00
+2.268401e-05,7.007660e-01
+7.618280e-05,5.200010e-02
+3.084744e-04,2.908326e-03
+1.317611e-03,1.515662e-04
+3.510081e-03,2.165465e-05
+1.157984e-02,1.851781e-06
+1.446809e-02,1.211266e-06
+2.699032e-02,3.388953e-07
+3.958488e-02,1.858195e-07
+4.946186e-02,9.650481e-08
+7.517362e-02,4.929985e-08
+8.824451e-02,3.849399e-08
