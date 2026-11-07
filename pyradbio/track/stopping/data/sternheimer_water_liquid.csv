@@ -1,0 +1,9 @@
+# Sternheimer density-effect coefficients of liquid water, as printed by the
+# Particle Data Group (S. Navas et al., Phys. Rev. D 110, 030001 (2024), CC BY
+# 4.0; Atomic and Nuclear Properties, muE_water_liquid.txt), for eq. (34.7).
+# PDG lists them next to I = 79.7 eV, but Cbar = 2 ln(I/plasma energy) + 1
+# identifies I = 75 eV (data/stopping/pdg/PROVENANCE.md); they are used with
+# I = 75 eV only. Written by scripts/stopping/build_tables.py.
+# raw input: pdg_water_liquid_sternheimer.csv sha256 8a27541d09c8bff365c3fd31584f34d824e3e9fa1684af8c98bcad064a9a83d1
+a,k,x0,x1,Cbar,delta0,plasma_energy_eV,i_value_eV
+0.0912,3.4773,0.2400,2.8004,3.5017,0.00,21.47,75.0
