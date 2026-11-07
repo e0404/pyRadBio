@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [0.0.4] - 2026-11-07
+
+### Added
+- **One model interface** on `BiophysicalModel`: `alpha_beta(field)`, `survival(field, dose_Gy)`, `dose_for_survival(field, S)`, `rbe_at_survival(field, S)`, `rbe_at_dose(field, dose_Gy)`, `reference()` (a `PhotonParameters`, or `PhotonReferenceError`) and `alpha_beta_table()`; RBE is formed on the log-kill, so it stays finite where survival underflows. Model-specific axes are keyword-only.
+- `ModelCapabilities` (`ion_route`, `mixed_field`, `lq_exact`, `let_route`, `spectrum_route`) and `LETModel` with the LET-route mirror (`alpha_beta_from_let`, `survival_from_let`, `dose_for_survival_from_let`, `rbe_at_survival_from_let`, `rbe_at_dose_from_let`).
+- Models are frozen dataclasses (copy with `dataclasses.replace`), published parameter sets are model instances applied with `dataclasses.replace(preset, **overrides)`, and every option is a `Literal` validated at construction.
+- Typed alpha-beta tables (`tables/`) whose headers record the resolved model and stopping-power settings.
+
 ## [0.0.3] - 2026-11-07
 
 ### Added
@@ -29,7 +37,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Time axis** (`core/protraction.py`): dose schedules and the Lea-Catcheside `G` factor; `survival`, `log_kill`, `dose_for_survival` and `rbe` take a keyword-only `g` (default `1.0`, an acute dose).
 - **Packaging:** extras `tables`, `benchmark`, `fast` (numba), `plot`, `dev` and `all`, plus `mkm` (pyMKM, not in `all`); numpy below 2.3 on Python 3.10-3.13 and >= 2.3 on 3.14; `pyradbio.__version__` read from the installed distribution.
 
-[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.3...HEAD
+[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.0.4...HEAD
+[0.0.4]: https://github.com/e0404/pyRadBio/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/e0404/pyRadBio/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/e0404/pyRadBio/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/e0404/pyRadBio/releases/tag/v0.0.1
