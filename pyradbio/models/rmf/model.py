@@ -64,7 +64,9 @@ diameter"). The LEM/MKM default ``R_n = 5 um`` elsewhere in this package is a
 to at least 100 to 150 keV/um", and reports that beyond ~150 keV/um the model
 over-predicts measured ``alpha`` and ``beta`` because both ``Sigma`` and ``z_F``
 keep rising where the data turn over. Past that this module warns; it never
-clamps.
+clamps. It warns likewise outside the MCDS fit domain ``1 <= Z_eff^2/beta^2 <= 3200``
+(Semenenko & Stewart 2006 sec. 2.3), e.g. protons below ~0.1 MeV and carbon below
+~5 MeV/u.
 """
 
 from __future__ import annotations
@@ -209,8 +211,12 @@ class RMFModel(BiophysicalModel):
         return self.stopping_power.let_keV_um(ion)
 
     def dsb_per_Gy_per_Gbp(self, ion: Ion) -> float:
-        """DSB yield ``Sigma(q)`` [Gy^-1 Gbp^-1] from MCDS (eq. 3 there)."""
-        return self.yields.dsb_per_Gy_per_Gbp_for_ion(ion)
+        """DSB yield ``Sigma(q)`` [Gy^-1 Gbp^-1] from MCDS (eq. 3 there).
+
+        Warns outside the MCDS fit domain ``1 <= Z_eff^2/beta^2 <= 3200``
+        (evaluated, not clamped).
+        """
+        return self.yields.dsb_per_Gy_per_Gbp_for_ion(ion, check_domain=True)
 
     def rbe_dsb(self, ion: Ion) -> float:
         """``Sigma(q)/Sigma_x`` -- the DSB-yield RBE, and the model's ``RBE_min``.

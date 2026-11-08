@@ -79,7 +79,8 @@ print(yields.dsb_per_Gy_per_Gbp_for_ion(carbon))  # the same, from the ion
 ```
 
 The fit is stated for \( 1 \le x \le 3200 \). `MCDSYields` methods take `check_domain=True`
-to warn outside that range; the default is `False`.
+to warn outside that range; the default is `False`. `RMFModel` always asks for the check, so it
+warns (and still evaluates) for, e.g., protons below about 0.1 MeV and carbon below about 5 MeV/u.
 
 ### Validity range
 
@@ -96,7 +97,7 @@ slow_carbon = Ion(Z=6, A=12, energy_MeV_u=2.0)  # a stopping power far above the
 with warnings.catch_warnings(record=True) as caught:
     warnings.simplefilter("always")
     model.alpha_beta(slow_carbon)
-print(caught[0].message)
+print(caught[0].message)  # the LET ceiling; caught[1] is the MCDS fit domain
 ```
 
 Mixed fields use the inherited template (dose-averaged \( \alpha \) and \( \sqrt\beta \)); see

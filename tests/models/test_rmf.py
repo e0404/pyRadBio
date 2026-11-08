@@ -311,6 +311,14 @@ class TestDomain:
         with pytest.warns(UserWarning, match="150 keV"):
             model.alpha_beta(Ion(Z=10, A=20, energy_MeV_u=5.0))
 
+    def test_outside_the_mcds_fit_domain_warns(self) -> None:
+        """Regression: mcds.py promises a warning outside ``1 <= x <= 3200``, but RMF
+        never asked for the check. A 0.08 MeV proton has x ~ 3800 at ~82 keV/um, so
+        only the MCDS domain is exceeded, not the LET ceiling."""
+        with pytest.warns(UserWarning, match="MCDS fit domain") as record:
+            v79().alpha_beta(Ion(Z=1, A=1, energy_MeV_u=0.08))
+        assert not any("ceiling" in str(w.message) for w in record)
+
     def test_inside_the_domain_is_silent(self, recwarn: pytest.WarningsRecorder) -> None:
         v79().alpha_beta(Ion(Z=6, A=12, energy_MeV_u=200.0))
         assert len(recwarn) == 0

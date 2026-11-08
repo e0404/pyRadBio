@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - README quick start: the LET-route RBE call is `rbe_at_survival_from_let(let_keV_um, survival_fraction)`; `rbe_at_survival(..., let_keV_um=...)` raised a `TypeError`.
 - `SpectrumComponent.absorbed_dose_Gy`, `RadiationField.dose_weights` and `RadiationField.total_dose_Gy` integrate a fluence-specified energy bin on the models' sub-grid (`dose_quadrature`) instead of converting the whole fluence at the representative energy (carbon, 1e7 cm^-2 over 1-30 MeV/u: 2.57 Gy, was 4.11 Gy, default stopping power); model results were not affected.
 - `pyradbio table` rejects a flag the chosen model does not read instead of dropping it: `--model mkm` with a LEM flag (`--beta-model`, `--engine`, `--alpha-x`, `--dt`, ...), and a LEM model with `--alpha0`/`--beta0`/`--rd`.
+- `RMFModel` warns outside the MCDS fit domain `1 <= Z_eff^2/beta^2 <= 3200` (Semenenko & Stewart 2006 sec. 2.3), as `micro/mcds.py` documents; it never asked for the check, so the warning never appeared.
 
 ## [0.1.0] - 2026-11-08
 
