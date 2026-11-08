@@ -112,11 +112,20 @@ class SpectrumComponent:
         """Resolve this component's absorbed dose [Gy].
 
         Uses ``dose_Gy`` directly when given, else converts the fluence via the
-        ion's LET from ``stopping_power`` (keV/um).
+        ion's LET from ``stopping_power`` (keV/um). For an energy bin the fluence is
+        spread uniformly over the bin and the dose integrated on the same sub-grid the
+        models mix over ([`dose_quadrature`][pyradbio.core.mixing.dose_quadrature]),
+        never converted at the representative energy.
         """
         if self.dose_Gy is not None:
             return self.dose_Gy
         assert self.fluence is not None  # guaranteed by __post_init__
+        if self.is_energy_bin:
+            # Imported here: core.mixing builds on this module.
+            from pyradbio.core.mixing import dose_quadrature
+
+            nodes = dose_quadrature(RadiationField([self]), stopping_power)
+            return math.fsum(dose for _ion, dose in nodes)
         return fluence_to_dose(self.fluence, stopping_power(self.ion))
 
 
@@ -140,7 +149,7 @@ class RadiationField:
         return len(self.components) > 1
 
     def dose_weights(self, stopping_power: Callable[[Ion], float]) -> list[float]:
-        """Per-component absorbed-dose weights (fluence*LET if needed)."""
+        """Per-component absorbed doses [Gy] (see [`SpectrumComponent.absorbed_dose_Gy`][])."""
         return [c.absorbed_dose_Gy(stopping_power) for c in self.components]
 
     def total_dose_Gy(self, stopping_power: Callable[[Ion], float]) -> float:

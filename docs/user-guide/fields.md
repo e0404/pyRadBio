@@ -145,10 +145,10 @@ print(len(nodes), nodes[0][0].energy_MeV_u, nodes[-1][0].energy_MeV_u)
 print(sum(dose for _ion, dose in nodes))  # dose of the whole bin
 ```
 
-The dose of a binned component is the sum of its node weights, as above. Note that
-`RadiationField.total_dose_Gy` converts a component's fluence at the representative ion's own
-energy and does not integrate over the bin, so it is not the bin's dose for a binned
-fluence component.
+The dose of a binned component is the sum of its node weights, as above, and that is what
+`SpectrumComponent.absorbed_dose_Gy`, `RadiationField.dose_weights` and
+`RadiationField.total_dose_Gy` return: `binned.total_dose_Gy(stopping.let_keV_um)` equals the sum
+printed above.
 
 The sub-grid converges quickly. With a phenomenological model (instant to evaluate) the effect of
 `sub_nodes` is cheap to inspect:

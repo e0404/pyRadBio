@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 - README quick start: the LET-route RBE call is `rbe_at_survival_from_let(let_keV_um, survival_fraction)`; `rbe_at_survival(..., let_keV_um=...)` raised a `TypeError`.
+- `SpectrumComponent.absorbed_dose_Gy`, `RadiationField.dose_weights` and `RadiationField.total_dose_Gy` integrate a fluence-specified energy bin on the models' sub-grid (`dose_quadrature`) instead of converting the whole fluence at the representative energy (carbon, 1e7 cm^-2 over 1-30 MeV/u: 2.57 Gy, was 4.11 Gy, default stopping power); model results were not affected.
 
 ## [0.1.0] - 2026-11-08
 
