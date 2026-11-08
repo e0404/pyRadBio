@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+- `publish.yml` builds and `twine check`s the sdist and wheel on pushes and pull requests to `main`/`develop`, and uploads a `vX.Y.Z` tag to PyPI by trusted publishing.
+- `mirror.yml` mirrors `main`, `develop` and the tags to the internal GitLab, never forced.
+- `CONTRIBUTING.md`; README badges (CI, Codecov, PyPI, Zenodo DOI) and a citing section; the Zenodo concept DOI in `CITATION.cff`.
+
+### Changed
+- The README installs from PyPI (`pip install pyradbio`).
+
 ## [0.1.0] - 2026-11-08
 
 ### Changed

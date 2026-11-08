@@ -5,6 +5,7 @@ abstract: "LQ-centred implementations of the LEM, MKM and related radiobiologica
 type: software
 version: 0.1.0
 date-released: 2026-11-08
+doi: 10.5281/zenodo.24046436
 authors:
   - family-names: Wahl
     given-names: Niklas

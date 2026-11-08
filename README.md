@@ -1,5 +1,11 @@
 # pyRadBio
 
+[![CI](https://github.com/e0404/pyRadBio/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/e0404/pyRadBio/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/e0404/pyRadBio/graph/badge.svg)](https://codecov.io/gh/e0404/pyRadBio)
+[![PyPI](https://img.shields.io/pypi/v/pyradbio)](https://pypi.org/project/pyradbio/)
+[![Python](https://img.shields.io/pypi/pyversions/pyradbio)](https://pypi.org/project/pyradbio/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24046436.svg)](https://doi.org/10.5281/zenodo.24046436)
+
 Radiobiological modelling for ion-beam therapy, centred on the
 linear-quadratic (LQ) model
 
@@ -67,9 +73,10 @@ reference, is in `ROADMAP.md`.
 ## Install
 
 ```bash
-pip install -e ".[all]"      # dev: core + tables + benchmark + fast + plot + dev tools
-pip install pyradbio         # (once published) core only
+pip install pyradbio         # core only
+pip install "pyradbio[all]"  # + tables, benchmark, fast (numba), plot and dev tools
 pip install "pyradbio[mkm]"  # optional: pyMKM, for cross-checking the MKM family
+pip install -e ".[all]"      # development, from a clone (see CONTRIBUTING.md)
 ```
 
 ## Quick start
@@ -170,6 +177,13 @@ published values (`pytest -m golden`), and `docs/references/` records every
 reconstruction, including where and why a result departs from the paper. See
 `ROADMAP.md` for planned and open work and `AGENTS.md` for the
 contributor/agent contract.
+
+## Citing
+
+Every release is archived on Zenodo; doi:10.5281/zenodo.24046436 always
+resolves to the latest version, and the Zenodo page lists the DOI of each
+release. Cite the release you used (see `CITATION.cff`), together with the
+papers of the models you use.
 
 ## License
 
