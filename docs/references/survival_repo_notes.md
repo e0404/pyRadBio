@@ -59,7 +59,8 @@ turning either off shifts LET by 0.1% (nuclear) and 0.24% (log-log).
 
 ```python
 from pyradbio.track.srim import srim_stopping_power
-sp = srim_stopping_power(("H", "He", "C", "O"))   # PYRADBIO_SURVIVAL_SRC_DIR
+
+sp = srim_stopping_power(("H", "He", "C", "O"))  # PYRADBIO_SURVIVAL_SRC_DIR
 ```
 
 ## 4. Measured agreement

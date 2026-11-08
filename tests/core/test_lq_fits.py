@@ -8,11 +8,14 @@ Three kinds of test:
   expression is reproduced inline here, in its own order, and compared with
   ``==`` -- not ``approx`` -- because migrating a script must change no printed
   digit;
-* **recorded-input bit-equality for the two library copies that delegate**
+* **recorded-input regression for the two library copies that delegate**
   (``_localdose.lq_coefficients``, ``_intertrack_kernel.fit_alpha_beta``): the
   inputs below are real LEM IV dose responses (Friedrich 2012 Fig. 4 cell,
   ``fit_doses_Gy()``), and the outputs were recorded from the original *pre-delegation*
-  functions, stored as ``float.hex`` so the comparison is exact.
+  functions, stored as ``float.hex``. OpenBLAS picks CPU-specific kernels, so the
+  least squares differs in the last bits between machines and a recorded output
+  is matched to ``_RECORDED_REL``; bit-equality is asserted against the frozen
+  pre-delegation copy on the running machine.
 """
 
 from __future__ import annotations
@@ -27,8 +30,17 @@ from pyradbio.models.lem import _intertrack_kernel, _localdose
 FloatArray = npt.NDArray[np.float64]
 
 
+#: Cross-machine match of a recorded output (the GitLab runner differs by up to
+#: 4e-14 relative; see the module docstring).
+_RECORDED_REL = 1e-12
+
+
 def _fromhex(values: tuple[str, ...]) -> FloatArray:
     return np.array([float.fromhex(v) for v in values], dtype=np.float64)
+
+
+def _recorded(expected: tuple[str, str]) -> tuple[float, float]:
+    return float.fromhex(expected[0]), float.fromhex(expected[1])
 
 
 # ---------------------------------------------------------------------------
@@ -299,10 +311,11 @@ def test_linearised_is_bit_equal_to_the_pre_delegation_library_copies(seed: int)
 def test_lq_coefficients_unchanged_on_recorded_lem4_inputs(
     label: float, effect: tuple[str, ...], expected: tuple[str, str]
 ) -> None:
-    doses = _fromhex(_RECORDED_DOSES_HEX)
-    want = (float.fromhex(expected[0]), float.fromhex(expected[1]))
-    assert _localdose.lq_coefficients(doses, _fromhex(effect)) == want
-    assert fit_lq_linearised(doses, _fromhex(effect)) == want
+    doses, values = _fromhex(_RECORDED_DOSES_HEX), _fromhex(effect)
+    want = _pre_delegation_lq_coefficients(doses, values)
+    assert want == pytest.approx(_recorded(expected), rel=_RECORDED_REL)
+    assert _localdose.lq_coefficients(doses, values) == want
+    assert fit_lq_linearised(doses, values) == want
 
 
 @pytest.mark.parametrize(
@@ -313,17 +326,18 @@ def test_lq_coefficients_unchanged_on_recorded_lem4_inputs(
 def test_fit_alpha_beta_unchanged_on_recorded_lem4_inputs(
     label: float | str, survival: tuple[str, ...], expected: tuple[str, str]
 ) -> None:
-    doses = _fromhex(_RECORDED_DOSES_HEX)
-    want = (float.fromhex(expected[0]), float.fromhex(expected[1]))
-    assert _intertrack_kernel.fit_alpha_beta(doses, _fromhex(survival)) == want
+    doses, values = _fromhex(_RECORDED_DOSES_HEX), _fromhex(survival)
+    want = _pre_delegation_fit_alpha_beta(doses, values)
+    assert want == pytest.approx(_recorded(expected), rel=_RECORDED_REL)
+    assert _intertrack_kernel.fit_alpha_beta(doses, values) == want
 
 
 @pytest.mark.parametrize(("doses", "survival", "expected"), _RECORDED_FIT_ALPHA_BETA_CLIP)
 def test_fit_alpha_beta_unchanged_through_its_survival_clip(
     doses: tuple[float, ...], survival: tuple[float, ...], expected: tuple[str, str]
 ) -> None:
-    want = (float.fromhex(expected[0]), float.fromhex(expected[1]))
-    assert _pre_delegation_fit_alpha_beta(np.array(doses), np.array(survival)) == want
+    want = _pre_delegation_fit_alpha_beta(np.array(doses), np.array(survival))
+    assert want == pytest.approx(_recorded(expected), rel=_RECORDED_REL)
     assert _intertrack_kernel.fit_alpha_beta(np.array(doses), np.array(survival)) == want
 
 

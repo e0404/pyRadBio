@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyradbio"
-version = "0.0.19"
+version = "0.0.20"
 description = "Radiobiological modelling for ion-beam therapy: LQ-centred MKM/LEM implementations, alpha-beta and z* tables, survival and RBE."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -58,7 +58,9 @@ dev = [
     "pytest>=8.0",
     "pytest-cov>=5.0",
     "hypothesis>=6.100",
-    "ruff>=0.5",
+    # Minor-pinned: a new ruff minor can reformat (0.17 formats Markdown code blocks);
+    # keep in step with the ruff-pre-commit rev.
+    "ruff>=0.17,<0.18",
     "mypy>=1.10",
     "pre-commit>=3.7",
     "python-dotenv>=1.0",

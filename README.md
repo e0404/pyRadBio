@@ -87,9 +87,9 @@ from pyradbio.models.lem.lem1 import LEM1
 photon = PhotonParameters(alpha_x=0.18, beta_x=0.028, D_t=30.0)
 lem = LEM1(photon=photon, cell=CellTarget(nucleus_radius_um=5.0))
 
-ab = lem.alpha_beta(Ion(Z=6, A=12, energy_MeV_u=11.0))   # LQParameters(alpha, beta)
-s = survival(2.0, ab.alpha, ab.beta)                     # surviving fraction at 2 Gy
-d10 = dose_for_survival(0.10, ab.alpha, ab.beta)         # dose for 10% survival [Gy]
+ab = lem.alpha_beta(Ion(Z=6, A=12, energy_MeV_u=11.0))  # LQParameters(alpha, beta)
+s = survival(2.0, ab.alpha, ab.beta)  # surviving fraction at 2 Gy
+d10 = dose_for_survival(0.10, ab.alpha, ab.beta)  # dose for 10% survival [Gy]
 rbe10 = rbe(0.10, ab.alpha, ab.beta, reference=LQParameters(photon.alpha_x, photon.beta_x))
 ```
 
@@ -98,7 +98,7 @@ rbe10 = rbe(0.10, ab.alpha, ab.beta, reference=LQParameters(photon.alpha_x, phot
 from pyradbio import Ion
 from pyradbio.models.mkm import MKMModel
 
-mkm = MKMModel()                                  # Inaniwa 2010 HSG defaults, native
+mkm = MKMModel()  # Inaniwa 2010 HSG defaults, native
 ab = mkm.alpha_beta(Ion(Z=6, A=12, energy_MeV_u=100.0))
 
 # from pyradbio.models.mkm.pymkm_backend import PyMKMBackend   # needs pyradbio[mkm]
@@ -111,7 +111,7 @@ from pyradbio import PhotonParameters
 from pyradbio.models.phenomenological import McNamara
 
 mcn = McNamara(photon=PhotonParameters(alpha_x=0.18, beta_x=0.028))
-ab = mcn.alpha_beta_from_let(5.0)                  # dose-averaged LET [keV/um]
+ab = mcn.alpha_beta_from_let(5.0)  # dose-averaged LET [keV/um]
 rbe10 = mcn.rbe_at_survival(0.10, let_keV_um=5.0)
 ```
 

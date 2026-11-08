@@ -12,6 +12,7 @@ memory.
 
 ```python
 from pymkm.io.table_set import StoppingPowerTableSet
+
 sp = StoppingPowerTableSet.from_default_source("mstar_3_12").filter_by_ions(["6"])
 ```
 
@@ -27,6 +28,7 @@ sp = StoppingPowerTableSet.from_default_source("mstar_3_12").filter_by_ions(["6"
 
 ```python
 from pymkm.mktable import MKTable, MKTableParameters
+
 params = MKTableParameters(domain_radius=0.32, nucleus_radius=3.9, beta0=0.0615)
 table = MKTable(parameters=params, sp_table_set=sp)
 table.compute(ions=[6], energy=[11.0, 100.0], parallel=False)
