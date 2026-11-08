@@ -1,10 +1,10 @@
 """MCF MKM and mMKM: LQ parameters / RBE from a lineal-energy spectrum.
 
-Physics acceptance for :mod:`pyradbio.models.mkm.spectrum_models`:
+Physics acceptance for `pyradbio.models.mkm.spectrum_models`:
 
 * specific-energy helper scales as ``1/r^2`` and matches the reference value;
 * photon limit (a spectrum at ``y_D ~ y_D,ref``) recovers ``(alpha_ref, beta_ref)``;
-* the mMKM ``y*_D`` agrees with :meth:`Spectrum.y_star`;
+* the mMKM ``y*_D`` agrees with `Spectrum.y_star`;
 * MCF ``beta`` drops below ``beta_ref`` at high LET while mMKM ``beta`` stays put;
 * ``RBE_10`` for carbon rises with LET to an overkill peak then drops
   (using the bundled Hartzell 2025 digitized AMF spectra).

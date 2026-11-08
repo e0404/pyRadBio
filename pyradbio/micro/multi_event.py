@@ -5,12 +5,14 @@ Sato & Furusawa 2012, *Radiat. Res.* 178:341-356, doi:10.1667/RR2842.1, eqs.
 traversal deposits in a site; the **multi-event** density ``f(z; D)`` says how
 that accumulates at absorbed dose ``D``, when the number of traversals is Poisson
 distributed. It is the quantity the stochastic MK models integrate survival
-against::
+against:
 
-    S(D) = integral S_n(z_n) f_n(z_n; D) dz_n            (the paper's eq. 7)
+```text
+S(D) = integral S_n(z_n) f_n(z_n; D) dz_n            (the paper's eq. 7)
+```
 
 Model-agnostic and site-agnostic: nothing here knows about domains, nuclei or
-cell survival. :mod:`pyradbio.models.mkm.spectrum_models` supplies the biology.
+cell survival. [`pyradbio.models.mkm.spectrum_models`][] supplies the biology.
 
 Compound Poisson, in one transform
 ----------------------------------
@@ -20,21 +22,23 @@ needing "a little more than 100" iterations, and it switches to a precomputed
 database once ``lambda > 50`` because the iteration count becomes impractical.
 
 That is unnecessary. The Poisson-weighted sum of repeated convolutions is a
-**compound Poisson** distribution, whose transform is closed form::
+**compound Poisson** distribution, whose transform is closed form:
 
-    sum_k  P(lambda; k) F_1(w)^k  =  exp(lambda (F_1(w) - 1))
+```text
+sum_k  P(lambda; k) F_1(w)^k  =  exp(lambda (F_1(w) - 1))
+```
 
 so the whole sum costs one forward and one inverse FFT **at any ``lambda``** --
 no iteration to truncate, no separate high-dose branch, and the ``k = 0`` term
 (the ``exp(-lambda)`` of nuclei missed entirely) falls out on its own rather than
-being special-cased. :func:`multi_event_density` does that.
+being special-cased. [`multi_event_density`][] does that.
 
 Densities are carried as **probability masses on a uniform grid**, not as
 densities, because that is what makes the convolution a plain product and keeps
 the point mass at ``z = 0`` exact.
 
 Aliasing is the one thing to respect: a circular convolution wraps, so the grid
-must extend past where ``f(z; D)`` has any mass. :func:`multi_event_density`
+must extend past where ``f(z; D)`` has any mass. [`multi_event_density`][]
 therefore **grows** the grid to ``D + 12 sqrt(D z_D)``, sized from the
 compound-Poisson mean and variance -- both closed form -- rather than guessed,
 and rounds up to a power of two so the transform stays cheap.
@@ -53,36 +57,38 @@ import math
 import numpy as np
 import numpy.typing as npt
 
-#: Joules per keV.
 _JOULE_PER_KEV: float = 1.602176634e-16
+"""Joules per keV."""
 
-#: Liquid-water density [kg/m^3], the site material assumed throughout.
 _WATER_DENSITY_KG_M3: float = 1000.0
+"""Liquid-water density [kg/m^3], the site material assumed throughout."""
 
-#: Sato & Furusawa 2012's own choice for the Fermi width: ``c = L*eta/10``. They
-#: report the straggling it represents is "not so large ... and insignificant in
-#: the final results of the calculation", having checked it against a PHITS
-#: simulation carrying delta rays above 1 keV.
-#:
-#: **Measured here, that wording undersells it.** At LET 200 keV/um in a 6.2 um
-#: sphere this width puts **15% of the single-event mass above ``z_max``** -- the
-#: specific energy of a *central* traversal, the most a chord can geometrically
-#: deliver -- because the Fermi form's tail is an unbounded exponential. It also
-#: lifts the frequency mean from ``0.667`` to ``0.709`` of ``z_max`` (+6.4%) and
-#: the dose mean from ``0.750`` to ``0.820`` (+9.4%). The paper's claim is about
-#: the final *survival*, not about the moments, and both readings can be true at
-#: once. Since ``z_D`` sets the multi-event variance, and the variance is the
-#: whole stochastic correction, this is the first thing to vary if the numerical
-#: route ever disagrees with the paper. Pass ``0.0`` for the sharp geometric
-#: limit, where the means are exactly ``2/3`` and ``3/4`` of ``z_max``.
 DEFAULT_FERMI_WIDTH_FRACTION: float = 0.1
+"""Sato & Furusawa 2012's own choice for the Fermi width: ``c = L*eta/10``. They
+report the straggling it represents is "not so large ... and insignificant in
+the final results of the calculation", having checked it against a PHITS
+simulation carrying delta rays above 1 keV.
 
-#: How many standard deviations of headroom the multi-event grid carries beyond
-#: the mean before the circular convolution could alias into itself. 12 sigma
-#: puts the wrapped mass below 1e-30 for a Gaussian-like tail; the compound
-#: Poisson is more skewed than Gaussian at small ``lambda``, which is exactly
-#: where the distribution is instead compactly supported, so this is ample.
+**Measured here, that wording undersells it.** At LET 200 keV/um in a 6.2 um
+sphere this width puts **15% of the single-event mass above ``z_max``** -- the
+specific energy of a *central* traversal, the most a chord can geometrically
+deliver -- because the Fermi form's tail is an unbounded exponential. It also
+lifts the frequency mean from ``0.667`` to ``0.709`` of ``z_max`` (+6.4%) and
+the dose mean from ``0.750`` to ``0.820`` (+9.4%). The paper's claim is about
+the final *survival*, not about the moments, and both readings can be true at
+once. Since ``z_D`` sets the multi-event variance, and the variance is the
+whole stochastic correction, this is the first thing to vary if the numerical
+route ever disagrees with the paper. Pass ``0.0`` for the sharp geometric
+limit, where the means are exactly ``2/3`` and ``3/4`` of ``z_max``.
+"""
+
 _GRID_SIGMA_HEADROOM: float = 12.0
+"""How many standard deviations of headroom the multi-event grid carries beyond
+the mean before the circular convolution could alias into itself. 12 sigma
+puts the wrapped mass below 1e-30 for a Gaussian-like tail; the compound
+Poisson is more skewed than Gaussian at small ``lambda``, which is exactly
+where the distribution is instead compactly supported, so this is ample.
+"""
 
 
 def let_to_central_specific_energy_Gy(let_keV_um: float, *, radius_um: float) -> float:
@@ -118,9 +124,11 @@ def single_event_density(
     """Single-event specific-energy density for one traversal of a sphere.
 
     Sato & Furusawa 2012 eq. (24): "the Fermi function of ``z_n`` multiplied by
-    ``z_n``"::
+    ``z_n``":
 
-        f_1(z) ~ z / (exp[(z - L eta)/c] + 1)
+    ```text
+    f_1(z) ~ z / (exp[(z - L eta)/c] + 1)
+    ```
 
     The ``z`` prefactor is not a fudge -- a sphere's chord-length distribution
     under uniform-isotropic incidence is ``f(l) ~ l``, and ``z`` is proportional
@@ -141,7 +149,7 @@ def single_event_density(
         ``0.0`` for the sharp geometric limit.
     nodes
         Grid points. The grid is uniform in ``z`` (required by
-        :func:`multi_event_density`) and spans zero to a few ``c`` beyond
+        [`multi_event_density`][]) and spans zero to a few ``c`` beyond
         ``L eta``.
 
     Returns
@@ -188,10 +196,12 @@ def multi_event_density(
 
     Sato & Furusawa 2012 eqs. (26)-(28), evaluated as a compound Poisson in the
     transform domain (see the module docstring) rather than by iterating the
-    convolution::
+    convolution:
 
-        lambda = D / z_F                                            (eq. 28)
-        f(z; D) = IFFT[ exp(lambda (FFT[f_1] - 1)) ]                (eqs. 26-27)
+    ```text
+    lambda = D / z_F                                            (eq. 28)
+    f(z; D) = IFFT[ exp(lambda (FFT[f_1] - 1)) ]                (eqs. 26-27)
+    ```
 
     The mean of the result is ``D`` exactly and its variance is ``D * z_D``, both
     of which the tests assert rather than assume.
@@ -199,7 +209,7 @@ def multi_event_density(
     Parameters
     ----------
     z_Gy
-        Uniform grid starting at 0, as returned by :func:`single_event_density`.
+        Uniform grid starting at 0, as returned by [`single_event_density`][].
     single_event_mass
         Probability mass per cell of the single-event density, summing to 1.
     dose_Gy

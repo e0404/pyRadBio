@@ -78,7 +78,7 @@ ISOTOPES_URL = (
     "https://physics.nist.gov/cgi-bin/Compositions/stand_alone.pl?ele=&ascii=ascii2&isotype=all"
 )
 
-#: The ICRU 90 water tables we use: table number -> particle as printed in the title.
+# The ICRU 90 water tables we use: table number -> particle as printed in the title.
 ICRU90_WATER_TABLES = {
     "A.3": "Electrons",  # for its density-effect column delta (I = 78 eV)
     "A.9": "Protons",
@@ -89,24 +89,24 @@ ESTAR_URL = "https://physics.nist.gov/cgi-bin/Star/e_table-t.pl"
 PDG_MUE_URL = "https://pdg.lbl.gov/2024/AtomicNuclearProperties/MUE/muE_water_liquid.txt"
 PDG_WATER_URL = "https://pdg.lbl.gov/2024/AtomicNuclearProperties/HTML/water_liquid.html"
 
-#: libdedx (GPL-3.0) keeps ICRU 73 report values as raw regeneration inputs; used as a
-#: surrogate for the report itself, pinned to a commit.
+# libdedx (GPL-3.0) keeps ICRU 73 report values as raw regeneration inputs; used as a
+# surrogate for the report itself, pinned to a commit.
 LIBDEDX_COMMIT = "5f345aa031d52ac1eed8a71b1e51781c3089bd53"
 LIBDEDX_RAW = f"https://raw.githubusercontent.com/APTG/libdedx/{LIBDEDX_COMMIT}/data/raw/"
-#: Our edition -> libdedx files. ICRU73.dat is what libdedx serves as "ICRU73_OLD";
-#: ICRU73_NEW.dat is what it serves for water and air as "ICRU73". Verified
-#: against the printed reports: the water blocks equal ICRU 73 pp. 232-233 and the 2009
-#: errata's Appendix B respectively, at all 848 points (data/stopping/icru73/PROVENANCE.md).
+# Our edition -> libdedx files. ICRU73.dat is what libdedx serves as "ICRU73_OLD";
+# ICRU73_NEW.dat is what it serves for water and air as "ICRU73". Verified
+# against the printed reports: the water blocks equal ICRU 73 pp. 232-233 and the 2009
+# errata's Appendix B respectively, at all 848 points (data/stopping/icru73/PROVENANCE.md).
 ICRU73_FILES = {
     "2005": ("ICRU73.dat", "icru73Eng.dat"),
     "2009": ("ICRU73_NEW.dat", "icru73_newEng.dat"),
 }
-#: ICRU's (and NIST's) identification number of liquid water.
+# ICRU's (and NIST's) identification number of liquid water.
 ICRU_WATER_LIQUID = 276
-#: ICRU 73 covers ions 3Li..18Ar; H and He come from ICRU 49 (PSTAR/ASTAR).
+# ICRU 73 covers ions 3Li..18Ar; H and He come from ICRU 49 (PSTAR/ASTAR).
 ICRU73_IONS = tuple(range(3, 19))
 
-#: Files MSTAR needs from the archive; the DOS executable is deliberately excluded.
+# Files MSTAR needs from the archive; the DOS executable is deliberately excluded.
 MSTAR_KEEP_PREFIXES = ("MSTAR312/Sources/", "MSTAR312/Doc/MSTARInstr.htm")
 
 
@@ -456,7 +456,7 @@ def icru73_water_table(
     return Extracted(("Z", "energy_MeV_u", "S_el_MeV_cm2_g"), tuple(rows))
 
 
-#: Metadata lines every ICRU 73 CSV must carry (format: data/stopping/icru73/README.md).
+# Metadata lines every ICRU 73 CSV must carry (format: data/stopping/icru73/README.md).
 ICRU73_REQUIRED = frozenset({"edition", "material", "quantity", "energy", "source"})
 
 

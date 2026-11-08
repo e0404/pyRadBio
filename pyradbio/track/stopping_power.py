@@ -3,21 +3,22 @@
 A ``StoppingPower`` provides the linear (unrestricted, electronic) stopping power
 -- the LET -- in water for an ion at a given energy, in keV/um.
 
-* :func:`default_stopping_power` is what every pyRadBio model uses unless told
-  otherwise: :class:`DefaultStoppingPower` -- ICRU 90's procedure for Z 1-18
-  (:mod:`pyradbio.track.stopping`), the dependency-free analytic
-  :class:`SimpleBetheStoppingPower` (good to ~2-5% above ~2 MeV/u, up to ~30% low
-  below ~1 MeV/u) for heavier ions and outside the procedure's range. It is the one
-  seam every model default goes through; other sources are explicit opt-ins.
-* :class:`TabularStoppingPower` / :class:`MassStoppingPowerSource` /
-  :class:`LibdedxStoppingPower` plug in any other table or library (libdEdx is
+* [`default_stopping_power`][] is what every pyRadBio model uses unless told
+  otherwise: [`DefaultStoppingPower`][] -- ICRU 90's procedure for Z 1-18
+  ([`pyradbio.track.stopping`][]), Hubert alpha scaling for Z 19-92 from
+  2.5 MeV/u, and the dependency-free analytic [`SimpleBetheStoppingPower`][]
+  (good to ~2-5% above ~2 MeV/u, up to ~30% low below ~1 MeV/u) everywhere else,
+  anchored to the adjacent branch at its range edge. It is the one seam every
+  model default goes through; other sources are explicit opt-ins.
+* [`TabularStoppingPower`][] / [`MassStoppingPowerSource`][] /
+  [`LibdedxStoppingPower`][] plug in any other table or library (libdEdx is
   GPL and a runtime opt-in, never imported by default).
-* :mod:`pyradbio.track.northcliffe_schilling` (paper-era NS1970) and
-  :mod:`pyradbio.track.srim` (user-supplied SRIM tables) serve reconstructions
+* [`pyradbio.track.northcliffe_schilling`][] (paper-era NS1970) and
+  [`pyradbio.track.srim`][] (user-supplied SRIM tables) serve reconstructions
   that must use a specific historical source.
 
 pyMKM's stopping-power tables are reachable only through the optional pyMKM
-adapter (:mod:`pyradbio.models.mkm.pymkm_backend`), as a validation reference;
+adapter ([`pyradbio.models.mkm.pymkm_backend`][]), as a validation reference;
 this module never imports pyMKM.
 """
 
@@ -46,10 +47,11 @@ from pyradbio.core.constants import (
 from pyradbio.core.radiation import Ion
 from pyradbio.track.stopping.effective_charge import barkas_effective_charge
 
-#: Barkas effective charge; the implementation lives in
-#: :mod:`pyradbio.track.stopping.effective_charge` (Katz, MCDS and the lineal-energy
-#: engines import it under this name).
 effective_charge = barkas_effective_charge
+"""Barkas effective charge; the implementation lives in
+[`pyradbio.track.stopping.effective_charge`][] (Katz, MCDS and the lineal-energy
+engines import it under this name).
+"""
 
 
 def let_from_mass_stopping_power(
@@ -72,10 +74,12 @@ class VectorizedStoppingPower(StoppingPower, Protocol):
 class SimpleBetheStoppingPower:
     """Dependency-free water stopping power via the Bethe formula.
 
-    Mass stopping power [MeV cm^2/g]::
+    Mass stopping power [MeV cm^2/g]:
 
-        -dE/dx = K * (Z/A)_water * z_eff^2 / beta^2 * [ln(2 m_e c^2 beta^2 gamma^2 / I)
-                 - beta^2]
+    ```text
+    -dE/dx = K * (Z/A)_water * z_eff^2 / beta^2 * [ln(2 m_e c^2 beta^2 gamma^2 / I)
+             - beta^2]
+    ```
 
     using the heavy-ion limit of the maximum energy transfer
     (``W_max ~ 2 m_e c^2 beta^2 gamma^2``) so the usual ``0.5*ln(...W_max...)``
@@ -89,7 +93,7 @@ class SimpleBetheStoppingPower:
     This is close to the ceiling of the effective-charge Bethe form: the ICRU
     shell correction diverges below its validity range (beta*gamma < ~0.13, i.e.
     the low velocities of interest) and the Bloch close-collision term
-    *regresses* the table agreement here because :func:`effective_charge`
+    *regresses* the table agreement here because [`effective_charge`][]
     already absorbs those effects empirically -- so neither is applied.
 
     Heavy ions (Z>10) have no bundled reference table, and the low-velocity
@@ -98,9 +102,9 @@ class SimpleBetheStoppingPower:
     uncertainty. For production heavy-ion accuracy prefer a table- or
     libdedx-backed source.
 
-    It is the library default's fallback for Z > 18 (:class:`DefaultStoppingPower`)
+    It is the library default's fallback for Z > 18 ([`DefaultStoppingPower`][])
     and a quick, any-Z reference; for stopping-power sensitivity studies prefer
-    :class:`pyradbio.track.stopping.bethe.Bethe`, whose corrections switch one by one.
+    [`pyradbio.track.stopping.bethe.Bethe`][], whose corrections switch one by one.
     """
 
     def __init__(self, density_g_cm3: float = WATER_DENSITY_G_CM3) -> None:
@@ -143,17 +147,19 @@ class SimpleBetheStoppingPower:
 
 @dataclass(frozen=True, slots=True)
 class MassStoppingPowerSource:
-    """Adapt any external mass-stopping-power callable to :class:`StoppingPower`.
+    """Adapt any external mass-stopping-power callable to [`StoppingPower`][].
 
     ``mass_sp_MeV_cm2_g(Z, A, energy_MeV_u)`` must return the water mass stopping
     power in ``MeV cm^2/g`` (the conventional output of stopping-power libraries);
     this converts it to LET in ``keV/um``. It is the dependency-free seam for
     plugging in an arbitrary external source without a hard dependency, e.g. a
-    custom fit or an in-house table::
+    custom fit or an in-house table:
 
-        sp = MassStoppingPowerSource(lambda z, a, e: my_table_MeV_cm2_g(z, e))
+    ```text
+    sp = MassStoppingPowerSource(lambda z, a, e: my_table_MeV_cm2_g(z, e))
+    ```
 
-    For libdEdx specifically, prefer :class:`LibdedxStoppingPower`, which wraps
+    For libdEdx specifically, prefer [`LibdedxStoppingPower`][], which wraps
     its Python binding directly.
     """
 
@@ -175,7 +181,7 @@ class StoppingPowerTable:
     default -- but it is what some reference implementations do, and matching
     an implementation's interpolant is the only way to remove stopping power as
     a free variable when benchmarking against it. See
-    :mod:`pyradbio.track.srim`.
+    [`pyradbio.track.srim`][].
     """
 
     energy_MeV_u: npt.NDArray[np.float64]
@@ -279,13 +285,13 @@ class LibdedxStoppingPower:
     ion -- MSTAR / ICRU73 experimental tables for ``Z <= 18`` -- and falls back
     to its own extended Bethe (``BETHE_EXT00``) for heavier ions, reaching
     ``Z = 112``. That fills exactly the gap where the bundled analytic
-    :class:`SimpleBetheStoppingPower` is least certain (heavy ions, low velocity)
+    [`SimpleBetheStoppingPower`][] is least certain (heavy ions, low velocity)
     and where the pyMKM tables stop (``Z <= 10``).
 
     This is a *runtime* opt-in: ``libdedx`` is **not** a pyRadBio dependency (it is
-    GPL-licensed), so importing :mod:`pyradbio.track` never imports it. Construct
+    GPL-licensed), so importing [`pyradbio.track`][] never imports it. Construct
     this class only when the user has ``libdedx`` importable; otherwise it raises
-    a helpful :class:`ImportError`.
+    a helpful `ImportError`.
 
     ``program`` and ``material`` accept either a libdEdx enum name (e.g.
     ``"DEFAULT"``, ``"ICRU73"``, ``"WATER_LIQUID"``) or its integer id. libdEdx
@@ -352,23 +358,23 @@ def _shared_heavy(density_g_cm3: float) -> Any:
     return HubertAlphaScaling(alpha=_shared_procedure(density_g_cm3), density_g_cm3=density_g_cm3)
 
 
-#: ``source()`` labels of :class:`DefaultStoppingPower`'s three branches.
 DefaultSource = Literal["icru90_procedure", "hubert1990", "simple_bethe_anchored", "simple_bethe"]
+"""``source()`` labels of [`DefaultStoppingPower`][]'s three branches."""
 
 
 class DefaultStoppingPower:
     """The library default: ICRU 90's procedure for Z 1-18, Hubert scaling above, Bethe last.
 
     * ``1 <= Z <= 18`` inside its energy range:
-      :class:`~pyradbio.track.stopping.icru90_procedure.ICRU90Procedure` with its defaults
-      (electronic stopping, I = 78 eV; reproduces ICRU 90's p, alpha and C tables to
-      <= 0.33% from 1 keV/u up; Z 3-18 within 2% of MSTAR over 0.5-300 MeV/u);
+      [`ICRU90Procedure`][pyradbio.track.stopping.icru90_procedure.ICRU90Procedure] with its
+      defaults (electronic stopping, I = 78 eV; reproduces ICRU 90's p, alpha and C tables to <=
+      0.33% from 1 keV/u up; Z 3-18 within 2% of MSTAR over 0.5-300 MeV/u);
     * ``19 <= Z <= 92`` from 2.5 MeV/u:
-      :class:`~pyradbio.track.stopping.hubert.HubertAlphaScaling` -- Hubert, Bimbot & Gauvin
-      (1990)'s ``(gamma Z/2)^2 S_alpha`` with ICRU 90's alpha; fitted by them to O-U data,
+      [`HubertAlphaScaling`][pyradbio.track.stopping.hubert.HubertAlphaScaling] -- Hubert, Bimbot &
+      Gauvin (1990)'s ``(gamma Z/2)^2 S_alpha`` with ICRU 90's alpha; fitted by them to O-U data,
       ~5% in solids; no water reference above Ar is held;
     * outside that branch's energy range (``Z > 18`` below 2.5 MeV/u; above ~1e6 MeV/u):
-      :class:`SimpleBetheStoppingPower` **anchored** to the branch at its nearest edge,
+      [`SimpleBetheStoppingPower`][] **anchored** to the branch at its nearest edge,
       ``S = S_Bethe(E) S_branch(E_edge) / S_Bethe(E_edge)`` (a hard
       switch would jump +5.8% for K to +21.9% for Xe at 2.5 MeV/u). The value is continuous;
       the slope kinks by <= 0.012 in ``d ln S/d ln E`` for Z <= 54, 0.05-0.09 for Pb/U.
@@ -378,18 +384,18 @@ class DefaultStoppingPower:
       0.1-0.5), against Hubert's own formula extrapolated (collapses) and Brandt-Kitagawa
       x protons (+5 to +60%). UNVALIDATED for Z > 18 (no water reference is held);
     * no branch at all (``Z > 92``, isotopes without a shipped mass): plain
-      :class:`SimpleBetheStoppingPower`, UNVALIDATED (it differs from ICRU 90/73 by up to
+      [`SimpleBetheStoppingPower`][], UNVALIDATED (it differs from ICRU 90/73 by up to
       -29% at 0.1-1 MeV/u for Z <= 18).
 
     The switches between branches are seams (``docs/references/StoppingPower.md``);
-    :meth:`source` names the branch serving an ion.
+    [`source`][] names the branch serving an ion.
     """
 
     def __init__(self, density_g_cm3: float = WATER_DENSITY_G_CM3) -> None:
         self.density_g_cm3 = density_g_cm3
         self._fallback = SimpleBetheStoppingPower(density_g_cm3=density_g_cm3)
-        #: ``(Z, A, edge energy) -> S_branch / S_Bethe`` there (the anchor factor).
         self._anchors: dict[tuple[int, int, float], float] = {}
+        """``(Z, A, edge energy) -> S_branch / S_Bethe`` there (the anchor factor)."""
 
     @property
     def procedure(self) -> Any:
@@ -474,22 +480,19 @@ class DefaultStoppingPower:
 def default_stopping_power(density_g_cm3: float = WATER_DENSITY_G_CM3) -> StoppingPower:
     """The stopping power every pyRadBio model uses unless one is passed explicitly.
 
-    Returns a :class:`DefaultStoppingPower` at ``density_g_cm3``: ICRU 90's procedure
-    (:class:`~pyradbio.track.stopping.icru90_procedure.ICRU90Procedure`) for Z 1-18,
-    Hubert's alpha scaling (:class:`~pyradbio.track.stopping.hubert.HubertAlphaScaling`)
-    for Z 19-92 from 2.5 MeV/u, and the analytic :class:`SimpleBetheStoppingPower`
-    elsewhere, anchored to the adjacent branch at its range edge. Other sources -- the
-    :mod:`pyradbio.track.stopping` classes, :mod:`~pyradbio.track.northcliffe_schilling`
-    (NS1970), :mod:`~pyradbio.track.srim` (user SRIM tables), :class:`LibdedxStoppingPower`
-    and pyMKM's tables via :mod:`pyradbio.models.mkm.pymkm_backend` -- are explicit opt-ins
-    passed to a model's ``stopping_power`` field.
+    Returns a [`DefaultStoppingPower`][] at ``density_g_cm3``: ICRU 90's procedure
+    ([`ICRU90Procedure`][pyradbio.track.stopping.icru90_procedure.ICRU90Procedure]) for Z 1-18,
+    Hubert's alpha scaling
+    ([`HubertAlphaScaling`][pyradbio.track.stopping.hubert.HubertAlphaScaling]) for Z 19-92 from 2.5
+    MeV/u, and the analytic [`SimpleBetheStoppingPower`][] elsewhere, anchored to the adjacent
+    branch at its range edge. Other sources -- the [`pyradbio.track.stopping`][] classes,
+    [`northcliffe_schilling`][] (NS1970), [`srim`][] (user SRIM tables), [`LibdedxStoppingPower`][]
+    and pyMKM's tables via [`pyradbio.models.mkm.pymkm_backend`][] -- are explicit opt-ins passed to
+    a model's ``stopping_power`` field.
     """
     return DefaultStoppingPower(density_g_cm3=density_g_cm3)
 
 
-#: Human-readable text for every name a stopping-power source reports, read by
-#: :func:`describe_stopping_power` (read-only). Keys are ``settings()["name"]``, a
-#: ``name`` attribute, or -- for sources that carry neither -- the class name.
 STOPPING_POWER_DESCRIPTIONS: Mapping[str, str] = MappingProxyType(
     {
         # settings()["name"] of this module's sources
@@ -515,27 +518,32 @@ STOPPING_POWER_DESCRIPTIONS: Mapping[str, str] = MappingProxyType(
         "PyMKMStoppingPower": "pyMKM bundled table (validation reference)",
     }
 )
+"""Human-readable text for every name a stopping-power source reports, read by
+[`describe_stopping_power`][] (read-only). Keys are ``settings()["name"]``, a
+``name`` attribute, or -- for sources that carry neither -- the class name.
+"""
 
-#: Keys of :data:`STOPPING_POWER_DESCRIPTIONS` whose sources come in variants, mapped
-#: to the option that tells them apart and how it extends the text: the ICRU edition
-#: (``settings()["edition"]``) and the pyMKM table (``PyMKMStoppingPower.source``).
 _DESCRIPTION_OPTIONS: Mapping[str, tuple[str, str]] = MappingProxyType(
     {
         "icru": ("edition", "{text} (edition {value})"),
         "PyMKMStoppingPower": ("source", "{text}: {value}"),
     }
 )
+"""Keys of [`STOPPING_POWER_DESCRIPTIONS`][] whose sources come in variants, mapped
+to the option that tells them apart and how it extends the text: the ICRU edition
+(``settings()["edition"]``) and the pyMKM table (``PyMKMStoppingPower.source``).
+"""
 
 
 def describe_stopping_power(sp: object) -> str:
     """A human-readable name for the stopping-power source ``sp`` (for prints and titles).
 
-    The text comes from :data:`STOPPING_POWER_DESCRIPTIONS`, looked up by, in order,
+    The text comes from [`STOPPING_POWER_DESCRIPTIONS`][], looked up by, in order,
     ``sp.settings()["name"]``, the ``sp.name`` attribute and ``type(sp).__name__``; the
     first key found wins. ``settings()`` goes first because it names what a source
-    computes: :class:`~pyradbio.track.northcliffe_schilling.BetheOnly` is
-    :class:`SimpleBetheStoppingPower` under the CLI name ``"bethe"``, which is also the
-    name of the corrected :class:`pyradbio.track.stopping.bethe.Bethe`. A ``settings()``
+    computes: [`BetheOnly`][pyradbio.track.northcliffe_schilling.BetheOnly] is
+    [`SimpleBetheStoppingPower`][] under the CLI name ``"bethe"``, which is also the
+    name of the corrected [`pyradbio.track.stopping.bethe.Bethe`][]. A ``settings()``
     that cannot be called bare (``TypeError``) or refuses (``ValueError``) is skipped.
     Sources that come in variants name theirs: the ICRU edition and the pyMKM table
     (e.g. ``"ICRU 49/73/90 tables (edition 2016)"``); other options (I-value, XSTAR's
@@ -544,7 +552,7 @@ def describe_stopping_power(sp: object) -> str:
     pyMKM sources carry no name, so they are keyed by class name.
 
     Use this instead of hard-coding a label such as ``"analytic Bethe (library default)"``:
-    the default source is :class:`DefaultStoppingPower`, not a single formula.
+    the default source is [`DefaultStoppingPower`][], not a single formula.
     """
     settings: dict[str, object] = {}
     keys: list[str] = []

@@ -94,6 +94,15 @@ that is model-agnostic.
 - Types: `mypy pyradbio` (strict).
 - All four (pytest, ruff check, ruff format --check, mypy) must pass before a
   task is considered done. CI enforces them.
+- Docs: `pip install -e ".[docs]"` (Python ≥ 3.11), then `zensical build --strict`
+  (CI runs it) or `zensical serve`.
+- Docstrings are numpy-style **Markdown**, rendered by mkdocstrings. Link with
+  ``[`Name`][]`` for a name in scope or ``[`Name`][pyradbio.full.path]``;
+  document an attribute with a string literal directly below it; write notes as
+  `!!! note` / `!!! warning` admonitions and code as fenced blocks. No Sphinx
+  roles, `#:` comments or reST directives: they render as literal text, so
+  `tests/docs/test_docstring_style.py` rejects them, and the strict build
+  rejects a link that does not resolve.
 
 ## Optional dependency boundaries
 

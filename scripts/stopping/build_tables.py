@@ -33,7 +33,7 @@ Reads the extracted raw files in ``data/stopping/<source>/`` (see
   q(y_r) for their effective charge, our transcription interpolated (PCHIP of ln(1-q));
 * ``shell_corrections_water.csv`` -- COMPUTED, no raw input: Walske's K/L-shell and the
   hydrogen-atom shell corrections C(eta) at the default thetas of
-  :mod:`pyradbio.track.stopping.shell` (~40 s; ``--no-computed`` skips it).
+  `pyradbio.track.stopping.shell` (~40 s; ``--no-computed`` skips it).
 
 The output is deterministic (no timestamps; the raw inputs are identified by the
 SHA-256 of their extracted CSVs), so ``--check`` can rebuild into a temporary folder
@@ -82,7 +82,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 RAW = REPO_ROOT / "data" / "stopping"
 OUT = REPO_ROOT / "pyradbio" / "track" / "stopping" / "data"
 
-#: Shipped-table resolution.
+# Shipped-table resolution.
 POINTS_PER_DECADE = 50
 METHOD = "cubic"
 
@@ -96,7 +96,7 @@ NIST_SRD_NOTICE = (
     "interpolated by pyRadBio onto its own grid."
 )
 
-#: XSTAR's fixed mean excitation energy of water (ICRU 49).
+# XSTAR's fixed mean excitation energy of water (ICRU 49).
 I_VALUE_EV = 75.0
 
 ICRU73_REFERENCE = (
@@ -108,9 +108,9 @@ ICRU73_ERRATA_REFERENCE = (
     "Stopping of Ions Heavier than Helium (May 14, 2009; standalone document, no "
     "journal or DOI printed), Appendix B, replacing ICRU 73 pp. 232-233"
 )
-#: Water I-values of the two editions, from the errata, sec. 2.2: "The oscillator-strength
-#: spectrum used in Report 73 for liquid water gives an I-value of 67.2 eV"; the revised
-#: tables use "Liquid water, I = 78.0 eV" (errata Table 1). ICRU 73 itself prints none.
+# Water I-values of the two editions, from the errata, sec. 2.2: "The oscillator-strength
+# spectrum used in Report 73 for liquid water gives an I-value of 67.2 eV"; the revised
+# tables use "Liquid water, I = 78.0 eV" (errata Table 1). ICRU 73 itself prints none.
 ICRU73_I_VALUE_EV = {"2005": 67.2, "2009": 78.0}
 ICRU73_I_VALUE_NOTE = {
     "2005": (
@@ -123,8 +123,8 @@ ICRU90_REFERENCE = (
     "ICRU Report 90 (2014, released 2016), Key Data for Ionizing-Radiation Dosimetry, "
     "J. ICRU 14; tables distributed by NIST as an addendum to SRD 124, doi:10.18434/T4NC7P"
 )
-#: ICRU 90's mean excitation energy of liquid water, printed in the titles of tables
-#: A.9, A.12 and A.15 of the NIST addendum ("I = 78 eV").
+# ICRU 90's mean excitation energy of liquid water, printed in the titles of tables
+# A.9, A.12 and A.15 of the NIST addendum ("I = 78 eV").
 ICRU90_I_VALUE_EV = 78.0
 
 
@@ -439,7 +439,7 @@ def build_sternheimer(raw: Path, out: Path) -> Path:
     return target
 
 
-#: Isotope masses ship up to uranium (heavy-ion branch of the default stopping power).
+# Isotope masses ship up to uranium (heavy-ion branch of the default stopping power).
 MAX_SHIPPED_Z = 92
 
 
@@ -507,7 +507,7 @@ def build_barkas(raw: Path, out: Path) -> Path:
     return target
 
 
-#: ICRU 49's lowest tabulated energy, 1 keV (total), for protons and alphas.
+# ICRU 49's lowest tabulated energy, 1 keV (total), for protons and alphas.
 ICRU49_LOWEST_MEV = 0.001
 
 

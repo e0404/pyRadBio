@@ -165,8 +165,8 @@ def test_lem4_intertrack_globle_discreteness_matches_analytic() -> None:
     ``E = n_i eps_i + n_c eps_c`` (eqs. 2-3, Poisson loop counts with the *paper's*
     ``Y_loop = a_DSB/N_L``, no ``eta`` -- GLOBLE's own photon model predates the
     Friedrich 2015 DSB-yield enhancement) to Monte-Carlo noise. Uses
-    :attr:`LEM4.globle_n_loops` (not the spatial 540 nm subvolume grid) to match what
-    :meth:`LEM4.intertrack_mc_photon_survival` actually places DSBs into.
+    `LEM4.globle_n_loops` (not the spatial 540 nm subvolume grid) to match what
+    `LEM4.intertrack_mc_photon_survival` actually places DSBs into.
     """
     photon = PhotonParameters(alpha_x=0.184, beta_x=0.02, D_t=17.0)
     lem = LEM4(photon=photon, cell=FIG4_CELL, stopping_power=_SP, effect_model="globle")
@@ -221,7 +221,7 @@ def test_lem4_intertrack_photon_limit_ion_path_recovers_beta_x() -> None:
 
     At low LET the delta-ray range ``r_max >> R_eff``, so the extended-domain tracks
     tile the nucleus near-uniformly and the intertrack MC must return ~``beta_x``. With
-    ``eps_c`` calibrated to the grid count (:data:`MC_GRID_N_LOOPS`) it does, within the
+    ``eps_c`` calibrated to the grid count (`MC_GRID_N_LOOPS`) it does, within the
     disk-rim (circle-vs-square) dilution ~10%; the previous ``globle_n_loops``
     calibration undershot to ~0.6 ``beta_x`` (Friedrich 2012 Fig. 4 low-LET plateau).
     """
@@ -352,7 +352,7 @@ def test_lem4_intertrack_beta_shifted_to_higher_let() -> None:
 
     The MC's *fitted* ``alpha`` is not cross-checked against the single-particle
     GLOBLE alpha: the MC calibrates ``eps_c`` to the
-    geometric grid count (:data:`MC_GRID_N_LOOPS` ~ 3175) while the single-particle
+    geometric grid count (`MC_GRID_N_LOOPS` ~ 3175) while the single-particle
     ``alpha`` uses the empirically-fitted ``globle_n_loops`` (2000), so the two use
     different ``eps_c`` and the MC's fitted linear term runs higher. This does *not*
     change the model's reported ``alpha_I`` (always the single-particle slope; the MC
@@ -383,7 +383,7 @@ def test_lem4_intertrack_beta_shifted_to_higher_let() -> None:
     something more statistics would reconcile.
 
     The MC's ``beta`` does not *rise* with LET; an apparent rise is the
-    LET-dependent :meth:`LEM4._adaptive_doses` window, and over a
+    LET-dependent `LEM4._adaptive_doses` window, and over a
     fixed window ``beta(LET)`` is flat (see
     ``test_intertrack_beta_is_flat_at_beta_x_over_a_common_fit_window``).
     """
@@ -424,7 +424,7 @@ def test_fit_alpha_beta_keeps_a_negative_curvature_measurement() -> None:
     (``scripts/lem1_mc_reference.py alpha-beta``: "neither is clamped ...
     kept, so the error bars stay honest"); this pins the LEM IV kernel to it.
     Clamping is the *caller's* job, and it warns -- see
-    :meth:`LEM4.intertrack_mc_beta`.
+    `LEM4.intertrack_mc_beta`.
     """
     doses = np.linspace(1.0, 5.0, 9)
     alpha_in, beta_in = 0.5, -0.02
@@ -441,10 +441,10 @@ def test_intertrack_mc_beta_warns_when_it_clamps_a_negative_beta(
 ) -> None:
     """The clamp still protects ``LQParameters``, but it may not be silent.
 
-    ``_beta_for_ion`` feeds :class:`~pyradbio.core.lq.LQParameters`, which rejects
+    ``_beta_for_ion`` feeds `pyradbio.core.lq.LQParameters`, which rejects
     a negative ``beta``, so the public scalar path has to floor it. A floor is not
     a computed value, so it warns -- the same non-silent pattern as
-    :meth:`LEM4.local_dose_beta`.
+    `LEM4.local_dose_beta`.
     """
     lem = LEM4(photon=FIG4, cell=FIG4_CELL, stopping_power=_SP, beta_model="intertrack_mc")
     ion = Ion(6, 12, _carbon_energy_for_let(300.0))
@@ -647,7 +647,7 @@ def test_intertrack_beta_is_flat_at_beta_x_over_a_common_fit_window() -> None:
     This is the engine's documented mechanism -- the domain-extension near-miss
     background clusters like a photon field -- measured as such.
     Per-LET numbers fitted on the adaptive window would *rise* with LET,
-    contradicting that very mechanism, because :meth:`LEM4._adaptive_doses` shrinks
+    contradicting that very mechanism, because `LEM4._adaptive_doses` shrinks
     ``D_max`` as LET rises (5.6 Gy at LET 25 down to 1.3 Gy at 100) and a narrower,
     lower window reads a higher ``beta`` (a fit-window projection). Refit over a
     common window the trend is gone: 0.0492 / 0.0340 / 0.0537 / 0.0441 / 0.0526 (+- 0.0034 / 0.0061

@@ -233,13 +233,13 @@ def test_recovered_carbon_z_star_exceeds_the_photon_one() -> None:
 
 
 # --- the reconstruction itself ----------------------------------------------
-#: Our ``z*_1D`` deviation from the paper's recovered value, per anchor, for the
-#: two impact-parameter site geometries. **Regression pins on a known-imperfect
-#: reconstruction, not accuracy targets** -- see
-#: ``docs/references/IMK_Matsuya2025.md``, "What fig. 2 gives back" ("The four
-#: carbon anchors are not one curve in LET"), for why the mid-LET overshoot is
-#: not closable by a choice of route (the paper's own four anchors do not lie on
-#: one curve in LET, because its ``y*`` is beam-specific).
+# Our ``z*_1D`` deviation from the paper's recovered value, per anchor, for the
+# two impact-parameter site geometries. **Regression pins on a known-imperfect
+# reconstruction, not accuracy targets** -- see
+# ``docs/references/IMK_Matsuya2025.md``, "What fig. 2 gives back" ("The four
+# carbon anchors are not one curve in LET"), for why the mid-LET overshoot is
+# not closable by a choice of route (the paper's own four anchors do not lie on
+# one curve in LET, because its ``y*`` is beam-specific).
 _ANCHOR_DEVIATION = {
     "cylinder": {
         ("HSG", 13.0): -0.299,
@@ -402,7 +402,7 @@ def test_fig4_recovers_the_fig2a_z_star_from_a_different_panel() -> None:
 
     Fig. 4 is a different figure with a different y quantity and linear axes, so
     nothing but the model ties it to fig. 2a. Agreement to <2% is the strongest
-    available check on :func:`recovered_z_star_1D`.
+    available check on `recovered_z_star_1D`.
     """
     for let, tolerance in ((0.0, 0.01), (13.0, 0.01), (100.0, 0.02)):
         curve = get_fig4_curve(series="cal", let_keV_um=let)
@@ -633,7 +633,7 @@ def test_get_fig7_curve_rejects_an_unknown_key() -> None:
 # Reconstruction helpers shared with validation/imk_matsuya2025.py
 # --------------------------------------------------------------------------
 def _inline_relative_mn(model: IMKModel, rate_Gy_per_h: float, z_photon_Gy: float) -> float:
-    """The pre-library form of :func:`relative_mn`."""
+    """The pre-library form of `relative_mn`."""
     lq_hi = model.alpha_beta_from_z_star_1D(
         z_photon_Gy,
         schedule=DoseSchedule.continuous(4.0, duration_h=4.0 / 60.0),
@@ -701,8 +701,8 @@ def test_paper_rbe_alpha_is_the_ratio_of_the_fig2_alphas() -> None:
     assert paper_rbe_alpha("HSG", 100.0) > paper_rbe_alpha("HSG", 13.0) > 1.0
 
 
-#: Fig. 2's fitted ``alpha`` [1/Gy] as printed, to 4 decimals, in
-#: docs/references/IMK_Matsuya2025.md ("What fig. 2 gives back", the table).
+# Fig. 2's fitted ``alpha`` [1/Gy] as printed, to 4 decimals, in
+# docs/references/IMK_Matsuya2025.md ("What fig. 2 gives back", the table).
 _FIG2_ALPHA_DOC = {
     ("HSG", 0.0): 0.1988,
     ("HSG", 13.0): 0.2865,

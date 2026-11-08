@@ -11,7 +11,7 @@ edition   p, He                      Li-Ar (Z 3-18)                  C
 ========  =========================  ==============================  ============
 
 There is no I-value input: each source's own value is exposed **per ion** in
-:meth:`ICRU.metadata`: 75 eV for ICRU 49 (PSTAR/ASTAR),
+[`ICRU.metadata`][]: 75 eV for ICRU 49 (PSTAR/ASTAR),
 78 eV for ICRU 90 and for the ICRU 73 errata (Sigmund, Schinner & Paul 2009, sec. 2.2
 and Table 1), and 67.2 eV for ICRU 73 as published -- implied by its
 oscillator-strength spectrum for liquid water, as the errata state; ICRU 73 itself
@@ -21,7 +21,7 @@ Tables are our regridded copies in ``data/`` (50 log-uniform points per decade,
 ``scripts/stopping/build_tables.py``):
 
 * ICRU 49 = the NIST PSTAR/ASTAR tables shared with
-  :class:`~pyradbio.track.stopping.xstar.XSTAR` (NIST's interactive databases
+  [`XSTAR`][] (NIST's interactive databases
   serve ICRU 49; for liquid water they equal libdedx's transcription of the printed
   report at every shared proton energy and at all but two alpha energies below
   1 keV/u, which differ by < 0.1%);
@@ -39,7 +39,7 @@ other isotopes with true masses,
 like every other ion here. ``quantity="total"`` adds the tabulated nuclear column
 for p, He-4 (ICRU 49, 90) and C-12 (ICRU 90). ICRU 73 has none (electronic only), so its
 ions -- and every other isotope -- get ``nuclear``
-(:class:`~pyradbio.track.stopping.nuclear.WaterNuclearStopping`, default: ICRU 49's
+([`WaterNuclearStopping`][], default: ICRU 49's
 method, as ICRU 90 used for C).
 """
 
@@ -57,10 +57,10 @@ from pyradbio.track.stopping.xstar import ASTAR_REF, PSTAR_REF
 
 Edition = Literal["2005", "2009", "2016"]
 
-#: Ions covered by ICRU 73 (and its errata): Li to Ar.
 ICRU73_IONS = tuple(range(3, 19))
-#: Ions ICRU 90 tabulates for water: p, He-4, C-12.
+"""Ions covered by ICRU 73 (and its errata): Li to Ar."""
 ICRU90_IONS = (1, 2, 6)
+"""Ions ICRU 90 tabulates for water: p, He-4, C-12."""
 
 _ICRU90_REFS = {
     1: TableRef("icru90_water_liquid", 1, 1, "p"),

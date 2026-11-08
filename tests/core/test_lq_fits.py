@@ -1,4 +1,4 @@
-"""LQ least-squares fits in :mod:`pyradbio.core.lq`.
+"""LQ least-squares fits in `pyradbio.core.lq`.
 
 Three kinds of test:
 
@@ -30,8 +30,8 @@ from pyradbio.models.lem import _intertrack_kernel, _localdose
 FloatArray = npt.NDArray[np.float64]
 
 
-#: Cross-machine match of a recorded output (the GitLab runner differs by up to
-#: 4e-14 relative; see the module docstring).
+# Cross-machine match of a recorded output (the GitLab runner differs by up to
+# 4e-14 relative; see the module docstring).
 _RECORDED_REL = 1e-12
 
 
@@ -134,10 +134,10 @@ _RECORDED_FIT_ALPHA_BETA = (
     ),
 )  # fmt: skip
 
-#: Synthetic inputs that exercise ``fit_alpha_beta``'s ``clip(S, 1e-300, 1)`` --
-#: a survival of exactly 0 and one below the floor (lower bound), and a survival
-#: above 1 (upper bound: S = 1.02 is clipped to 1, so the third case records the
-#: same numbers as the second) -- recorded the same way.
+# Synthetic inputs that exercise ``fit_alpha_beta``'s ``clip(S, 1e-300, 1)`` --
+# a survival of exactly 0 and one below the floor (lower bound), and a survival
+# above 1 (upper bound: S = 1.02 is clipped to 1, so the third case records the
+# same numbers as the second) -- recorded the same way.
 _RECORDED_FIT_ALPHA_BETA_CLIP = (
     (
         (0.5, 1.0, 2.0, 3.0, 4.0),

@@ -23,10 +23,12 @@ class McNamara(RBEMinMaxModel):
     """McNamara et al. 2015, Phys. Med. Biol. 60:8399, doi:10.1088/0031-9155/60/21/8399.
 
     A non-linear regression through 287 in-vitro survival data points collected
-    by Paganetti 2014 -- the largest fit of the family::
+    by Paganetti 2014 -- the largest fit of the family:
 
-        RBE_max = p0 + p1 * LET_d / (alpha/beta)_x
-        RBE_min = p2 + p3 * sqrt((alpha/beta)_x) * LET_d
+    ```text
+    RBE_max = p0 + p1 * LET_d / (alpha/beta)_x
+    RBE_min = p2 + p3 * sqrt((alpha/beta)_x) * LET_d
+    ```
 
     ``RBE_max`` follows Carabe et al. 2012; the ``sqrt((alpha/beta)_x)`` in
     ``RBE_min`` is the paper's own departure from it, after Jones 2015.
@@ -35,7 +37,8 @@ class McNamara(RBEMinMaxModel):
     ``(alpha/beta)_x < 30 Gy``, at proton doses of 1-10 Gy, and the paper is
     explicit that the LET cut "corresponds to the clinically relevant LET_d
     range, where the RBE is approximately linear with respect to LET_d". Outside
-    that box :meth:`rbe_min_max` warns rather than clamping.
+    that box [`rbe_min_max`][pyradbio.models.phenomenological.mcnamara.McNamara.rbe_min_max] warns
+    rather than clamping.
 
     Note ``RBE_min`` falls with LET (p3 < 0) and will go negative for a large
     enough ``sqrt((alpha/beta)_x) * LET_d`` -- at (alpha/beta)_x = 10 Gy that is

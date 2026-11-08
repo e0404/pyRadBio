@@ -12,9 +12,11 @@ doi:10.1667/RR15463.1 (determination of the ELLF); Monini, Cunha, Testa & Beuve
 sensitivity).
 
 NanOx factorises cell survival into two independent classes of event
-(2022 eq. 3)::
+(2022 eq. 3):
 
-    S = S_L x S_NL
+```text
+S = S_L x S_NL
+```
 
 **Local lethal events** happen in nanometric targets (20 x 10 nm cylinders),
 each able to kill the cell on its own, and are treated by single-hit
@@ -35,8 +37,8 @@ event branch, the photon calibration, and the track-segment closed forms. What
 it does **not** implement is the spectrum itself. ``dP/dz|hit,c`` and
 ``RCE(ion, E)`` come from the group's non-public LQD/PHYCHEML/CHEM Monte Carlo
 and are figure-only in all seven NanOx papers, so the forward ion route raises
-:class:`~pyradbio.models.nanox.base.NanOxNanodosimetryRequired` unless a
-:class:`~pyradbio.models.nanox.base.NanOxNanodosimetry` backend is supplied.
+[`NanOxNanodosimetryRequired`][] unless a
+[`NanOxNanodosimetry`][] backend is supplied.
 See ``docs/references/NanOx.md`` for the full boundary.
 
 **Geometry trap.** ``d_s`` is a sensitive-volume **diameter** in Cunha 2017 and
@@ -69,34 +71,38 @@ from pyradbio.models.nanox.ellf import (
     LocalTargetSpectrum,
 )
 
-#: Unit conversion in Alcocer-Avila et al. 2022 eq. (35) and 2023 eq. (50):
-#: ``a = 0.1602 Gy keV^-1 um^3``, i.e. the dose in Gy deposited in 1 um^3 of
-#: unit-density water by 1 keV. Turns a fluence-LET product into a dose.
 GY_PER_KEV_UM3: float = 0.1602
+"""Unit conversion in Alcocer-Avila et al. 2022 eq. (35) and 2023 eq. (50):
+``a = 0.1602 Gy keV^-1 um^3``, i.e. the dose in Gy deposited in 1 um^3 of
+unit-density water by 1 keV. Turns a fluence-LET product into a dose.
+"""
 
-#: The fraction of energy loss that NanOx counts as *restricted* specific
-#: energy -- ionisations, excitations and electron attachments, but not the
-#: energy that merely heats the medium (2023 Definition 2, ``<z> = eta D``).
-#:
-#: Alcocer-Avila et al. 2023 Table 4 reports 0.798-0.802 from LQD across ions
-#: and energies and says "eta is approximately equal to 0.8 for all practical
-#: purposes". **0.8 exactly is the value that reproduces every published**
-#: ``beta_G``: 0.0298/0.64 -> 0.0466, 0.0259/0.64 -> 0.0405, 0.0400/0.64 ->
-#: 0.0625, 0.0615/0.64 -> 0.0961, all matching the printed figures.
 ETA_RESTRICTED_FRACTION: float = 0.8
+"""The fraction of energy loss that NanOx counts as *restricted* specific
+energy -- ionisations, excitations and electron attachments, but not the
+energy that merely heats the medium (2023 Definition 2, ``<z> = eta D``).
 
-#: Edge of the square cross-section of the track core (2022 sec. 2.1.2),
-#: 200 nm. Chosen so the density of events in the penumbra is comparable to
-#: reference low-LET radiation, while staying far below the sensitive-volume
-#: radius. A computational device, not a physical boundary -- and one absent
-#: from the 2017 founding paper.
+Alcocer-Avila et al. 2023 Table 4 reports 0.798-0.802 from LQD across ions
+and energies and says "eta is approximately equal to 0.8 for all practical
+purposes". **0.8 exactly is the value that reproduces every published**
+``beta_G``: 0.0298/0.64 -> 0.0466, 0.0259/0.64 -> 0.0405, 0.0400/0.64 ->
+0.0625, 0.0615/0.64 -> 0.0961, all matching the printed figures.
+"""
+
 CORE_EDGE_UM: float = 0.2
+"""Edge of the square cross-section of the track core (2022 sec. 2.1.2),
+200 nm. Chosen so the density of events in the penumbra is comparable to
+reference low-LET radiation, while staying far below the sensitive-volume
+radius. A computational device, not a physical boundary -- and one absent
+from the 2017 founding paper.
+"""
 
-#: The time after each impact at which primary radical yields are scored
-#: (2022 sec. 2.1.2.2). Monini et al. 2018 showed the choice matters little:
-#: moving it to 1e-8 s leaves ``alpha`` unchanged and shifts ``D_1%`` by
-#: <~15%.
 T_RCE_S: float = 1.0e-11
+"""The time after each impact at which primary radical yields are scored
+(2022 sec. 2.1.2.2). Monini et al. 2018 showed the choice matters little:
+moving it to 1e-8 s leaves ``alpha`` unchanged and shifts ``D_1%`` by
+<~15%.
+"""
 
 
 @dataclass(frozen=True, slots=True)
@@ -109,24 +115,28 @@ class NanOxCellLine:
     """
 
     label: str
-    #: Sensitive-volume **diameter** [um]. The cell nucleus, modelled as a
-    #: cylinder oriented along the beam (2022 Simplification 2).
     sensitive_volume_diameter_um: float
-    #: Sensitive-volume length [um]. 1.0 in every published set -- Monini et al.
-    #: 2018 calls it "the lowest reasonable value that can mimic the thickness
-    #: of the nuclei of flattened cells".
+    """Sensitive-volume **diameter** [um]. The cell nucleus, modelled as a
+    cylinder oriented along the beam (2022 Simplification 2).
+    """
     sensitive_volume_length_um: float
+    """Sensitive-volume length [um]. 1.0 in every published set -- Monini et al.
+    2018 calls it "the lowest reasonable value that can mimic the thickness
+    of the nuclei of flattened cells".
+    """
     ellf: EffectiveLocalLethalFunction
-    #: Quadratic coefficient of the global-event response [Gy^-2] (2022 eq. 11).
     beta_G_per_Gy2: float
-    #: Linear coefficient of the global-event response [Gy^-1]. Zero in every
-    #: published NanOx calculation: ``C_L = 1`` (2023 eq. 34) routes the whole
-    #: reference-radiation linear term to local events so that the local and
-    #: global branches can be adjusted independently.
+    """Quadratic coefficient of the global-event response [Gy^-2] (2022 eq. 11)."""
     alpha_G_per_Gy: float = 0.0
-    #: The photon ``beta_r`` [Gy^-2] this line's ``beta_G`` was derived from,
-    #: recorded for provenance. ``beta_G = beta_r / eta^2``.
+    """Linear coefficient of the global-event response [Gy^-1]. Zero in every
+    published NanOx calculation: ``C_L = 1`` (2023 eq. 34) routes the whole
+    reference-radiation linear term to local events so that the local and
+    global branches can be adjusted independently.
+    """
     reference_beta_x_per_Gy2: float | None = None
+    """The photon ``beta_r`` [Gy^-2] this line's ``beta_G`` was derived from,
+    recorded for provenance. ``beta_G = beta_r / eta^2``.
+    """
 
     def __post_init__(self) -> None:
         if self.sensitive_volume_diameter_um <= 0.0:
@@ -164,23 +174,17 @@ def _cell_line(
     )
 
 
-#: Chinese hamster lung fibroblasts. Monini et al. 2020 Table 1 (ELF columns),
-#: identical in Monini 2018 Table 1, Monini 2019 Table 1 and Alcocer-Avila 2022
-#: Table 1. ``beta_r = 0.0259 Gy^-2`` from Monini 2018 Table 5, which cites it
-#: to Cox, Thacker, Goodhead, Masson & Wilkinson 1977, *Int. J. Radiat. Biol.*
-#: **31**:561, doi:10.1080/09553007714550661. The paired ``alpha_r`` is printed
-#: in no NanOx paper, which is why the presets carry no ``PhotonParameters``.
 V79 = _cell_line(
     "V79", diameter_um=9.8, z0_Gy=22789.0, sigma_Gy=8117.0, h=225841.0, beta_G=0.0405, beta_x=0.0259
 )
+"""Chinese hamster lung fibroblasts. Monini et al. 2020 Table 1 (ELF columns),
+identical in Monini 2018 Table 1, Monini 2019 Table 1 and Alcocer-Avila 2022
+Table 1. ``beta_r = 0.0259 Gy^-2`` from Monini 2018 Table 5, which cites it
+to Cox, Thacker, Goodhead, Masson & Wilkinson 1977, *Int. J. Radiat. Biol.*
+**31**:561, doi:10.1080/09553007714550661. The paired ``alpha_r`` is printed
+in no NanOx paper, which is why the presets carry no ``PhotonParameters``.
+"""
 
-#: Chinese hamster ovary cells. ``beta_r`` is printed by Monini 2018 Table 5 as
-#: "0.0200 x 2" -- the paper deliberately doubles its literature source; carried
-#: as printed, and 0.0400/0.64 does reproduce the printed ``beta_G``. The
-#: undoubled 0.0200 is cited to Weyrather, Ritter, Scholz & Kraft 1999,
-#: *Int. J. Radiat. Biol.* **75**(11):1357, doi:10.1080/095530099139232; the
-#: doubling is Monini 2018's own correction "to reproduce the average value"
-#: over publications, no single measurement matching the mean pair.
 CHO_K1 = _cell_line(
     "CHO-K1",
     diameter_um=11.8,
@@ -190,11 +194,15 @@ CHO_K1 = _cell_line(
     beta_G=0.0625,
     beta_x=0.0400,
 )
+"""Chinese hamster ovary cells. ``beta_r`` is printed by Monini 2018 Table 5 as
+"0.0200 x 2" -- the paper deliberately doubles its literature source; carried
+as printed, and 0.0400/0.64 does reproduce the printed ``beta_G``. The
+undoubled 0.0200 is cited to Weyrather, Ritter, Scholz & Kraft 1999,
+*Int. J. Radiat. Biol.* **75**(11):1357, doi:10.1080/095530099139232; the
+doubling is Monini 2018's own correction "to reproduce the average value"
+over publications, no single measurement matching the mean pair.
+"""
 
-#: Human salivary gland tumour cells. ``beta_r = 0.0615 Gy^-2`` (Monini 2018
-#: Table 5, citing Furusawa et al. 2000, *Radiat. Res.* **154**:485,
-#: doi:10.1667/0033-7587(2000)154[0485:IOAAHC]2.0.CO;2), also quoted by
-#: Alcocer-Avila 2023 sec. 3.4.
 HSG = _cell_line(
     "HSG",
     diameter_um=14.0,
@@ -204,6 +212,11 @@ HSG = _cell_line(
     beta_G=0.0961,
     beta_x=0.0615,
 )
+"""Human salivary gland tumour cells. ``beta_r = 0.0615 Gy^-2`` (Monini 2018
+Table 5, citing Furusawa et al. 2000, *Radiat. Res.* **154**:485,
+doi:10.1667/0033-7587(2000)154[0485:IOAAHC]2.0.CO;2), also quoted by
+Alcocer-Avila 2023 sec. 3.4.
+"""
 
 
 @dataclass(frozen=True, slots=True)
@@ -214,34 +227,37 @@ class NanOxModel:
     the papers print is here; the nanodosimetric spectrum they integrate is not,
     and must be injected via ``nanodosimetry``.
 
-    **Not a** :class:`~pyradbio.models.base.BiophysicalModel`. That interface
+    **Not a** [`BiophysicalModel`][pyradbio.models.base.BiophysicalModel]. That interface
     promises ``alpha_beta``, survival and RBE for an ion, and NanOx can deliver
     none of them until the configuration average of 2022 eqs. (36)-(43) has a
     nanodosimetric source, so this is a standalone assembly class: it cannot be
     handed to a table builder or the benchmark harness and fail there. It
-    declares :attr:`capabilities` like every family, with ``ion_route=False``,
-    and keeps an :meth:`alpha_beta` that raises with the reason. Re-parent it
+    declares [`capabilities`][] like every family, with ``ion_route=False``,
+    and keeps an [`alpha_beta`][] that raises with the reason. Re-parent it
     once an ion route exists.
     """
 
     cell_line: NanOxCellLine
-    #: Photon reference for this cell line. Required by anything that needs
-    #: ``alpha_r,L`` (2023 eq. 35).
     photon: PhotonParameters | None = None
+    """Photon reference for this cell line. Required by anything that needs
+    ``alpha_r,L`` (2023 eq. 35).
+    """
     local_target: LocalTarget = DEFAULT_LOCAL_TARGET
     core_edge_um: float = CORE_EDGE_UM
     eta: float = ETA_RESTRICTED_FRACTION
     t_rce_s: float = T_RCE_S
-    #: Supplies ``dP/dz`` and ``RCE``. ``None`` -- the default -- means the
-    #: forward ion route is unavailable and will raise.
     nanodosimetry: NanOxNanodosimetry | None = field(default=None)
+    """Supplies ``dP/dz`` and ``RCE``. ``None`` -- the default -- means the
+    forward ion route is unavailable and will raise.
+    """
 
-    #: Advertised so that callers can branch without provoking an exception.
-    #: No ion route while no public nanodosimetric source exists for the local
-    #: targets; survival is the non-LQ product ``S_L x S_NL``.
     capabilities: ClassVar[ModelCapabilities] = ModelCapabilities(
         ion_route=False, mixed_field=False, lq_exact=False
     )
+    """Advertised so that callers can branch without provoking an exception.
+    No ion route while no public nanodosimetric source exists for the local
+    targets; survival is the non-LQ product ``S_L x S_NL``.
+    """
 
     def __post_init__(self) -> None:
         if self.core_edge_um <= 0.0:
@@ -293,7 +309,7 @@ class NanOxModel:
 
         This is the corpus's one closed-form coefficient chain, and it
         reproduces every published ``beta_G`` (see the module constant
-        :data:`ETA_RESTRICTED_FRACTION`).
+        [`ETA_RESTRICTED_FRACTION`][]).
         """
         if beta_x_per_Gy2 < 0.0:
             raise ValueError(f"beta_x_per_Gy2 must be >= 0, got {beta_x_per_Gy2!r}")
@@ -390,10 +406,12 @@ class NanOxModel:
     ) -> tuple[float, float]:
         """``(Kin, Kout)``, the mean impacts inside and outside the nucleus.
 
-        Eq. (35)::
+        Eq. (35):
 
-            Kin  = D sigma_s / (a LET)
-            Kout = D (Sigma - sigma_s) / (a LET)
+        ```text
+        Kin  = D sigma_s / (a LET)
+        Kout = D (Sigma - sigma_s) / (a LET)
+        ```
 
         Each is Poisson-distributed and the two are independent (eq. 34), which
         is what lets the core and penumbra contributions be averaged separately.
@@ -495,7 +513,7 @@ class NanOxModel:
         evaluates the **mean-field limit** the paper itself takes in eq. (33),
         valid when ``sigma_Z << <Z> = eta D`` -- i.e. for doses above a few cGy
         with many tracks. It is exact for the reference radiation by
-        construction (see :meth:`photon_survival`) and approximate for ions,
+        construction (see [`photon_survival`][]) and approximate for ions,
         where the configuration average genuinely matters; Alcocer-Avila et al.
         2023 sec. 3.4 shows ``beta`` does not follow ``beta_G RCE^2`` once that
         averaging is done properly.
@@ -538,7 +556,7 @@ class NanOxModel:
         The shipped presets carry the ``beta_G`` the papers print, rounded to
         three significant figures. That rounding costs ~0.08% against
         ``beta_r/eta^2``, which is invisible physically but stops
-        :meth:`photon_survival` from closing to machine precision. Use this
+        [`photon_survival`][] from closing to machine precision. Use this
         when the exact self-consistency matters, or when supplying a photon
         reference other than the one a preset was fitted with.
         """
@@ -560,7 +578,7 @@ class NanOxModel:
         The whole of NanOx's LET dependence of ``beta`` runs through ``RCE``:
         dense tracks let primary radicals recombine, so ``G`` and hence ``RCE``
         fall as LET rises, and the shoulder flattens. Note the caveat on
-        :meth:`survival_track_segment` -- 2023 Fig. 6 shows the properly
+        [`survival_track_segment`][] -- 2023 Fig. 6 shows the properly
         averaged ``beta/beta_r`` is *not* simply ``RCE^2``.
         """
         if rce < 0.0:
@@ -570,17 +588,17 @@ class NanOxModel:
     # -- the (missing) ion route --------------------------------------------
 
     def alpha_beta(self, field: Ion | RadiationField) -> NoReturn:
-        """Always raises :class:`~pyradbio.models.nanox.base.NanOxNanodosimetryRequired`.
+        """Always raises [`NanOxNanodosimetryRequired`][].
 
         Kept as a signpost: the message says what is missing and which assembly
-        methods work instead. See :meth:`_raise_ion_route_missing`.
+        methods work instead. See `_raise_ion_route_missing`.
         """
         self._raise_ion_route_missing()
 
     def _raise_ion_route_missing(self) -> NoReturn:
         """``alpha_beta`` always raises -- see the module docstring.
 
-        Raises :class:`~pyradbio.models.nanox.base.NanOxNanodosimetryRequired`.
+        Raises [`NanOxNanodosimetryRequired`][].
         Without a backend the message names the two missing quantities; *with*
         one it names the remaining obstacle, the configuration average of 2022
         eqs. (36)-(43), and points at the assembly methods that do work. A

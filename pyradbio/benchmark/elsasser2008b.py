@@ -9,7 +9,7 @@ New J. Phys. **10** 075005, doi:10.1088/1367-2630/10/7/075005.
 **The module name follows Friedrich et al. 2012**, which cites this paper as
 "Elsasser et al. 2008b" for the LEM's radial dose and the *other* 2008 paper
 (Elsasser, Kraemer & Scholz, IJROBP 71 866-872 = LEM III, this package's
-:mod:`~pyradbio.benchmark.elsasser2008`) as "2008a" for the model version. They
+[`elsasser2008`][]) as "2008a" for the model version. They
 are easy to confuse and the distinction matters: 2008b does **not** define a LEM
 version, it *surveys* five amorphous track-structure models.
 
@@ -54,7 +54,7 @@ The core / ``D_t`` degeneracy
 -----------------------------
 Section 4 is explicit that the track core and the transition dose trade off:
 "the LEM gives good results for all track structure models by choosing the
-threshold parameter Dt appropriately". Hence :data:`TRACK_MODELS` carries a
+threshold parameter Dt appropriately". Hence [`TRACK_MODELS`][] carries a
 *per-model* ``D_t`` -- 6 Gy for ``CR03`` against 23 for ``EDR40`` and 30 for
 ``CR10``, all fitting the same HSG data. **Never vary a core radius without
 re-fitting ``D_t``**, or the comparison measures the degeneracy rather than the
@@ -77,20 +77,21 @@ from dataclasses import dataclass
 
 ELSASSER2008B_DOI = "10.1088/1367-2630/10/7/075005"
 
-#: HSG photon inputs used throughout secs. 4-5 (Fig. 5/6 captions, from ref. [21]
-#: = Elsasser & Scholz 2007, "shown to give the best fit (based on chi^2-analysis)").
 HSG_ALPHA_X: float = 0.313  # Gy^-1
+"""HSG photon inputs used throughout secs. 4-5 (Fig. 5/6 captions, from ref. [21]
+= Elsasser & Scholz 2007, "shown to give the best fit (based on chi^2-analysis)").
+"""
 HSG_BETA_X: float = 0.0615  # Gy^-2
 HSG_NUCLEUS_RADIUS_UM: float = 5.0
 
-#: The two carbon qualities of Table 1: entrance channel and spread-out Bragg peak.
 TABLE1_LET_KEV_UM: tuple[float, float] = (13.0, 77.0)
+"""The two carbon qualities of Table 1: entrance channel and spread-out Bragg peak."""
 
-#: Shared delta-electron range parameterisation (sec. 3.1.1, after eq. 8).
 R_MAX_GAMMA_UM: float = 0.062
+"""Shared delta-electron range parameterisation (sec. 3.1.1, after eq. 8)."""
 R_MAX_DELTA: float = 1.7
-#: Radical-diffusion width (sec. 3.3, refs. [30, 31]).
 RADICAL_SIGMA_NM: float = 4.0
+"""Radical-diffusion width (sec. 3.3, refs. [30, 31])."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -113,10 +114,6 @@ class TrackModel:
         return self.rbe_alpha[index], self.rbe_alpha_uncertainty[index]
 
 
-#: Table 1 (p. 14) plus the Fig. 6 caption's per-model ``D_t``. ``KC`` and ``MC``
-#: are carried for completeness; pyRadBio implements no Kiefer-Chatterjee or
-#: delta-electron-transport radial dose, and the paper itself calls their fitted
-#: ``D_t`` values (0.01 and 1.6 Gy) physically unrealistic.
 TRACK_MODELS: tuple[TrackModel, ...] = (
     TrackModel(
         label="CR03",
@@ -159,6 +156,11 @@ TRACK_MODELS: tuple[TrackModel, ...] = (
         rbe_alpha_uncertainty=(0.01, 0.01),
     ),
 )
+"""Table 1 (p. 14) plus the Fig. 6 caption's per-model ``D_t``. ``KC`` and ``MC``
+are carried for completeness; pyRadBio implements no Kiefer-Chatterjee or
+delta-electron-transport radial dose, and the paper itself calls their fitted
+``D_t`` values (0.01 and 1.6 Gy) physically unrealistic.
+"""
 
 
 def get_track_model(label: str) -> TrackModel:
@@ -169,5 +171,5 @@ def get_track_model(label: str) -> TrackModel:
     raise KeyError(f"unknown track-structure model {label!r}")
 
 
-#: Models pyRadBio can actually build (the analytical LEM cores).
 IMPLEMENTED_LABELS: tuple[str, ...] = ("CR03", "CR10", "EDR40")
+"""Models pyRadBio can actually build (the analytical LEM cores)."""

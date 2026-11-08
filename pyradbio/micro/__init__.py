@@ -2,9 +2,9 @@
 
 Analytic single-event lineal-energy spectra ``f1(y)`` / ``d1(y)`` for ions in
 water, built on the shared ``Ion`` and ``StoppingPower`` seams. See
-:mod:`pyradbio.micro.lineal_energy` for the physics and assumptions.
+[`pyradbio.micro.lineal_energy`][] for the physics and assumptions.
 
-:mod:`pyradbio.micro.mcds` sits alongside them: the closed-form MCDS DNA-damage
+[`pyradbio.micro.mcds`][] sits alongside them: the closed-form MCDS DNA-damage
 yields (Semenenko & Stewart 2006), which are a function of the same track
 quality but score *lesions* rather than energy deposition. It is the DSB input
 to the RMF model and is deliberately kept here rather than under ``models/``,

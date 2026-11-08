@@ -7,10 +7,10 @@ finds those shared experiments and classifies how well each LQ quantity
 agrees, so a reader can decide whether a database is a *transcription* of the
 published values, a *digitization* of the figures (typical error of a few
 percent), or something else. It was written to assess RadPhysBio
-(:mod:`pyradbio.benchmark.radphysbio`, largely digitized) against PIDE
-(:mod:`pyradbio.benchmark.pide`, printed ``*_paper`` values and PIDE's own
+([`pyradbio.benchmark.radphysbio`][], largely digitized) against PIDE
+([`pyradbio.benchmark.pide`][], printed ``*_paper`` values and PIDE's own
 ``*_fit`` refits), but the matcher and the classifier are generic: they read
-only :class:`CrossRow`.
+only [`CrossRow`][].
 
 Bibliography bridge
 -------------------
@@ -19,7 +19,7 @@ keys by PubMed ID. A bridge file ``pide_publications_pmid.csv`` maps publication
 names to a PMID and DOI where RadPhysBio cites the same paper. It is built from
 PIDE's reference list, so it is **not** shipped with pyRadBio (PIDE is a
 registration-gated database): a registered user keeps it beside their PIDE export
-(``PYRADBIO_PIDE_DIR``), where :func:`load_pide_publications` reads it, or passes
+(``PYRADBIO_PIDE_DIR``), where [`load_pide_publications`][] reads it, or passes
 an explicit path. Without a bridge the cross-check has no PIDE-to-PMID keys.
 
 How the bridge was built: PIDE's reference list was parsed into first-author
@@ -36,7 +36,7 @@ was invented. ``listed_in`` records the public source of each row.
 Matching rule
 -------------
 Two rows are the same experiment when they share the publication key, the
-cell line (compared through :func:`cell_key`), the projectile ``Z``, and a
+cell line (compared through [`cell_key`][]), the projectile ``Z``, and a
 LET within ``let_tol`` (relative, default 3%) -- or, when either side has no
 LET, an energy within ``energy_tol``. Two rows that *both* carry a LET and
 disagree beyond tolerance are never paired on energy. Within a
@@ -46,7 +46,7 @@ tie-breaker so that two exposures listed at the *same* LET (repeat
 experiments, common in Furusawa 2000) are paired with their own values rather
 than crosswise.
 
-Comparison categories (:func:`compare_values`)
+Comparison categories ([`compare_values`][])
 ----------------------------------------------
 ``identical``
     equal once both values are rounded (half-even) to the coarser of the two
@@ -106,10 +106,9 @@ __all__ = [
     "rows_from_radphysbio",
 ]
 
-#: LQ quantities the driver compares, in report order.
 QUANTITIES: tuple[str, ...] = ("alpha_ion", "beta_ion", "alpha_x", "beta_x")
+"""LQ quantities the driver compares, in report order."""
 
-#: Comparison categories, in report order (see the module docstring).
 CATEGORIES: tuple[str, ...] = (
     "identical",
     "rounding",
@@ -118,6 +117,7 @@ CATEGORIES: tuple[str, ...] = (
     "sign",
     "missing",
 )
+"""Comparison categories, in report order (see the module docstring)."""
 
 # --- bibliography bridge -----------------------------------------------------
 
@@ -181,7 +181,7 @@ def load_pide_publications(path: str | Path | None = None) -> tuple[PidePublicat
     """The bridge rows: an explicit ``path``, else the local bridge, else none.
 
     The bridge is never bundled (see the module docstring); without an explicit
-    ``path`` this reads :func:`local_bridge_path` and returns ``()`` when no local
+    ``path`` this reads [`local_bridge_path`][] and returns ``()`` when no local
     bridge is configured.
     """
     src = Path(path) if path is not None else local_bridge_path()
@@ -196,7 +196,7 @@ def pmid_by_publication(
     """``{publication key: pmid}`` for the bridged publications.
 
     Keyed by the PIDE publication name (what
-    :func:`~pyradbio.benchmark.pide.load_pide` writes into ``source``) and,
+    [`load_pide`][pyradbio.benchmark.pide.load_pide] writes into ``source``) and,
     for rows of a local complete bridge that carry it, by PIDE's running
     number as a string too. ``min_confidence`` is ``"exact"`` or
     ``"probable"`` (the default, which includes the exact ones); rows without
@@ -238,7 +238,7 @@ class CrossRow:
     label: str = ""
 
     def value(self, quantity: str) -> float | None:
-        """The LQ quantity by name (one of :data:`QUANTITIES`)."""
+        """The LQ quantity by name (one of [`QUANTITIES`][])."""
         if quantity not in QUANTITIES:
             raise KeyError(quantity)
         result: float | None = getattr(self, quantity)
@@ -249,14 +249,14 @@ def rows_from_pide(
     entries: Iterable[ReferenceRecord | PideObservation],
     pmid_of: Mapping[str, str],
 ) -> list[CrossRow]:
-    """PIDE records -> :class:`CrossRow` keyed by PMID via the bridge.
+    """PIDE records -> [`CrossRow`][] keyed by PMID via the bridge.
 
-    Prefer :func:`~pyradbio.benchmark.pide.load_pide_observations`, which retains
+    Prefer [`load_pide_observations`][pyradbio.benchmark.pide.load_pide_observations], which retains
     missing quantities as ``None``. Complete benchmark records are accepted
-    for compatibility, but :func:`~pyradbio.benchmark.pide.load_pide` has already
+    for compatibility, but [`load_pide`][pyradbio.benchmark.pide.load_pide] has already
     discarded partial experiments and cannot provide missing-value statistics.
     ``source`` must be ``"pide:<PublicationName or #Publication>"``;
-    ``pmid_of`` is :func:`pmid_by_publication`, which carries both keys.
+    ``pmid_of`` is [`pmid_by_publication`][], which carries both keys.
     Records whose publication has no PMID are dropped (they cannot be in
     RadPhysBio).
     """
@@ -284,11 +284,11 @@ def rows_from_pide(
 
 
 def rows_from_radphysbio(entries: Iterable[RadPhysBioEntry]) -> list[CrossRow]:
-    """RadPhysBio ion rows -> :class:`CrossRow` keyed by PMID.
+    """RadPhysBio ion rows -> [`CrossRow`][] keyed by PMID.
 
     Each ion row is paired with the X-ray/gamma row of the same PMID and cell
     line (first by ``#Exp``), the rule of
-    :func:`~pyradbio.benchmark.radphysbio.pair_photon_references`; unlike that
+    [`pair_photon_references`][pyradbio.benchmark.radphysbio.pair_photon_references]; unlike that
     function, ion rows *without* a photon partner are kept with
     ``alpha_x``/``beta_x`` ``None`` so their ion parameters are still compared.
     The export's nominal beam energy is not a target energy, so it is omitted
@@ -351,16 +351,17 @@ def _quantize(x: float, decimals: int) -> Decimal:
 
 @dataclass(frozen=True, slots=True)
 class Comparison:
-    """Outcome of :func:`compare_values` for one quantity."""
+    """Outcome of [`compare_values`][] for one quantity."""
 
     category: str
-    #: ``|a - b|``; ``None`` when a side is missing.
     abs_diff: float | None
-    #: ``|a - b| / max(|a|, |b|)``; ``None`` when missing or both zero.
+    """``|a - b|``; ``None`` when a side is missing."""
     rel_diff: float | None
-    #: Decimals the comparison was made at (the coarser side); ``None`` when
-    #: neither side carries a precision (both zero) or a side is missing.
+    """``|a - b| / max(|a|, |b|)``; ``None`` when missing or both zero."""
     decimals: int | None
+    """Decimals the comparison was made at (the coarser side); ``None`` when
+    neither side carries a precision (both zero) or a side is missing.
+    """
 
 
 def compare_values(
@@ -399,10 +400,10 @@ class MatchedPair:
 
     left: CrossRow
     right: CrossRow
-    #: ``"let"`` or ``"energy"``: which axis the pairing was made on.
     match_basis: str
-    #: Relative LET difference ``|L_l - L_r| / L_l`` (``None`` if a side lacks LET).
+    """``"let"`` or ``"energy"``: which axis the pairing was made on."""
     let_rel_diff: float | None
+    """Relative LET difference ``|L_l - L_r| / L_l`` (``None`` if a side lacks LET)."""
     comparisons: Mapping[str, Comparison] = field(default_factory=dict)
 
     def category(self, quantity: str) -> str:
@@ -510,13 +511,13 @@ def match_rows(
 
 @dataclass(frozen=True, slots=True)
 class CrossCheckResult:
-    """Everything :func:`crosscheck` found."""
+    """Everything [`crosscheck`][] found."""
 
     pairs: tuple[MatchedPair, ...]
     unmatched_left: tuple[CrossRow, ...]
     unmatched_right: tuple[CrossRow, ...]
-    #: ``summary[quantity][category]`` -> count over all pairs.
     summary: Mapping[str, Mapping[str, int]]
+    """``summary[quantity][category]`` -> count over all pairs."""
 
     @property
     def n_pairs(self) -> int:
@@ -553,7 +554,7 @@ def crosscheck(
     """Match ``left`` against ``right`` and classify every LQ quantity of every pair.
 
     ``left`` is the reference side (its LET is the denominator of the relative
-    LET difference). ``quantities`` defaults to all four of :data:`QUANTITIES`.
+    LET difference). ``quantities`` defaults to all four of [`QUANTITIES`][].
     """
     raw_pairs, un_l, un_r = match_rows(left, right, let_tol=let_tol, energy_tol=energy_tol)
     pairs: list[MatchedPair] = []

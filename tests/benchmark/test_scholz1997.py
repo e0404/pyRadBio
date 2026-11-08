@@ -127,7 +127,7 @@ def test_lem1_approximation_alpha_tracks_the_cross_section_at_high_energy() -> N
     The bare central-traversal form scored only tracks that hit the nucleus while
     charging them for the whole LET, so it converged to ``alpha_x f`` with ``f``
     the in-nucleus energy fraction (0.60 at proton 200 MeV/u).
-    :meth:`LEM1.scholz1997_central_initial_slope` restores the missed tracks'
+    `LEM1.scholz1997_central_initial_slope` restores the missed tracks'
     photon-rate contribution and the two agree to well under a percent, while
     staying identical below ~15 MeV/u where ``f = 1``.
     """
@@ -184,7 +184,7 @@ def test_explicit_lq_path_is_distinct_from_fast_approximation_in_fig5() -> None:
 
     The reconstruction error this pins is *substitution*: the two paths are
     different models and the explicit one is what Figs. 2 and 5 plot, so
-    :meth:`LEM1.scholz1997_explicit_lq` must return the impact-parameter initial
+    `LEM1.scholz1997_explicit_lq` must return the impact-parameter initial
     slope bundled with the two-track curvature, and the fast path must stay
     numerically distinguishable from it.
 
@@ -289,7 +289,7 @@ def test_montecarlo_single_traversal_matches_n1() -> None:
     assert float(np.mean(values)) == pytest.approx(model.single_traversal_log_kill(ion), rel=0.02)
 
 
-#: Batches x realizations of the MC-beta test: 48 000 realizations in 10 independent batches.
+# Batches x realizations of the MC-beta test: 48 000 realizations in 10 independent batches.
 _MC_BATCHES, _MC_PER_BATCH = 10, 4800
 
 

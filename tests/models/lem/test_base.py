@@ -1,4 +1,4 @@
-"""Shared LEM machinery in :mod:`pyradbio.models.lem.base`.
+"""Shared LEM machinery in `pyradbio.models.lem.base`.
 
 Everything here is exercised by all four LEM versions, so a defect is a defect
 four times over. The version-specific behaviour lives in ``test_lem1.py`` and

@@ -1,10 +1,10 @@
 """z*_1D tables, delegated to MKMModel's backend (NativeMKMBackend by default).
 
-The in-memory :class:`ZStarTable` mirrors pyMKM's classic ``.txt`` payload:
+The in-memory [`ZStarTable`][] mirrors pyMKM's classic ``.txt`` payload:
 per-fragment ``(energy, z*_1D)`` rows plus the MKM header parameters
 (``CellType``, ``Alpha_0``, ``Beta``, domain/nucleus radii). It round-trips
-through :func:`pyradbio.tables.io.read_pymkm_txt` /
-:func:`pyradbio.tables.io.write_pymkm_txt`.
+through [`pyradbio.tables.io.read_pymkm_txt`][] /
+[`pyradbio.tables.io.write_pymkm_txt`][].
 """
 
 from __future__ import annotations
@@ -16,8 +16,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pyradbio.models.mkm.base import MKMBackend
 
-#: Column order of the per-fragment data rows in the pyMKM classic .txt format.
 ZSTAR_COLUMNS: tuple[str, ...] = ("Z", "energy_MeV_u", "z_star_1D_Gy")
+"""Column order of the per-fragment data rows in the pyMKM classic .txt format."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -58,13 +58,13 @@ def build_zstar_table(
 ) -> ZStarTable:
     """Build a z*_1D table over an (ion Z, energy) grid via the MKM backend.
 
-    Delegates z* to :class:`~pyradbio.models.mkm.model.MKMModel`, whose default
+    Delegates z* to [`MKMModel`][pyradbio.models.mkm.model.MKMModel], whose default
     engine is the pyMKM-free
-    :class:`~pyradbio.models.mkm.native_backend.NativeMKMBackend` built from the
+    [`NativeMKMBackend`][pyradbio.models.mkm.native_backend.NativeMKMBackend] built from the
     given geometry. Inject ``backend`` to use another engine (e.g.
     ``PyMKMBackend`` for a pyMKM cross-check) or a fake; its geometry must then
     agree with the arguments. The result carries the MKM header
-    parameters and round-trips through :func:`pyradbio.tables.io.write_pymkm_txt`.
+    parameters and round-trips through [`pyradbio.tables.io.write_pymkm_txt`][].
     """
     from pyradbio.models.mkm.model import MKMModel
 

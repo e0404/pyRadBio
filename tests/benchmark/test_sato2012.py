@@ -4,7 +4,7 @@ The one figure in that paper with no PHITS transport in it, so the whole
 ``f_n(z_n; D)`` chain -- the Fermi single-event density (eqs. 24-25), the
 compound-Poisson multi-event density (eqs. 26-28) and the survival integral
 (eq. 7) -- can be scored against the paper with nothing else in the way.
-Provenance of the digitized A-2 curve: :mod:`pyradbio.benchmark.sato2012`.
+Provenance of the digitized A-2 curve: `pyradbio.benchmark.sato2012`.
 """
 
 from __future__ import annotations
@@ -118,7 +118,7 @@ def test_golden_figure_a1_panel_b_large_variance() -> None:
     Tolerance is 3% RMS on the log ratio. The single worst point is the last
     (10 Gy, ~7% low), where the excess is largest and therefore most sensitive to
     the Fermi straggling width -- see
-    :data:`pyradbio.micro.multi_event.DEFAULT_FERMI_WIDTH_FRACTION`, which is
+    `pyradbio.micro.multi_event.DEFAULT_FERMI_WIDTH_FRACTION`, which is
     measured to move the dose-mean single-event specific energy by 9%.
     """
     _d, paper, ours = _ours("B")

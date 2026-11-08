@@ -1,7 +1,7 @@
 """The beta models shared across LEM I-III, and the LEM IV boundaries.
 
 ``slope_matching`` / ``rapid_lem`` / ``scholz1997_two_track`` live on
-:class:`~pyradbio.models.lem.base.LEMBase` because all three only need the
+`pyradbio.models.lem.base.LEMBase` because all three only need the
 lethal-event density to be a *pointwise* function of the local dose -- true for
 LEM I-III, false for LEM IV. These tests pin both halves of that: the shared
 family works for LEM II/III, and the LEM IV paths that would be silently wrong
@@ -93,7 +93,7 @@ def test_the_cluster_enhancement_actually_reaches_the_array_response(cls) -> Non
 
 @pytest.mark.parametrize("cluster", [ClusterModel(), Friedrich2015ClusterModel()])
 def test_bundled_cluster_models_satisfy_the_cluster_response_protocol(cluster) -> None:
-    """``LEM2.cluster`` is typed by :class:`ClusterResponse`; both bundled models conform."""
+    """``LEM2.cluster`` is typed by `ClusterResponse`; both bundled models conform."""
     assert isinstance(cluster, ClusterResponse)
     lem = _model(LEM2, cluster=cluster)
     assert lem._photon_log_kill_array(np.array([1.0e5]))[0] > 0.0

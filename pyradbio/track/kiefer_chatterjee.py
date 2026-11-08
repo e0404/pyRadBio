@@ -5,11 +5,13 @@ The Kiefer-Chatterjee track structure (Chatterjee & Schaefer 1976,
 1986, *Phys. Med. Biol.* 31, 1201, doi:10.1088/0031-9155/31/11/002) is the
 amorphous-track model underlying the MKM/SMK z* computation. It splits the
 radial dose into a constant "core" and a ``1/r^2`` "penumbra" of delta-ray
-dose::
+dose:
 
-    D(r) = (LET_E / (pi*rho*Rc^2)) - 2*Kp*ln(Rp/Rc)/Rc^2   r < Rc   (core)
-         = Kp / r^2                                          Rc <= r < Rp (penumbra)
-         = 0                                                 r >= Rp
+```text
+D(r) = (LET_E / (pi*rho*Rc^2)) - 2*Kp*ln(Rp/Rc)/Rc^2   r < Rc   (core)
+     = Kp / r^2                                          Rc <= r < Rp (penumbra)
+     = 0                                                 r >= Rp
+```
 
 with
   - ``Rc = Rc0 * beta``      velocity-dependent core radius (Rc0 = 11.6 nm),
@@ -22,7 +24,7 @@ with
 The core amplitude is fixed by *energy conservation*: the core term subtracts
 exactly the penumbra's radially-integrated energy so that
 ``integral(D(r)*2*pi*r dr)`` reproduces the LET (see
-:meth:`radial_integral_LET_keV_um`). Expressed in pyRadBio units this is
+`radial_integral_LET_keV_um`). Expressed in pyRadBio units this is
 
     D_core = LET[keV/um] / (pi * KEVUM_PER_GY_UM2_GCM3 * rho * Rc^2)
              - 2*Kp*ln(Rp/Rc)/Rc^2 .
@@ -62,9 +64,9 @@ _NM_TO_UM: float = 1.0e-3
 class KieferChatterjeeRadialDose:
     """Kiefer-Chatterjee radial dose ``D(r)`` for an ion track in water.
 
-    Implements the :class:`~pyradbio.track.base.RadialDoseModel` protocol.
+    Implements the [`RadialDoseModel`][pyradbio.track.base.RadialDoseModel] protocol.
     Parameters default to the pyMKM ``"Kiefer-Chatterjee"`` values; a
-    :class:`~pyradbio.track.stopping_power.StoppingPower` supplies the LET.
+    [`StoppingPower`][] supplies the LET.
     """
 
     stopping_power: StoppingPower | None = None

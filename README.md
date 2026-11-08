@@ -4,6 +4,7 @@
 [![codecov](https://codecov.io/gh/e0404/pyRadBio/graph/badge.svg)](https://codecov.io/gh/e0404/pyRadBio)
 [![PyPI](https://img.shields.io/pypi/v/pyradbio)](https://pypi.org/project/pyradbio/)
 [![Python](https://img.shields.io/pypi/pyversions/pyradbio)](https://pypi.org/project/pyradbio/)
+[![Documentation](https://readthedocs.org/projects/pyradbio/badge/?version=latest)](https://pyradbio.readthedocs.io/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24046436.svg)](https://doi.org/10.5281/zenodo.24046436)
 
 Radiobiological modelling for ion-beam therapy, centred on the
@@ -119,7 +120,7 @@ from pyradbio.models.phenomenological import McNamara
 
 mcn = McNamara(photon=PhotonParameters(alpha_x=0.18, beta_x=0.028))
 ab = mcn.alpha_beta_from_let(5.0)  # dose-averaged LET [keV/um]
-rbe10 = mcn.rbe_at_survival(0.10, let_keV_um=5.0)
+rbe10 = mcn.rbe_at_survival_from_let(5.0, 0.10)  # RBE at 10% survival
 ```
 
 The `examples/` folder has runnable demonstrations, one or more per model

@@ -26,7 +26,7 @@ All three add a term to the Bethe bracket ``L`` (multiplied by ``z^2``), with
   evaluated at two cut-offs and Richardson-extrapolated.
 
 Phase shifts enter only through ``sin^2`` of their differences, so they are needed
-mod pi; ``arg Gamma`` is taken as the imaginary part of :func:`scipy.special.loggamma`.
+mod pi; ``arg Gamma`` is taken as the imaginary part of `scipy.special.loggamma`.
 """
 
 from __future__ import annotations
@@ -41,11 +41,11 @@ import numpy.typing as npt
 from scipy.interpolate import CubicSpline
 from scipy.special import digamma, loggamma
 
-#: Fine-structure constant alpha (CODATA 2018).
 FINE_STRUCTURE = 1.0 / 137.035999084
+"""Fine-structure constant alpha (CODATA 2018)."""
 
-#: Default cut-off of the kappa sum (the extrapolation uses it and half of it).
 DEFAULT_KAPPA_MAX = 4000
+"""Default cut-off of the kappa sum (the extrapolation uses it and half of it)."""
 
 
 def bloch_correction(Z: float, beta: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:

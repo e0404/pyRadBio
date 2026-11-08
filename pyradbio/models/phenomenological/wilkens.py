@@ -25,10 +25,12 @@ class WilkensOelfke(RBEMinMaxModel):
     """Wilkens & Oelfke 2004, Phys. Med. Biol. 49:2811, doi:10.1088/0031-9155/49/13/004.
 
     The oldest member of the family, and the only one whose linear term is
-    written directly in ``alpha`` rather than in ``RBE_max``::
+    written directly in ``alpha`` rather than in ``RBE_max``:
 
-        alpha_p(L) = alpha_0 + lambda * L        (eq. 4)
-        beta_p     := beta_x                     (eq. 5)
+    ```text
+    alpha_p(L) = alpha_0 + lambda * L        (eq. 4)
+    beta_p     := beta_x                     (eq. 5)
+    ```
 
     which on this base class is ``RBE_max = (alpha_0 + lambda L)/alpha_x`` and
     ``RBE_min = 1``. Eq. (5) is a *definition*, argued from the observation that
@@ -40,7 +42,7 @@ class WilkensOelfke(RBEMinMaxModel):
     response, so this model does **not** reduce to the photon reference at zero
     LET: with the V79 defaults ``RBE_max(0) = 0.1/0.112 = 0.89``. Carabe behaves
     the same way. That is why ``alpha0_Gy`` is a model parameter here rather than
-    something derived from ``photon`` -- see :class:`.LinearScaling`, which is
+    something derived from ``photon`` -- see [`LinearScaling`][], which is
     exactly this model with ``alpha_0`` *tied* to ``alpha_x`` instead.
 
     **Validity: dose-averaged LET 0.3-30 keV/um** (sec. 2.1), covering therapeutic

@@ -2,7 +2,7 @@
 
 Numerical core of the Friedrich et al. 2012 (Int. J. Radiat. Biol. 88:103-107,
 doi:10.3109/09553002.2011.611213, Fig. 4) full-simulation ``beta_I``. It holds no
-biophysics: :mod:`pyradbio.models.lem.lem4` supplies the radial dose profile and
+biophysics: [`pyradbio.models.lem.lem4`][] supplies the radial dose profile and
 the per-subvolume response kernel, this module supplies the statistics.
 
 **The model.** Following the local-effect principle of Elsasser & Scholz 2007
@@ -22,7 +22,7 @@ has the exact characteristic function
     log E[e^{-i theta Z}] = integral (e^{-i theta g(r)} - 1) phi 2 pi r dr ,
 
 evaluated here by **direct summation over the radial nodes** and inverted by one
-FFT (:class:`CompoundPoissonSolver`). The lethal-event count then follows as
+FFT (`CompoundPoissonSolver`). The lethal-event count then follows as
 ``N_ion(D) = N_sv <rho(d)>_{f_D}`` for a per-subvolume response ``rho``.
 
 Two properties make this the right formulation, and both are exercised by the
@@ -50,7 +50,7 @@ tests:
   dose-area integral** ``integral g_B 2 pi r dr = I_track``. Box-averaging is a
   convolution with a unit-mass kernel, so this holds exactly in the continuum;
   a crude near-core box quadrature breaks it by ~35% (over-counting the singular
-  1/r^2 core) and biases every downstream ``beta``. :func:`box_averaged_profile`
+  1/r^2 core) and biases every downstream ``beta``. `box_averaged_profile`
   therefore integrates in *polar* coordinates against an exact circle-in-square
   angular overlap, so the core is resolved by the radial nodes themselves.
 """
@@ -67,7 +67,7 @@ from pyradbio.core.lq import fit_lq_linearised
 from pyradbio.models.lem import _localdose_kernel
 from pyradbio.models.lem.engine import ENGINES, Engine
 
-# Execution engine for :func:`box_averaged_profile` (the local-dose hot spot).
+# Execution engine for `box_averaged_profile` (the local-dose hot spot).
 #   "auto" (default) -- the numba kernel when the ``fast`` extra is installed, else NumPy.
 #   "numpy" -- the vectorised reference (also the fallback and the accuracy anchor).
 #   "numba" -- force the compiled kernel; errors if numba is unavailable.
@@ -104,11 +104,13 @@ def _centred_square_arc(s: FloatArray, half: float) -> FloatArray:
 
     Closed form: the circle is wholly inside up to the inradius, wholly outside
     beyond the circumradius, and in between loses the four arcs that stick out
-    past the edges::
+    past the edges:
 
-        s <= half            ->  2 pi
-        half < s < half*sqrt2 ->  2 pi - 8 arccos(half / s)
-        s >= half*sqrt2      ->  0
+    ```text
+    s <= half            ->  2 pi
+    half < s < half*sqrt2 ->  2 pi - 8 arccos(half / s)
+    s >= half*sqrt2      ->  0
+    ```
     """
     s = np.asarray(s, dtype=np.float64)
     safe = np.maximum(s, 1.0e-300)
@@ -175,7 +177,7 @@ def box_averaged_profile(
         g_B(rho) = (1/ell^2) integral D(r) K(r, rho) r dr ,
         K(r, rho) = (1/pi) integral_0^pi Theta_0(s(delta)) ddelta ,
 
-    with ``Theta_0`` = :func:`_centred_square_arc`. ``K`` is symmetric in
+    with ``Theta_0`` = `_centred_square_arc`. ``K`` is symmetric in
     ``r <-> rho`` and satisfies ``integral K(r, rho) rho drho = ell^2``, so
     dose-area conservation ``integral g_B 2 pi rho drho == integral D 2 pi r dr``
     holds *identically* rather than by renormalisation. (Skipping the direction
@@ -192,8 +194,8 @@ def box_averaged_profile(
     ``Theta_0`` is non-zero -- ``sin delta < ell/(sqrt2 rho)`` -- so far-field
     radii stay as well resolved as the core.
 
-    ``engine`` selects the execution backend (:data:`BoxEngine`): ``"auto"`` uses the
-    compiled numba kernel (:mod:`._localdose_kernel`) when the ``fast`` extra is
+    ``engine`` selects the execution backend (`BoxEngine`): ``"auto"`` uses the
+    compiled numba kernel (`_localdose_kernel`) when the ``fast`` extra is
     installed, else the NumPy path here. The two run the identical quadrature and agree
     to machine precision, so the choice is purely performance (~20-25x); this function
     is ~94% of a ``LEM4.local_dose_beta`` call.
@@ -298,14 +300,14 @@ class CompoundPoissonSolver:
     is summed *directly* over the jump nodes -- no parametric small-jump
     approximation, which is what keeps the periodic FFT grid clean (see the
     module docstring). It is linear in the overall intensity, so the expensive
-    pass is done once in ``__init__`` and every :meth:`density` call is a single
+    pass is done once in ``__init__`` and every `density` call is a single
     ``exp`` plus one inverse FFT. That matters because the physical scale is
     ``phi = D / I_track``: a whole dose-response curve costs one setup.
 
     The reconstruction grid spans ``[0, 2 d_hi)`` but only its lower half is
     reported: the upper half represents *negative* doses under the FFT's periodic
     wrap, so ``d_hi`` must bound the true support (jumps included) with room to
-    spare. See :meth:`density` for why that split is needed and what is done with
+    spare. See `density` for why that split is needed and what is done with
     the wrapped mass. ``n_grid`` sets the resolution ``dd = 2 d_hi / n_grid``.
     """
 
@@ -371,7 +373,7 @@ class CompoundPoissonSolver:
         return np.arange(self._half, dtype=np.float64) * self._dd
 
     def density(self, scale: float) -> FloatArray:
-        """Probability mass on :attr:`dose_grid` when every intensity is
+        """Probability mass on `dose_grid` when every intensity is
         multiplied by ``scale`` (physically ``scale = phi = D / I_track``).
 
         The local dose is non-negative and has an *atom at zero* (the probability
@@ -382,7 +384,7 @@ class CompoundPoissonSolver:
         scored at the maximum local dose, i.e. as maximally clustered damage,
         precisely inverting its physical content. The upper half of the grid is
         therefore read as negative dose and folded back onto ``d = 0``, which is
-        exact as long as ``d_hi`` bounds the true support (:meth:`wrapped_mass`
+        exact as long as ``d_hi`` bounds the true support (`wrapped_mass`
         checks the assumption).
 
         Masses are *not* clipped at zero: residual ripple is symmetric, and
@@ -397,7 +399,7 @@ class CompoundPoissonSolver:
     def wrapped_mass(self, scale: float) -> float:
         """Probability mass the reconstruction places at dose ``> d_hi``.
 
-        Physically this must be ~0: it is the tail :meth:`density` folds back to
+        Physically this must be ~0: it is the tail `density` folds back to
         zero, valid only while ``d_hi`` really does bound the support. A value
         that is not small means the dose grid is too short and the folded mass is
         genuine high-dose damage being scored as none.
@@ -410,7 +412,7 @@ class CompoundPoissonSolver:
         return float(upper[: upper.size // 2].sum())
 
     def response_mean(self, scale: float, response: FloatArray) -> float:
-        """``<rho(Z)>`` for a response tabulated on :attr:`dose_grid`."""
+        """``<rho(Z)>`` for a response tabulated on `dose_grid`."""
         return float(np.dot(self.density(scale), response))
 
 
@@ -427,7 +429,7 @@ def subvolume_centres(
     (``r_eff = 5.0 um`` at ``ell = 540 nm``) and straddles it otherwise, which moved
     ``1 - C_I`` by 4x over a 6% change in ``r_eff``. Callers that need a
     registration-independent answer average over a period; see
-    :meth:`LEM4.analytic_discrete_cluster_index`.
+    [`LEM4.analytic_discrete_cluster_index`][pyradbio.models.lem.lem4.LEM4.analytic_discrete_cluster_index].
 
     The candidate grid is widened by two extra rings when a phase is applied, so a
     shifted lattice still covers the disk. That cannot change the ``dx = dy = 0``
@@ -456,7 +458,7 @@ def far_track_background_per_Gy(
     ``int_{b_cut}^{r_sim} g(b) 2 pi b db``, linear in ``D``.
 
     This is the *mean-field* half of the track/background split used by
-    :func:`monte_carlo_effect`: far tracks are replaced by their expectation rather
+    `monte_carlo_effect`: far tracks are replaced by their expectation rather
     than sampled, which is exactly the approximation the discrete engine already makes
     through ``DiscreteSetup.retained_dose_fraction``. It evaluates ``g`` at the
     distance to the nucleus **centre**, i.e. treats the nucleus as a point -- the
@@ -514,7 +516,7 @@ def monte_carlo_effect(
     nearly every sampled track passes hundreds of um away to deposit a vanishing,
     near-uniform dose. With ``b_cut`` set, only tracks inside that impact parameter are
     sampled and everything beyond is added as the deterministic mean
-    (:func:`far_track_background_per_Gy`), cutting cost by ``(r_sim/b_cut)^2``.
+    (`far_track_background_per_Gy`), cutting cost by ``(r_sim/b_cut)^2``.
 
     The approximation is that far tracks are replaced by their expectation, so their
     *fluctuation* is dropped. That is the favourable direction here: the far population
@@ -583,7 +585,7 @@ def lq_coefficients(doses: FloatArray, effect: FloatArray) -> tuple[float, float
     window has reached the single-track overkill saturation, where the response
     is concave and the LQ form no longer applies).
 
-    Delegates to :func:`pyradbio.core.lq.fit_lq_linearised`, whose arithmetic is
+    Delegates to [`pyradbio.core.lq.fit_lq_linearised`][], whose arithmetic is
     this function's former body in the same order (bit-equality on recorded LEM IV
     inputs is pinned in ``tests/core/test_lq_fits.py``). It raises ``ValueError``
     on degenerate input -- fewer than 2 doses, a non-positive dose, non-finite

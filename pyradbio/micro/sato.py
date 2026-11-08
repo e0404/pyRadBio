@@ -17,7 +17,7 @@ paper writes the same with the symbol ``z``):
                 + P7/(sqrt(2pi)*Gamma)*exp{-(eps - eps_p7)^2/(2*Gamma^2)}  # Auger peak
 
 The functional form and its normalisation are implemented here
-(:func:`amf_epsilon_density`, :func:`_build_amf_density`): ``A`` is derived from
+([`amf_epsilon_density`][], `_build_amf_density`): ``A`` is derived from
 ``B``/``C`` (Sato 2006 Eq 8), ``w_i = 10.9 eV``, and the discrete/Auger peaks are
 omitted (sub-keV; negligible for the MKM's dose-weighted moments).
 
@@ -27,9 +27,9 @@ PHITS they live in ``tsed.dat`` (ships with PHITS; not in any paper); here they 
 obtained by fitting the form to the bundled Hartzell 2025 digitized AMF curves
 (``pyradbio.micro.hartzell2025``); the acceptance tests
 (``tests/micro/test_sato_engine.py``) hold the fitted ``y_D`` for H-Ne at
-1/10/100 MeV/u within 20% of Hartzell. :class:`SatoLinealEnergyEngine` builds a
-:class:`Spectrum` from explicit :class:`SatoAmfCoefficients`;
-:func:`pyradbio.micro.sato_coefficients.sato_coefficients_for` supplies them per
+1/10/100 MeV/u within 20% of Hartzell. [`SatoLinealEnergyEngine`][] builds a
+[`Spectrum`][] from explicit [`SatoAmfCoefficients`][];
+[`pyradbio.micro.sato_coefficients.sato_coefficients_for`][] supplies them per
 ion and energy.
 """
 
@@ -47,10 +47,11 @@ from pyradbio.core.radiation import Ion
 from pyradbio.micro.lineal_energy import SiteGeometry, Spectrum, SphericalSite
 from pyradbio.track.stopping_power import StoppingPower
 
-#: Fixed Sato-2006 excitation/Auger peak energies [keV/um-equivalent eV] and the
-#: energy per commonest ionisation. These are the ONLY closed-form pieces of the
-#: fitted set; everything else (B, j_k, mu_k, P_i) is a per-condition fit output.
 _PEAK_ENERGIES_EV = (10.9, 13.5, 17.0, 21.4, 26.3, 533.0)
+"""Fixed Sato-2006 excitation/Auger peak energies [keV/um-equivalent eV] and the
+energy per commonest ionisation. These are the ONLY closed-form pieces of the
+fitted set; everything else (B, j_k, mu_k, P_i) is a per-condition fit output.
+"""
 _AUGER_PEAK_EV = 700.0
 _AUGER_WIDTH_EV = 100.0
 _W_ION_EV = 10.9  # average energy per commonest ionisation (Sato 2006)
@@ -127,7 +128,7 @@ def amf_epsilon_density(
     """Sato AMF ``eps*f1(eps)`` [arb.] on ``eps_keV`` (primary + two delta terms).
 
     Sato 2006 Eq 7 / Sato 2012 Eq 1 (the discrete/Auger peaks are omitted -- see
-    :class:`SatoAmfCoefficients`). Units: ``eps`` is energy imparted [keV].
+    [`SatoAmfCoefficients`][]). Units: ``eps`` is energy imparted [keV].
     """
     A = _primary_norm_A(let_keV_um, site_diameter_um, coeff.C, coeff.B)
     primary = A * _primary_shape(eps_keV, let_keV_um, site_diameter_um, coeff.C, coeff.B)
@@ -141,7 +142,7 @@ def amf_epsilon_density(
 class SatoLinealEnergyEngine:
     """Native Sato-AMF single-event spectrum engine (``SpectrumEngine``).
 
-    Produces a :class:`Spectrum` for an :class:`Ion` in ``site`` (a spherical water
+    Produces a [`Spectrum`][] for an [`Ion`][] in ``site`` (a spherical water
     target, diameter 1-2000 nm) from the Sato AMF (Sato 2006 Eq 7 / 2012 Eq 1),
     with LET supplied by ``stopping_power``. Drop-in for any MKM model via the
     ``SpectrumEngine`` seam: ``MCFMKMModel(engine=SatoLinealEnergyEngine(...))``.
@@ -149,7 +150,7 @@ class SatoLinealEnergyEngine:
     The per-condition Sato coefficients (``B, C, mu_k, j_k``) are fit outputs. Pass
     them explicitly via ``coefficients`` for a single condition, or leave it
     ``None`` (default) to look them up automatically from the bundled Hartzell 2025
-    AMF fits (:func:`pyradbio.micro.sato_coefficients.sato_coefficients_for`,
+    AMF fits ([`pyradbio.micro.sato_coefficients.sato_coefficients_for`][],
     interpolated in energy) -- self-contained, no PHITS. The automatic path covers
     the six Hartzell ions (H, He, Li, C, O, Ne); other ions raise.
     """
@@ -225,7 +226,7 @@ def _build_amf_density(
     it has the same shape as the ``y*d(y)`` curves it is fit to, i.e.
     ``eps*f1(eps) ~ y*d(y)``. Hence the dose density is ``d(y) ~ [eps*f1]/y`` and the
     frequency density is ``f(y) = d(y)*y_F/y ~ [eps*f1]/y^2``. Normalised so
-    ``integral f dy = 1``; the :class:`Spectrum` machinery then gives ``y_F``,
+    ``integral f dy = 1``; the [`Spectrum`][] machinery then gives ``y_F``,
     ``y_D`` and ``d(y)`` self-consistently.
     """
     y = np.asarray(y_grid_keV_um, dtype=np.float64)

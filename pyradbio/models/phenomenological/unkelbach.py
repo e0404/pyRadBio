@@ -7,15 +7,17 @@ from typing import ClassVar
 
 from pyradbio.models.phenomenological.base import RBEMinMax, RBEMinMaxModel
 
-#: RBE slope in LET_d [(keV/um)^-1], deduced from RBE = 1.1 at the SOBP's mean
-#: LET_d of 2.5 keV/um. Rorvik et al. 2018 appendix B.
 UNKELBACH_SLOPE = 0.04
+"""RBE slope in LET_d [(keV/um)^-1], deduced from RBE = 1.1 at the SOBP's mean
+LET_d of 2.5 keV/um. Rorvik et al. 2018 appendix B.
+"""
 
-#: The paper's own alternative values, obtained by linearising McNamara et al.
-#: 2015 at 1.67 Gy per fraction: ``c ~ 0.02`` for ``(alpha/beta)_x = 10 Gy`` and
-#: ``c ~ 0.05`` for ``(alpha/beta)_x = 2 Gy``. Quoted as a sensitivity range, not
-#: as fitted constants -- pass them via ``slope_um_keV`` if wanted.
 UNKELBACH_SLOPE_MCNAMARA_HIGH_ALPHA_BETA = 0.02
+"""The paper's own alternative values, obtained by linearising McNamara et al.
+2015 at 1.67 Gy per fraction: ``c ~ 0.02`` for ``(alpha/beta)_x = 10 Gy`` and
+``c ~ 0.05`` for ``(alpha/beta)_x = 2 Gy``. Quoted as a sensitivity range, not
+as fitted constants -- pass them via ``slope_um_keV`` if wanted.
+"""
 UNKELBACH_SLOPE_MCNAMARA_LOW_ALPHA_BETA = 0.05
 
 
@@ -24,9 +26,9 @@ class Unkelbach(RBEMinMaxModel):
     """Unkelbach et al. 2016, Int. J. Radiat. Oncol. Biol. Phys. 96:1097,
     doi:10.1016/j.ijrobp.2016.08.038.
 
-    ::
-
-        RBE_max(LET_d) = RBE_min(LET_d) = 1 + 0.04 LET_d
+    ```text
+    RBE_max(LET_d) = RBE_min(LET_d) = 1 + 0.04 LET_d
+    ```
 
     **This is not a biological model.** Unkelbach et al. developed an *LET
     optimisation method*, not an RBE fit; the formula above is what their
@@ -34,7 +36,7 @@ class Unkelbach(RBEMinMaxModel):
     1.1 over a typical SOBP, whose mean ``LET_d`` is 2.5 keV/um. Rorvik et al.
     2018 include it, with Frese et al. 2011, as one of two "plan-based" models
     for comparison, and this package ships it on the same footing as
-    :class:`~pyradbio.models.phenomenological.frese.LinearScaling` for that
+    [`LinearScaling`][] for that
     reason.
 
     **Setting ``RBE_max = RBE_min`` is the whole content of the reformulation**,
@@ -50,15 +52,15 @@ class Unkelbach(RBEMinMaxModel):
     No fitted domain is declared, because there is no database behind it to
     bound. That is not the same as being valid everywhere.
 
-    .. note::
-       Rorvik et al. 2018 describes a "McMahon configuration ... the coefficient
-       of 0.04 is increased to 0.055". **No such value, and no mention of McMahon,
-       appears in Unkelbach et al.** What the paper does give as alternatives are
-       ``c ~ 0.02`` for ``(alpha/beta)_x = 10 Gy`` and ``c ~ 0.05`` for
-       ``(alpha/beta)_x = 2 Gy``, both obtained by linearising **McNamara** et al.
-       2015 at 1.67 Gy per fraction -- offered as a sensitivity range, not as
-       fitted constants. The 0.055 variant is therefore not shipped; use
-       ``slope_um_keV`` to set any of these explicitly.
+    !!! note
+        Rorvik et al. 2018 describes a "McMahon configuration ... the coefficient
+        of 0.04 is increased to 0.055". **No such value, and no mention of McMahon,
+        appears in Unkelbach et al.** What the paper does give as alternatives are
+        ``c ~ 0.02`` for ``(alpha/beta)_x = 10 Gy`` and ``c ~ 0.05`` for
+        ``(alpha/beta)_x = 2 Gy``, both obtained by linearising **McNamara** et al.
+        2015 at 1.67 Gy per fraction -- offered as a sensitivity range, not as
+        fitted constants. The 0.055 variant is therefore not shipped; use
+        ``slope_um_keV`` to set any of these explicitly.
     """
 
     slope_um_keV: float = UNKELBACH_SLOPE

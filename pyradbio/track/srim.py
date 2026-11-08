@@ -10,22 +10,24 @@ This module reads those files so that a pyRadBio-vs-Survival comparison can be
 run on **Survival's own LET**, removing stopping power as a free variable. That
 matters more than it sounds: LEM alpha is a steep function of LET, so a few
 percent of stopping-power disagreement is easily mistaken for a model-level
-disagreement (the same reason :func:`~pyradbio.benchmark.reference_tables.load_trip_dedx`
+disagreement (the same reason [`load_trip_dedx`][pyradbio.benchmark.reference_tables.load_trip_dedx]
 exists for TRiP98).
 
-File format (fixed, 4 header lines then whitespace-separated rows)::
+File format (fixed, 4 header lines then whitespace-separated rows):
 
-       Ion        dE/dx       dE/dx      Projected    Longitudinal   Lateral
-      Energy      Elec.      Nuclear        Range      Straggling   Straggling
-     (MeV/u)     (MeV/um)   (MeV/um)        (um)          (um)         (um)
-    ----------- ----------- ----------- ------------- ------------  ---------
-    8.333e-04   5.641E-02   9.014E-02    0.0566        0.0209        0.0152
+```text
+   Ion        dE/dx       dE/dx      Projected    Longitudinal   Lateral
+  Energy      Elec.      Nuclear        Range      Straggling   Straggling
+ (MeV/u)     (MeV/um)   (MeV/um)        (um)          (um)         (um)
+----------- ----------- ----------- ------------- ------------  ---------
+8.333e-04   5.641E-02   9.014E-02    0.0566        0.0209        0.0152
+```
 
 Two conventions must be reproduced exactly to match Survival:
 
 1. **Electronic stopping only.** ``Survival::BetheBlochTable`` reads column 2
    and drops column 3; the line summing the two is commented out in
-   ``src/usefulFunctions.cpp``. :func:`srim_stopping_power` therefore defaults
+   ``src/usefulFunctions.cpp``. [`srim_stopping_power`][] therefore defaults
    to ``include_nuclear=False``. Nuclear stopping is negligible above ~1 MeV/u
    but reaches ~60% of the electronic term at the low-energy end of these
    tables, so the choice is not cosmetic there.
@@ -33,7 +35,7 @@ Two conventions must be reproduced exactly to match Survival:
    the bracketing pair and interpolates ``let`` linearly in ``e_c``. pyRadBio's
    default log-log interpolation is the better interpolant, so this module
    builds tables with ``interpolation="linear"`` to match the reference rather
-   than to be right; see :class:`~pyradbio.track.stopping_power.StoppingPowerTable`.
+   than to be right; see [`StoppingPowerTable`][].
 
 The ``.dat`` files are **not** redistributed here (the Survival code is GPL-2;
 pyRadBio is not). Point ``PYRADBIO_SURVIVAL_SRC_DIR`` at a Survival source
@@ -56,11 +58,11 @@ from pyradbio.core.elements import SYMBOL_TO_Z as ELEMENT_Z
 from pyradbio.datasets import SURVIVAL_SRC, dataset_dir
 from pyradbio.track.stopping_power import StoppingPowerTable, TabularStoppingPower
 
-#: Ions Survival ships a SRIM table for.
 SRIM_IONS: tuple[str, ...] = ("H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne")
+"""Ions Survival ships a SRIM table for."""
 
-#: Subfolder of a Survival checkout holding the ``.dat`` files.
 SRIM_SUBDIR = "data"
+"""Subfolder of a Survival checkout holding the ``.dat`` files."""
 
 _HEADER_LINES = 4
 _MEV_PER_UM_TO_KEV_PER_UM = 1.0e3
@@ -92,11 +94,11 @@ class SrimColumn:
 
 
 def parse_srim_table(text: str, symbol: str) -> SrimColumn:
-    """Parse the text of a ``<symbol>_Srim.dat`` file into a :class:`SrimColumn`.
+    """Parse the text of a ``<symbol>_Srim.dat`` file into a [`SrimColumn`][].
 
     Skips the four fixed header lines and reads six whitespace-separated
     columns per row. Blank lines are ignored; a row with fewer than six columns
-    raises :class:`ValueError` rather than being silently dropped.
+    raises `ValueError` rather than being silently dropped.
     """
     rows = [line for line in text.splitlines()[_HEADER_LINES:] if line.strip()]
     if not rows:
@@ -137,7 +139,7 @@ def srim_data_dir(directory: str | Path | None = None) -> Path:
 
     ``directory`` wins if given (and is used as-is); otherwise this resolves
     ``$PYRADBIO_SURVIVAL_SRC_DIR/data``, raising
-    :class:`~pyradbio.datasets.MissingDatasetError` when unconfigured.
+    [`MissingDatasetError`][pyradbio.datasets.MissingDatasetError] when unconfigured.
     """
     if directory is not None:
         return Path(directory)
@@ -165,7 +167,7 @@ def srim_stopping_power(
     match_survival_interpolation: bool = True,
     directory: str | Path | None = None,
 ) -> TabularStoppingPower:
-    """A :class:`~pyradbio.track.stopping_power.StoppingPower` over the SRIM tables.
+    """A [`StoppingPower`][pyradbio.track.stopping_power.StoppingPower] over the SRIM tables.
 
     Defaults reproduce ``Survival``'s LET exactly: electronic stopping only,
     linear-in-energy interpolation. Set ``include_nuclear=True`` or

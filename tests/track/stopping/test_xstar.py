@@ -27,7 +27,7 @@ from pyradbio.track.stopping.masses import nuclear_mass_MeV
 from pyradbio.track.stopping.nuclear import WaterNuclearStopping
 from pyradbio.track.stopping.xstar import XSTAR, XSTAR_I_VALUE_EV
 
-#: Energy bands [MeV/u] in which source-point deviations are reported.
+# Energy bands [MeV/u] in which source-point deviations are reported.
 BANDS = ((0.0, 0.01), (0.01, 0.1), (0.1, 1.0), (1.0, 10.0), (10.0, 100.0), (100.0, 1e9))
 
 

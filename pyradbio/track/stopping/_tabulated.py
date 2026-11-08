@@ -2,13 +2,13 @@
 
 * each ion is served by a *reference* table -- one (Z, A) stored in a shipped file;
   an ion with another mass is looked up at the same velocity (equal Lorentz factor,
-  true nuclear masses, :mod:`~pyradbio.track.stopping.masses`);
-* an optional user :class:`~pyradbio.track.stopping.grid.LogEnergyGrid` re-holds every
+  true nuclear masses, [`masses`][]);
+* an optional user [`LogEnergyGrid`][] re-holds every
   table on its own nodes;
 * ``quantity="total"`` adds a source's own nuclear column for the exact isotope it was
   tabulated for; nuclear stopping depends on the projectile mass, not just its velocity,
   so every other ion gets ``nuclear``
-  (:class:`~pyradbio.track.stopping.nuclear.WaterNuclearStopping`; default: ICRU 49's
+  ([`WaterNuclearStopping`][]; default: ICRU 49's
   own method, Moliere protons and ZBL otherwise -- what ICRU 49/90 did where they
   tabulate nuclear stopping).
 """

@@ -47,9 +47,6 @@ def _require_flags(args: argparse.Namespace, flags: Sequence[str], model: str) -
         raise SystemExit(f"pyradbio table --model {model}: missing {', '.join(missing)}")
 
 
-#: ``--flag`` -> model dataclass field, for the optional model-behaviour flags.
-#: Applied only when the chosen model actually has the field; passing one to a
-#: model that does not is an error rather than a silent no-op.
 _BEHAVIOUR_FLAGS: dict[str, str] = {
     "beta_model": "beta_model",
     "initial_slope_model": "initial_slope_model",
@@ -59,6 +56,10 @@ _BEHAVIOUR_FLAGS: dict[str, str] = {
     "local_dose_overkill": "local_dose_overkill",
     "engine": "engine",
 }
+"""``--flag`` -> model dataclass field, for the optional model-behaviour flags.
+Applied only when the chosen model actually has the field; passing one to a
+model that does not is an error rather than a silent no-op.
+"""
 
 
 def _behaviour_overrides(args: argparse.Namespace, cls: type, model: str) -> dict[str, object]:
@@ -84,13 +85,6 @@ def _behaviour_overrides(args: argparse.Namespace, cls: type, model: str) -> dic
     return overrides
 
 
-#: ``--stopping-power`` choices. ``default`` is the library default
-#: (:func:`~pyradbio.track.stopping_power.default_stopping_power`: ICRU 90's procedure
-#: for Z 1-18, Hubert alpha scaling for Z 19-92 from 2.5 MeV/u, anchored analytic Bethe
-#: elsewhere); ``bethe`` is the analytic
-#: :class:`~pyradbio.track.stopping_power.SimpleBetheStoppingPower` alone; the
-#: ``icru*`` / ``xstar`` choices are the :mod:`pyradbio.track.stopping` tables (Z 1-18,
-#: no extrapolation); ``libdedx`` is GPL and only works when the user installed it.
 STOPPING_POWER_CHOICES = (
     "default",
     "bethe",
@@ -102,13 +96,21 @@ STOPPING_POWER_CHOICES = (
     "ns1970",
     "libdedx",
 )
+"""``--stopping-power`` choices. ``default`` is the library default
+([`default_stopping_power`][pyradbio.track.stopping_power.default_stopping_power]: ICRU 90's
+procedure for Z 1-18, Hubert alpha scaling for Z 19-92 from 2.5 MeV/u, anchored analytic Bethe
+elsewhere); ``bethe`` is the analytic
+[`SimpleBetheStoppingPower`][pyradbio.track.stopping_power.SimpleBetheStoppingPower] alone; the
+``icru*`` / ``xstar`` choices are the [`pyradbio.track.stopping`][] tables (Z 1-18, no
+extrapolation); ``libdedx`` is GPL and only works when the user installed it.
+"""
 
 
 def _resolve_stopping_power(name: str | None) -> StoppingPower | None:
     """``--stopping-power`` -> a stopping-power instance, or None for the model default.
 
     Omitting the flag leaves each model on its own default, which is
-    :func:`~pyradbio.track.stopping_power.default_stopping_power`.
+    [`default_stopping_power`][pyradbio.track.stopping_power.default_stopping_power].
     """
     if name is None:
         return None
@@ -183,7 +185,7 @@ def _build_lem(model: str) -> Callable[[argparse.Namespace], BiophysicalModel]:
 
 
 def _build_mkm(args: argparse.Namespace) -> BiophysicalModel:
-    """MKM on the pyMKM-free :class:`NativeMKMBackend` (the library default)."""
+    """MKM on the pyMKM-free ``NativeMKMBackend`` (the library default)."""
     from pyradbio.models.mkm.model import MKMModel
     from pyradbio.models.mkm.native_backend import NativeMKMBackend
 
@@ -197,7 +199,6 @@ def _build_mkm(args: argparse.Namespace) -> BiophysicalModel:
     return MKMModel(alpha0=args.alpha0, backend=backend)
 
 
-#: model name -> builder. LEM I-IV share the photon+cell flags; MKM uses its own.
 _MODEL_BUILDERS: dict[str, Callable[[argparse.Namespace], BiophysicalModel]] = {
     "lem1": _build_lem("lem1"),
     "lem2": _build_lem("lem2"),
@@ -205,6 +206,7 @@ _MODEL_BUILDERS: dict[str, Callable[[argparse.Namespace], BiophysicalModel]] = {
     "lem4": _build_lem("lem4"),
     "mkm": _build_mkm,
 }
+"""model name -> builder. LEM I-IV share the photon+cell flags; MKM uses its own."""
 
 
 def _cmd_survival(args: argparse.Namespace) -> int:

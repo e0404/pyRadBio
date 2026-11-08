@@ -71,7 +71,7 @@ from typing import Any
 from pyradbio.benchmark import manganaro2018 as m18
 
 CACHE_NAME = "survival_our_mc.json"
-#: Survival's ``-ion`` symbols -> Z, for ``--only``.
+# Survival's ``-ion`` symbols -> Z, for ``--only``.
 _ION_Z = {ion: Z for ion, (Z, _) in m18.PAIRED_IONS.items()}
 
 

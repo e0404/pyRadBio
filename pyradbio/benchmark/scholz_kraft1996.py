@@ -25,8 +25,8 @@ Two findings worth knowing when using this data:
   full-curve observables: build
   ``LEM1.scholz1997_traversal_conditioned_survival`` once per point and read the
   slope and the iso-survival doses straight off it. The sampled-array helpers
-  :func:`estimate_final_slope_cross_section` and
-  :func:`estimate_iso_survival_rbe` remain for curves that only exist as
+  [`estimate_final_slope_cross_section`][] and
+  [`estimate_iso_survival_rbe`][] remain for curves that only exist as
   ``(dose, survival)`` pairs.
 
 Each curve lives in its own CSV under ``data/`` named
@@ -36,7 +36,7 @@ data rows; the ``series``/``particle`` metadata records which figure line or
 symbol set each point came from.
 
 Each figure carries the paper's own cell/target inputs (see
-:data:`FIGURE_INPUTS`) so the reconstruction script can configure LEM I with
+[`FIGURE_INPUTS`][]) so the reconstruction script can configure LEM I with
 exactly the parameters used in that panel.
 """
 
@@ -105,7 +105,7 @@ class PaperCellInputs:
         the existing hand constructions. The factor 1.0 is passed
         explicitly because Scholz & Kraft's 50 um^2 already *is* the effective
         cross-section (against a measured mean of 75 um^2; see
-        :meth:`pyradbio.core.cell.CellTarget.effective_nucleus_radius_um`), so it must
+        [`pyradbio.core.cell.CellTarget.effective_nucleus_radius_um`][]), so it must
         not be shrunk a second time.
         """
         return CellTarget(
@@ -298,7 +298,7 @@ def estimate_final_slope_cross_section(
 
     Compatibility path for curves that only exist as ``(dose, survival)`` pairs.
     The dose and derivative come from a monotone-projected local quadratic (see
-    :func:`_fit_log_kill_at_survival`). The input must bracket
+    `_fit_log_kill_at_survival`). The input must bracket
     ``survival_level``; extrapolation would hide an insufficient dose range.
 
     Prefer ``LEM1.scholz1997_traversal_conditioned_survival``. Its curve is an
@@ -387,7 +387,7 @@ def iso_survival_rbe_from_final_slope(
     r"""RBE at ``survival_level`` implied by a final-slope cross-section.
 
     Lets Fig. 2 and Fig. 3, which plot ``sigma``, be compared against Fig. 4,
-    which plots RBE. Inverting :func:`estimate_final_slope_cross_section` gives
+    which plots RBE. Inverting [`estimate_final_slope_cross_section`][] gives
     the log-kill slope exactly,
 
     ``slope = sigma * density / (LEM_D1_PREFACTOR * LET)``
@@ -684,12 +684,12 @@ def get_curve(
 # The generator is scripts/lem1_mc_reference.py ``sk1996-final-slope``; the
 # checkpoint is validation/data/sk1996_mc_observables.csv.
 
-#: CSV compatibility marker of ``sk1996_mc_observables.csv`` rows; equal to
-#: :data:`FINAL_SLOPE_ESTIMATOR_VERSION` (the slope is read analytically off the
-#: traversal-conditioned Poisson mixture).
 OBSERVABLE_ESTIMATOR_VERSION = FINAL_SLOPE_ESTIMATOR_VERSION
+"""CSV compatibility marker of ``sk1996_mc_observables.csv`` rows; equal to
+[`FINAL_SLOPE_ESTIMATOR_VERSION`][] (the slope is read analytically off the
+traversal-conditioned Poisson mixture).
+"""
 
-#: The ions of Figs. 2-4, ``name -> (Z, A)``.
 SPECIES: Mapping[str, tuple[int, int]] = MappingProxyType(
     {
         "proton": (1, 1),
@@ -702,43 +702,47 @@ SPECIES: Mapping[str, tuple[int, int]] = MappingProxyType(
         "uranium": (92, 238),
     }
 )
-#: Fig. 3's C/Ar/U branches (sigma) and Fig. 4's p/He/C branches (RBE).
+"""The ions of Figs. 2-4, ``name -> (Z, A)``."""
 SIGMA_PARTICLES: tuple[str, ...] = ("carbon", "argon", "uranium")
+"""Fig. 3's C/Ar/U branches (sigma) and Fig. 4's p/He/C branches (RBE)."""
 RBE_PARTICLES: tuple[str, ...] = ("proton", "helium", "carbon")
-#: 1-20 MeV/u, the interval of the 1996 Fig. 4 caption (the 1994 sibling figure
-#: stops p/He at 10 MeV/u; 1-20 is deliberate, since this reconstructs the 1996 panel).
 ENERGIES_MEV_U: tuple[float, ...] = (1.0, 2.0, 3.0, 5.0, 8.0, 12.0, 16.0, 20.0)
-#: The default point catalogue of the offline batch.
+"""1-20 MeV/u, the interval of the 1996 Fig. 4 caption (the 1994 sibling figure
+stops p/He at 10 MeV/u; 1-20 is deliberate, since this reconstructs the 1996 panel).
+"""
 MC_POINTS: tuple[tuple[str, float], ...] = tuple(
     (particle, energy)
     for particle in sorted(set(SIGMA_PARTICLES) | set(RBE_PARTICLES))
     for energy in ENERGIES_MEV_U
 )
+"""The default point catalogue of the offline batch."""
 SURVIVAL_LEVELS: tuple[float, ...] = (0.80, 0.20, 0.01)
 LEVEL_TAG: Mapping[float, str] = MappingProxyType({0.80: "80pct", 0.20: "20pct", 0.01: "1pct"})
-#: The traversal grid must span the 1% dose: it is sized from the cheap two-track LQ
-#: estimate with this headroom, then doubled on demand (at most
-#: ``MAX_DOSE_EXPANSIONS`` times), so an under-sized grid fails loudly rather than
-#: extrapolating.
 DOSE_HEADROOM = 1.6
+"""The traversal grid must span the 1% dose: it is sized from the cheap two-track LQ
+estimate with this headroom, then doubled on demand (at most
+``MAX_DOSE_EXPANSIONS`` times), so an under-sized grid fails loudly rather than
+extrapolating.
+"""
 MAX_DOSE_EXPANSIONS = 8
-#: The pilot must reach comfortably PAST the deepest level: the bracket is checked on
-#: the pilot but the observables are read off the pooled curve, and pooling moves S by
-#: a fraction of a percent (e.g. an argon 16 MeV/u pilot that stopped at 0.010067).
 SURVIVAL_BRACKET_MARGIN = 0.5
-#: The p, 20 MeV/u 1%-dose sample has about 13,200 tracks inside R_eff + r_max; the
-#: guard applies to lambda at the top of the grid (headroom plus Poisson padding).
+"""The pilot must reach comfortably PAST the deepest level: the bracket is checked on
+the pilot but the observables are read off the pooled curve, and pooling moves S by
+a fraction of a percent (e.g. an argon 16 MeV/u pilot that stopped at 0.010067).
+"""
 DEFAULT_MAX_MEAN_TRAVERSALS = 40_000.0
-#: Adaptive allocation: batches are pooled, so a pilot is never thrown away.
+"""The p, 20 MeV/u 1%-dose sample has about 13,200 tracks inside R_eff + r_max; the
+guard applies to lambda at the top of the grid (headroom plus Poisson padding).
+"""
 DEFAULT_BATCHES = 16
+"""Adaptive allocation: batches are pooled, so a pilot is never thrown away."""
 DEFAULT_REALIZATIONS_PER_BATCH = 25
 DEFAULT_MAX_REALIZATIONS = 20_000
 DEFAULT_TARGET_RELATIVE_ERROR = 0.03
 MAX_ALLOCATION_GROWTH = 4.0
-#: Poisson weight allowed beyond the traversal grid before a point is rejected.
 MAX_POISSON_TAIL_MASS = 1.0e-6
+"""Poisson weight allowed beyond the traversal grid before a point is rejected."""
 
-#: Columns of ``sk1996_mc_observables.csv``, in file order.
 MC_OBSERVABLE_FIELDS: tuple[str, ...] = (
     "particle",
     "estimator_version",
@@ -763,8 +767,9 @@ MC_OBSERVABLE_FIELDS: tuple[str, ...] = (
     "target_relative_error",
     "precision_converged",
 )
-#: Columns of ``sk1996_mc_observables.csv`` that are labels, not measurements.
+"""Columns of ``sk1996_mc_observables.csv``, in file order."""
 MC_OBSERVABLE_TEXT_COLUMNS = frozenset({"particle", "stopping_power"})
+"""Columns of ``sk1996_mc_observables.csv`` that are labels, not measurements."""
 
 
 def v79_lem1_models(
@@ -773,7 +778,7 @@ def v79_lem1_models(
 ) -> tuple[LEM1, LEM1]:
     """``(full, bracket)`` LEM I models of the 1996 V79 panels (Figs. 2-4).
 
-    Both use ``inputs`` (default :data:`FIGURE_INPUTS` ``["fig3_sigma_vs_energy_v79"]``;
+    Both use ``inputs`` (default [`FIGURE_INPUTS`][] ``["fig3_sigma_vs_energy_v79"]``;
     Figs. 2-4 share one input set) through ``inputs.photon()`` and
     ``inputs.cell_target()`` and the same ``stopping_power`` object. ``full`` carries
     ``beta_model="scholz1997_montecarlo"`` and runs the traversal-conditioned Monte
@@ -1042,7 +1047,7 @@ def load_mc_observables(path: str | os.PathLike[str]) -> dict[str, list[dict[str
     """Read ``sk1996_mc_observables.csv`` for plotting, grouped by particle.
 
     Each row keeps every non-empty column except ``particle``: the text columns
-    (:data:`MC_OBSERVABLE_TEXT_COLUMNS`) as ``str``, the rest as ``float``; rows are
+    ([`MC_OBSERVABLE_TEXT_COLUMNS`][]) as ``str``, the rest as ``float``; rows are
     sorted by energy. A missing file reads as ``{}``; provenance header lines are
     skipped.
     """
@@ -1062,8 +1067,8 @@ def load_mc_observables(path: str | os.PathLike[str]) -> dict[str, list[dict[str
     return grouped
 
 
-#: Comparison keys of :func:`compare_mc_to_paper`: ``(panel, particle, level)``.
 ComparisonKey = tuple[str, str, float | None]
+"""Comparison keys of [`compare_mc_to_paper`][]: ``(panel, particle, level)``."""
 
 
 def compare_mc_to_paper(
@@ -1082,10 +1087,10 @@ def compare_mc_to_paper(
     * ``("fig4", p, level)``: ``rbe_<tag>`` against the Fig. 4 calc line at
       ``level``, interpolated in log LET.
 
-    :func:`compare_points_to_curve` never extrapolates: an MC point outside the
+    [`compare_points_to_curve`][] never extrapolates: an MC point outside the
     digitized x range is counted in ``points_outside_support``. The jackknife error
     is an MC allocation diagnostic, not a confidence interval on the residual.
-    Raises ``ValueError`` (from :func:`compare_points_to_curve`) when a particle has
+    Raises ``ValueError`` (from [`compare_points_to_curve`][]) when a particle has
     no point inside the line's support.
 
     The printing stays in the script.
@@ -1148,7 +1153,7 @@ def paper_sigma_derived_rbe_1pct(
     model's own helium sigma(1%) tracks it to 2-5% at LET 32-48.
 
     The values are **upper bounds that tighten with LET**
-    (:func:`iso_survival_rbe_from_final_slope`): a slope needs an intercept to give a
+    ([`iso_survival_rbe_from_final_slope`][]): a slope needs an intercept to give a
     dose. Each pair is sorted by LET; a missing curve is skipped.
     """
     sources = (
@@ -1178,8 +1183,8 @@ def paper_sigma_derived_rbe_1pct(
 
 # --- numeric fingerprint of the committed checkpoint -----------
 
-#: The ``sk1996_mc_observables.csv`` fingerprint point and its reduced settings.
 MC_OBSERVABLES_FINGERPRINT_POINT: tuple[str, float] = ("carbon", 8.0)
+"""The ``sk1996_mc_observables.csv`` fingerprint point and its reduced settings."""
 MC_OBSERVABLES_FINGERPRINT_SETTINGS: Mapping[str, float] = MappingProxyType(
     {
         "n_batches": 4,
@@ -1195,10 +1200,10 @@ MC_OBSERVABLES_FINGERPRINT_SETTINGS: Mapping[str, float] = MappingProxyType(
 def mc_observables_fingerprint(stopping_power: StoppingPower) -> list[dict[str, Any]]:
     """Recompute the ``sk1996_mc_observables.csv`` fingerprint (one tiny point).
 
-    One :func:`estimate_final_slope_point` run at
-    :data:`MC_OBSERVABLES_FINGERPRINT_POINT` (carbon 8 MeV/u) with
-    :data:`MC_OBSERVABLES_FINGERPRINT_SETTINGS` (20 histories) on
-    :func:`v79_lem1_models` ``(stopping_power)``. The traversal-conditioned Monte
+    One [`estimate_final_slope_point`][] run at
+    [`MC_OBSERVABLES_FINGERPRINT_POINT`][] (carbon 8 MeV/u) with
+    [`MC_OBSERVABLES_FINGERPRINT_SETTINGS`][] (20 histories) on
+    [`v79_lem1_models`][] ``(stopping_power)``. The traversal-conditioned Monte
     Carlo is numpy-only, so there is no engine choice. Every column is kept.
     """
     particle, energy = MC_OBSERVABLES_FINGERPRINT_POINT

@@ -25,7 +25,7 @@ paper before this digitization existed).
 
 All four Fig. 3 series (model/data x RBE_alpha/RBE_10) are hand-digitized in
 full. Unlike
-:mod:`pyradbio.benchmark.elsasser2010`'s Fig. 4, the experimental series here
+[`pyradbio.benchmark.elsasser2010`][]'s Fig. 4, the experimental series here
 have **no error-bar-endpoint duplication**: LET values that are close together
 (e.g. 40.04 and 40.57 keV/um) carry substantially different RBE (1.54 vs
 3.37) -- real point-to-point scatter in the underlying Furusawa et al. (2000)
@@ -52,7 +52,7 @@ Each curve lives in its own CSV under ``data/``, named
 ``friedrich2012_figure4_hypothetical_carbon_<series>_<quantity>.csv`` (Fig. 4),
 with a four-line header (metadata keys, metadata values, x/y quantities, x/y
 units), then ``x,y`` data rows -- the same convention as
-:mod:`pyradbio.benchmark.elsasser2010`, minus the optional ``y_err`` column
+[`pyradbio.benchmark.elsasser2010`][], minus the optional ``y_err`` column
 (not needed here). Fig. 4's ``series`` field takes the values ``"approx"``
 (the single-particle Kraemer-Scholz approximation) and ``"full_simulation"``
 (the intertrack Monte-Carlo) -- a model-vs-model comparison, unlike Fig. 3's
@@ -95,7 +95,7 @@ class PaperCellInputs:
 
     ``effective_size_factor = 1.0``: the paper quotes a nucleus radius to be
     used as-is, the same convention as
-    :class:`pyradbio.benchmark.elsasser2010.PaperCellInputs`.
+    [`pyradbio.benchmark.elsasser2010.PaperCellInputs`][].
     ``CellTarget`` defaults to 1.0; the factor is still passed explicitly so the
     convention stays visible at the construction.
     """
@@ -313,7 +313,7 @@ FIG4_MC_FIELDS: tuple[str, ...] = (
 """Columns of ``lem4_friedrich2012_mc.csv``: one row per ``(let_keV_um, seed)``."""
 
 FIG4_MC_KEY_COLUMNS: tuple[str, ...] = ("let_keV_um", "seed")
-"""Point key of the checkpoint (:class:`pyradbio.benchmark.checkpoint.CsvCheckpoint`)."""
+"""Point key of the checkpoint ([`pyradbio.benchmark.checkpoint.CsvCheckpoint`][])."""
 
 FIG4_MC_GENERATOR = "lem4_friedrich2012_mc"
 """The ``scripts/`` generator of the CSV (``assert_fingerprint(..., generator=...)``)."""
@@ -333,7 +333,7 @@ def fig4_mc_model(*, engine: Engine = "auto", stopping_power: StoppingPower | No
     ``engine`` selects only the box-averaged profile's kernel (numba or NumPy, equal
     to ~1e-14 relative); the track sampling is NumPy either way.
     ``stopping_power=None`` uses
-    :func:`~pyradbio.track.stopping_power.default_stopping_power`.
+    [`default_stopping_power`][pyradbio.track.stopping_power.default_stopping_power].
     """
     from pyradbio.models.lem.lem4 import LEM4
     from pyradbio.track.stopping_power import default_stopping_power
@@ -351,7 +351,7 @@ def fig4_mc_model(*, engine: Engine = "auto", stopping_power: StoppingPower | No
 def fig4_mc_ion(let_keV_um: float, stopping_power: StoppingPower) -> Ion:
     """Carbon-12 at the energy whose water LET is ``let_keV_um`` (high-energy branch).
 
-    ``energy_for_let_MeV_u(branch="bracket")`` on :data:`FIG4_MC_ENERGY_BOUNDS_MEV_U`
+    ``energy_for_let_MeV_u(branch="bracket")`` on [`FIG4_MC_ENERGY_BOUNDS_MEV_U`][]
     with scipy's default tolerances, bit-identical to the example's
     ``ion_for_let(6, 12, let)``. Raises ``ValueError`` if the LET is unreachable.
     """
@@ -397,11 +397,11 @@ def fig4_mc_fingerprint(
 
     One entry per ``(LET, n_realizations, seed)`` of ``points``, ``{"let_keV_um",
     "energy_MeV_u", "n_realizations", "seed", "engine": "numpy", "alpha",
-    "beta"}``, from :func:`fig4_mc_model` with ``engine="numpy"`` and
+    "beta"}``, from [`fig4_mc_model`][] with ``engine="numpy"`` and
     ``local_dose_mc_alpha_beta(ion, doses_Gy=model.fit_doses_Gy(), ...)``: the
     production call at a small sample size. The energy is part of the entry, so a
     change of stopping power fails the check too. Compare with
-    :func:`pyradbio.benchmark.checkpoint.assert_fingerprint` (``rtol`` 1e-9).
+    [`pyradbio.benchmark.checkpoint.assert_fingerprint`][] (``rtol`` 1e-9).
     """
     model = fig4_mc_model(engine="numpy", stopping_power=stopping_power)
     doses = model.fit_doses_Gy()
@@ -431,10 +431,10 @@ class Fig4MonteCarlo:
 
     ``let_keV_um`` ascending; ``alpha``/``beta`` the seed means and
     ``alpha_err``/``beta_err`` their standard errors
-    (:func:`fig4_mc_seed_statistics`); ``seeds`` and ``n_realizations`` as recorded
+    ([`fig4_mc_seed_statistics`][]); ``seeds`` and ``n_realizations`` as recorded
     per LET. A LET with fewer than the required seeds (a run interrupted mid-point)
     is left out and listed in ``incomplete_lets``. ``header`` is the provenance
-    header (:func:`pyradbio.benchmark.checkpoint.read_header`). Equality is
+    header ([`pyradbio.benchmark.checkpoint.read_header`][]). Equality is
     identity (``eq=False``): array fields have no useful ``==``.
     """
 
@@ -453,7 +453,7 @@ def load_fig4_mc(path: str | os.PathLike[str], *, n_seeds: int | None = None) ->
     """Read ``lem4_friedrich2012_mc.csv`` and reduce it to per-LET seed statistics.
 
     A LET counts as complete with ``n_seeds`` seeds (default: the header's
-    ``n_seeds``, else :data:`FIG4_MC_SEEDS`). Raises ``FileNotFoundError`` if the
+    ``n_seeds``, else [`FIG4_MC_SEEDS`][]). Raises ``FileNotFoundError`` if the
     file does not exist and ``ValueError`` if one LET mixes realisation counts.
     """
     from pyradbio.benchmark.checkpoint import CsvCheckpoint

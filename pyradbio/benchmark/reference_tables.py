@@ -8,7 +8,7 @@ established, independent implementations:
   by one block per projectile ion listing ``RBE_alpha`` (= ``alpha_ion/alpha_x``,
   the initial-slope RBE) versus energy per nucleon. LEM I and LEM IV tables live
   under ``$PYRADBIO_TRIP98_DIR/RBE/{LEM1,LEM4}/`` (not committed; see
-  :mod:`pyradbio.datasets`).
+  [`pyradbio.datasets`][]).
 * **"Survival" code JSON** — per-ion ``alpha``/``beta`` curves from the
   open-source *survival* toolkit (Manganaro et al.), for LEM I (rapidLEM,
   Kraemer-Scholz 2006 approximation) and modified-MKM (rapid mMKM, Inaniwa 2010).
@@ -18,15 +18,15 @@ established, independent implementations:
 These are *reference model outputs*, not experimental data, so they support tight
 implementation-agreement benchmarks (see ``tests/benchmark/test_reference_tables.py``).
 Loaders here parse and expose the data. A few thin conveniences turn a table into
-model inputs -- :meth:`TripRbeTable.photon_parameters` / :meth:`TripRbeTable.cell_target`
-(the header's photon set and nucleus), :meth:`TripDedxTable.stopping_power` (TRiP's own
-dE/dx as a :class:`~pyradbio.track.stopping_power.StoppingPower`) -- and
-:func:`windowed_median_errors` scores a curve per energy window; building models
+model inputs -- [`TripRbeTable.photon_parameters`][] / [`TripRbeTable.cell_target`][]
+(the header's photon set and nucleus), [`TripDedxTable.stopping_power`][] (TRiP's own
+dE/dx as a [`StoppingPower`][pyradbio.track.stopping_power.StoppingPower]) -- and
+[`windowed_median_errors`][] scores a curve per energy window; building models
 is left to the caller.
 
 The tables are **not** redistributed with pyRadBio: their directories are given
 by ``PYRADBIO_TRIP98_DIR`` and ``PYRADBIO_SURVIVAL_DIR`` (via ``.env``; see
-:mod:`pyradbio.datasets`). A loader raises :class:`FileNotFoundError` when the
+[`pyradbio.datasets`][]). A loader raises `FileNotFoundError` when the
 data is absent, so data-driven benchmarks skip cleanly on machines without it.
 """
 
@@ -54,7 +54,7 @@ if TYPE_CHECKING:
 
 # Element symbol -> atomic number Z for the ions appearing in the tables
 # (hydrogen through neon; TRiP writes the ion as "<A><Symbol>", e.g. "12C").
-# One map for the whole package: :data:`pyradbio.core.elements.SYMBOL_TO_Z`.
+# One map for the whole package: `pyradbio.core.elements.SYMBOL_TO_Z`.
 ELEMENT_Z: Mapping[str, int] = SYMBOL_TO_Z
 
 # TRiP tables live under the PYRADBIO_TRIP98_DIR base as RBE/{LEM1,LEM4}/;
@@ -143,9 +143,9 @@ class TripDedxTable:
         return self.curves[(Z, A)]
 
     def stopping_power(self, fallback: _LetSource | None = None) -> TripDedxStoppingPower:
-        """This table as a :class:`~pyradbio.track.stopping_power.StoppingPower`.
+        """This table as a [`StoppingPower`][pyradbio.track.stopping_power.StoppingPower].
 
-        Returns a :class:`TripDedxStoppingPower`; ions the table lacks go to
+        Returns a [`TripDedxStoppingPower`][]; ions the table lacks go to
         ``fallback`` (any object with ``let_keV_um(ion)``) or raise ``KeyError``.
         """
         return TripDedxStoppingPower(self, fallback)
@@ -158,7 +158,7 @@ class _LetSource(Protocol):
 
 
 class TripDedxStoppingPower:
-    """A :class:`~pyradbio.track.stopping_power.StoppingPower` backed by a TRiP98 dE/dx table.
+    """A TRiP98 dE/dx table as a [`StoppingPower`][pyradbio.track.stopping_power.StoppingPower].
 
     It log-log interpolates the tabulated mass stopping power of each projectile
     and converts it to LET (``MeV cm^2/g * rho[g/cm^3] * 0.1 -> keV/um``). Feeding
@@ -169,8 +169,8 @@ class TripDedxStoppingPower:
     otherwise raises ``KeyError``.
 
     It carries a ``name`` that
-    :func:`~pyradbio.track.stopping_power.describe_stopping_power` maps. Construct
-    it with :meth:`TripDedxTable.stopping_power`. Instances hash by identity.
+    [`describe_stopping_power`][pyradbio.track.stopping_power.describe_stopping_power] maps.
+    Construct it with [`TripDedxTable.stopping_power`][]. Instances hash by identity.
 
     Attributes:
         table: The parsed dE/dx table.
@@ -178,8 +178,8 @@ class TripDedxStoppingPower:
         fallback: The stopping power used for ions the table lacks, or ``None``.
     """
 
-    #: :func:`~pyradbio.track.stopping_power.describe_stopping_power` key.
     name = "trip98-fluka-dedx"
+    """[`describe_stopping_power`][pyradbio.track.stopping_power.describe_stopping_power] key."""
     _MEV_PER_CM_TO_KEV_PER_UM = 0.1
 
     def __init__(self, table: TripDedxTable, fallback: _LetSource | None = None) -> None:
@@ -285,7 +285,7 @@ def parse_projectile(token: str) -> tuple[int, int]:
     """Parse a TRiP projectile token like ``"12C"`` into ``(Z, A)``.
 
     The token is ``<mass number><element symbol>``; the element maps to ``Z`` via
-    :data:`ELEMENT_Z`. Raises ``ValueError`` for an unknown symbol or bad format.
+    [`ELEMENT_Z`][]. Raises ``ValueError`` for an unknown symbol or bad format.
     """
     match = _PROJECTILE_RE.match(token)
     if match is None:
@@ -298,7 +298,7 @@ def parse_projectile(token: str) -> tuple[int, int]:
 
 
 def parse_trip_rbe(text: str) -> TripRbeTable:
-    """Parse the text of a TRiP98 ``.rbe`` file into a :class:`TripRbeTable`.
+    """Parse the text of a TRiP98 ``.rbe`` file into a [`TripRbeTable`][].
 
     The shared photon header (``!alpha``/``!beta``/``!cut``/``!rnucleus``/
     ``!celltype``) precedes one ``!projectile`` block per ion, each followed by a
@@ -351,7 +351,7 @@ def parse_trip_rbe(text: str) -> TripRbeTable:
 
 
 def parse_trip_dedx(text: str) -> TripDedxTable:
-    """Parse the text of a TRiP98 ``.dedx`` file into a :class:`TripDedxTable`.
+    """Parse the text of a TRiP98 ``.dedx`` file into a [`TripDedxTable`][].
 
     A material header (``!material``/``!density``) precedes one ``!projectile``
     block per ion, each followed by a ``!dedx`` marker and
@@ -422,7 +422,7 @@ def parse_eta_table(text: str) -> EtaTable:
 
 
 def parse_survival_lq(text: str) -> SurvivalLQTable:
-    """Parse a Survival-code JSON string into a :class:`SurvivalLQTable`."""
+    """Parse a Survival-code JSON string into a [`SurvivalLQTable`][]."""
     doc = json.loads(text)
     meta = doc["meta"]
 
@@ -515,7 +515,7 @@ def load_survival_eta_table() -> EtaTable:
 
     Survival consumes it via ``CellLine::interpolatedDamageEnhancement``, which
     interpolates log-log between nodes and returns exactly ``1`` outside
-    ``(1e2, 5e6]`` Gy -- :meth:`EtaTable.eta` reproduces that.
+    ``(1e2, 5e6]`` Gy -- [`EtaTable.eta`][] reproduces that.
     """
     path = dataset_file(SURVIVAL_SRC, "data", _ETA_DAT)
     return parse_eta_table(path.read_text(encoding="utf-8"))
@@ -553,7 +553,7 @@ def windowed_median_errors(
 
     For each ``label -> (lo, hi)`` in ``windows`` (MeV/u, inclusive), the
     samples whose energy lies in the window and whose prediction is not NaN (a
-    model undefined there) are scored with :func:`median_abs_relative_error`.
+    model undefined there) are scored with [`median_abs_relative_error`][].
 
     Returns:
         ``{label: (error, n_scored)}`` in ``windows`` order, with ``None`` for a

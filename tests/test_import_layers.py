@@ -19,8 +19,8 @@ import pytest
 _PACKAGE = Path(__file__).resolve().parents[1] / "pyradbio"
 _LOW_LAYERS = ("core", "track", "micro")
 _FORBIDDEN = ("pyradbio.models", "pyradbio.benchmark", "pyradbio.tables", "pyradbio.cli")
-#: The one library module that may draw figures (lazily, behind the ``plot`` extra).
-#: It is exempt from both bans; whether it actually imports matplotlib is not pinned.
+# The one library module that may draw figures (lazily, behind the ``plot`` extra).
+# It is exempt from both bans; whether it actually imports matplotlib is not pinned.
 _MATPLOTLIB_IMPORTERS = ("benchmark/report.py",)
 
 

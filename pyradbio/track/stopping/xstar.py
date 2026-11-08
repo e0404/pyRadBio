@@ -8,22 +8,22 @@ option.
 
 Tables are our regridded copies in ``data/`` (50 log-uniform points per decade,
 written by ``scripts/stopping/build_tables.py``), interpolated with a not-a-knot
-cubic in log-log space; a user :class:`~pyradbio.track.stopping.grid.LogEnergyGrid`
+cubic in log-log space; a user [`LogEnergyGrid`][]
 re-holds them on its own nodes. Nothing is extrapolated: outside a source's range
-:class:`~pyradbio.track.stopping.base.OutOfRangeError` is raised (ASTAR ends at
+[`OutOfRangeError`][] is raised (ASTAR ends at
 1000 MeV total = 250 MeV/u).
 
 Behaviour:
 
 * **Isotopes** are velocity-scaled with true nuclear masses
-  (:mod:`~pyradbio.track.stopping.masses`): an ion is looked up in its reference
+  ([`masses`][]): an ion is looked up in its reference
   particle's table (p for Z = 1 and Z >= 3, He-4 for Z = 2) at the same Lorentz
   factor. For p and He-4 themselves the lookup is the identity.
 * ``heavy_ion_source="pstar_zeff_scaled"`` covers Z 3-18 only; helium always
   uses ASTAR. It multiplies PSTAR at equal velocity by ``(z_eff/z_eff,p)^2``
   (``zeff_scaling="ratio"``, the default: PSTAR's protons themselves carry a
   reduced charge at low velocity) or by ``z_eff^2`` (``"absolute"``), with ``z_eff``
-  from a pluggable :class:`~pyradbio.track.stopping.effective_charge.EffectiveChargeModel`
+  from a pluggable [`EffectiveChargeModel`][]
   (Barkas by default). Measured against ICRU 73 with errata (water,
   Z 3-18, equal velocity): from 10 MeV/u up both forms agree to within 0.1-5%; at
   0.3-1 MeV/u ``ratio`` is within 3.5-7% and ``absolute`` 3-13.5% low; at
@@ -31,10 +31,10 @@ Behaviour:
   Z <= 8 but overshoots heavier ions (up to +63% for Ar). ``ratio`` is the default;
   neither is accurate below ~0.3 MeV/u, hence MSTAR.
 * ``quantity="total"`` adds PSTAR's / ASTAR's own nuclear column for p and He-4, and
-  ``nuclear`` (:class:`~pyradbio.track.stopping.nuclear.WaterNuclearStopping`, default
+  ``nuclear`` ([`WaterNuclearStopping`][], default
   ICRU 49's method) for every other ion.
 * ``heavy_ion_source="mstar"`` (the default) serves Z 3-18 from our Python port of
-  MSTAR 3.12 (:mod:`~pyradbio.track.stopping.mstar`, which reproduces the authors'
+  MSTAR 3.12 ([`mstar`][], which reproduces the authors'
   compiled FORTRAN to <= 2e-15). By default (``mstar_evaluation="interpolate"``)
   it reads the shipped tables -- the port's exact values at 50 nodes per decade --
   and interpolates between them; ``mstar_evaluation="direct"`` evaluates the port at
@@ -77,20 +77,21 @@ HeavyIonSource = Literal["mstar", "pstar_zeff_scaled"]
 ZeffScaling = Literal["ratio", "absolute"]
 MstarEvaluation = Literal["interpolate", "direct"]
 
-#: Environment variable naming a local MSTAR database for ``mstar_evaluation="direct"``.
 MSTAR_DATABASE_ENV = "PYRADBIO_MSTAR_DATABASE"
-#: MSTAR modes (as resolved for liquid water) with shipped tables.
+"""Environment variable naming a local MSTAR database for ``mstar_evaluation="direct"``."""
 _SHIPPED_MSTAR_MODES = ("c", "d")
+"""MSTAR modes (as resolved for liquid water) with shipped tables."""
 
-#: MSTAR's modes of operation (see data/stopping/mstar/PROVENANCE.md); 'b' is the
-#: authors' recommendation: ion-specific fit where available, otherwise all ions.
 MSTAR_MODES = ("a", "b", "c", "d", "g", "h")
+"""MSTAR's modes of operation (see data/stopping/mstar/PROVENANCE.md); 'b' is the
+authors' recommendation: ion-specific fit where available, otherwise all ions.
+"""
 
-#: Mean excitation energy of water in PSTAR/ASTAR/MSTAR (ICRU 49) [eV]; fixed.
 XSTAR_I_VALUE_EV = 75.0
+"""Mean excitation energy of water in PSTAR/ASTAR/MSTAR (ICRU 49) [eV]; fixed."""
 
-#: Reference tables: PSTAR protons and ASTAR He-4. Z >= 3 scale from the proton.
 PSTAR_REF = TableRef("pstar_water_liquid", 1, 1, "p")
+"""Reference tables: PSTAR protons and ASTAR He-4. Z >= 3 scale from the proton."""
 ASTAR_REF = TableRef("astar_water_liquid", 2, 4, "He-4")
 
 
@@ -134,8 +135,8 @@ class XSTAR(ShippedTablesModel):
         self.zeff_scaling = zeff_scaling
         self.mstar_mode = mstar_mode
         self.mstar_evaluation = mstar_evaluation
-        #: The MSTAR mode liquid water actually uses ('a' -> 'c', 'b' -> 'd').
         self.mstar_mode_used = resolve_mode(mstar_mode)[0]
+        """The MSTAR mode liquid water actually uses ('a' -> 'c', 'b' -> 'd')."""
         self._mstar: MSTAR | None = None
         if heavy_ion_source == "mstar":
             if mstar_evaluation == "direct":

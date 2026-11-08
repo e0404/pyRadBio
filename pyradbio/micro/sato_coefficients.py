@@ -2,7 +2,7 @@
 
 The self-contained stand-in for PHITS's ``tsed.dat``: the per-(ion, energy) Sato
 Eq-7 coefficients (``B, C, mu_k, j_k``) are obtained by least-squares fitting the
-functional form (:mod:`pyradbio.micro.sato`) to the digitized Hartzell 2025
+functional form ([`pyradbio.micro.sato`][]) to the digitized Hartzell 2025
 **Fig-4** AMF curves (``pyradbio.micro.hartzell2025``) -- derived from bundled
 reference data, not invented (AGENTS.md -> "No silent physics"). For a requested
 ion the coefficients are interpolated in energy.
@@ -17,7 +17,7 @@ Coverage / caveats
   independent core energy fraction, so the primary peak still scales correctly
   with the engine's actual site diameter via the ``C*L*phi_s`` term; explicit
   site-size interpolation (Fig-7 carbon series) is not yet modelled.
-* LET from :func:`~pyradbio.track.stopping_power.default_stopping_power` (the
+* LET from [`default_stopping_power`][] (the
   library default); build the engine with the same stopping power
   for a consistent peak position.
 """

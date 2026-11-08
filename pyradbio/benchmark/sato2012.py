@@ -39,13 +39,15 @@ A-4     ``exp(-a D - b D^2)``                       closed form, plain LQ
 **A-3 and A-4 are not digitized, because they do not need to be.** Moving the
 logarithm outside the integral makes A-3 depend only on the first two moments,
 and for a compound Poisson those are ``E[z] = D`` and ``E[z^2] = D z_D + D^2``,
-so::
+so:
 
-    A-3 = exp(-(alpha + beta z_D) D - beta D^2)
-    A-4 = exp(-alpha D - beta D^2)
+```text
+A-3 = exp(-(alpha + beta z_D) D - beta D^2)
+A-4 = exp(-alpha D - beta D^2)
+```
 
 Only A-2 carries information this package does not already have, so only A-2 is
-extracted. :func:`survival_A3` and :func:`survival_A4` evaluate the closed forms.
+extracted. [`survival_A3`][] and [`survival_A4`][] evaluate the closed forms.
 
 How A-2 was obtained
 --------------------
@@ -83,12 +85,12 @@ from dataclasses import dataclass
 import numpy as np
 import numpy.typing as npt
 
-#: The paper's fig. A1 coefficients (its appendix): fixed, not fitted.
 ALPHA_GY_INV: float = 0.5
+"""The paper's fig. A1 coefficients (its appendix): fixed, not fitted."""
 BETA_GY_INV2: float = 0.06
 
-#: Nucleus radius used for fig. A1 [um].
 NUCLEUS_RADIUS_UM: float = 6.2
+"""Nucleus radius used for fig. A1 [um]."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -101,23 +103,24 @@ class FigureA1Panel:
     survival_A2: npt.NDArray[np.float64]
 
 
-#: Panel A -- "small variance", mono-energetic 10 keV/um.
 _PANEL_A_DOSE = (
     0.1007, 0.1511, 0.2016, 0.3023, 0.4987, 0.7002, 1.0025,
     1.4963, 1.9950, 2.9976, 5.0027, 7.0027, 10.0003,
 )  # fmt: skip
+"""Panel A -- "small variance", mono-energetic 10 keV/um."""
 _PANEL_A_SURVIVAL = (
     9.470140e-01, 9.258985e-01, 9.011466e-01, 8.575052e-01, 7.694992e-01,
     6.843378e-01, 5.712834e-01, 4.146326e-01, 2.916164e-01, 1.317838e-01,
     1.901273e-02, 1.738780e-03, 2.049396e-05,
 )  # fmt: skip
 
-#: Panel B -- "large variance", mono-energetic 200 keV/um. This is the panel with
-#: the content: A-2 runs 20x above plain LQ by 10 Gy.
 _PANEL_B_DOSE = (
     0.1005, 0.1510, 0.2012, 0.3020, 0.4984, 0.6998, 1.0019,
     1.5004, 1.9989, 3.0011, 5.0052, 6.9993, 10.0005,
 )  # fmt: skip
+"""Panel B -- "large variance", mono-energetic 200 keV/um. This is the panel with
+the content: A-2 runs 20x above plain LQ by 10 Gy.
+"""
 _PANEL_B_SURVIVAL = (
     9.556564e-01, 9.258985e-01, 9.052539e-01, 8.614091e-01, 7.799956e-01,
     7.030721e-01, 5.976372e-01, 4.477031e-01, 3.279353e-01, 1.673833e-01,

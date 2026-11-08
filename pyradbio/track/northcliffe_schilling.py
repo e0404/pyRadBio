@@ -16,11 +16,11 @@ Scope and honest limits:
   independent OCR pass of the PDF text layer; the other 43 come from that OCR
   pass and passed both physical screens (see
   ``docs/references/NorthcliffeSchilling1970.md``).
-  :attr:`WaterStoppingPowerColumn.source` records which.
+  [`WaterStoppingPowerColumn.source`][] records which.
 * The grid **stops at 12 MeV/u**, while Scholz & Kraft 1996 Fig. 4 runs to
-  20 MeV/u. :class:`~pyradbio.track.stopping_power.StoppingPowerTable` raises
+  20 MeV/u. [`StoppingPowerTable`][pyradbio.track.stopping_power.StoppingPowerTable] raises
   rather than extrapolating, so above 12 MeV/u use
-  :class:`~pyradbio.track.stopping_power.SimpleBetheStoppingPower` (the library
+  [`SimpleBetheStoppingPower`][] (the library
   default) and say so; do not silently extend this table.
 * It is a pre-ICRU-49 compilation. Its proton column matches NIST PSTAR for
   liquid water to 1.2% for ``E >= 5 MeV/u``, then runs **high** below that:
@@ -59,9 +59,10 @@ from pyradbio.track.stopping_power import (
 NORTHCLIFFE_SCHILLING1970_DOI = "10.1016/S0092-640X(70)80016-X"
 _DATA_FILE = "northcliffe_schilling1970_water.csv"
 
-#: Energy range the source actually tabulates [MeV/u]. Outside this the loader's
-#: table raises; see the module docstring for what to fall back to.
 ENERGY_RANGE_MEV_U = (0.0125, 12.0)
+"""Energy range the source actually tabulates [MeV/u]. Outside this the loader's
+table raises; see the module docstring for what to fall back to.
+"""
 
 
 @dataclass(frozen=True, slots=True)
@@ -109,7 +110,7 @@ def load_water_columns() -> dict[int, WaterStoppingPowerColumn]:
 def northcliffe_schilling1970_water(
     density_g_cm3: float = WATER_DENSITY_G_CM3,
 ) -> TabularStoppingPower:
-    """Return the 1970 water table as a :class:`StoppingPower` implementation.
+    """The 1970 water table as a [`StoppingPower`][pyradbio.track.stopping_power.StoppingPower].
 
     Interpolates log-log in energy, and raises outside ``ENERGY_RANGE_MEV_U``
     rather than extrapolating a 12 MeV/u table into the tens of MeV/u.
@@ -128,8 +129,8 @@ class NorthcliffeSchillingWithBetheTail:
 
     A hybrid is unavoidable -- the source stops at 12 MeV/u and the Scholz &
     Kraft figures run well past it -- so the point is to make the seam visible
-    rather than to hide it. :attr:`fallback_energies` records every energy that
-    had to leave the table and :attr:`table_hits` counts those that did not, so a
+    rather than to hide it. [`fallback_energies`][] records every energy that
+    had to leave the table and [`table_hits`][] counts those that did not, so a
     caller can report the tally instead of guessing.
 
     This lives in the library because *every* consumer must agree on it. LET
@@ -137,7 +138,7 @@ class NorthcliffeSchillingWithBetheTail:
     whose plotted curve and whose Monte-Carlo checkpoint were built from
     different LETs is not merely imprecise, it is incoherent -- and the two
     differ by 13% in alpha at carbon 1 MeV/u, which is visible on the figure.
-    :attr:`name` is what callers stamp into a checkpoint to keep that honest.
+    [`name`][] is what callers stamp into a checkpoint to keep that honest.
     """
 
     name = "ns1970+bethe"

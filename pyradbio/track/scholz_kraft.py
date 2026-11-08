@@ -105,9 +105,9 @@ class ScholzKraftRadialDose:
 
         The discarded tail is negligible whenever ``r_max >> sigma``, which is why
         truncating at ``r_max`` passes unnoticed at therapeutic energies (2.6e-5 of
-        ``r_max``; see :class:`~pyradbio.models.lem.base.AnalyticRadialProfile`).
+        ``r_max``; see [`AnalyticRadialProfile`][pyradbio.models.lem.base.AnalyticRadialProfile]).
         It stops being negligible when the track is only a few nm wide. For carbon,
-        :meth:`radial_integral_LET_keV_um` recovers 99.5% of the LET at 1 MeV/u but
+        [`radial_integral_LET_keV_um`][] recovers 99.5% of the LET at 1 MeV/u but
         **4.6%** at 0.1 MeV/u -- and 100.00% at every energy once the domain runs
         to here. 8 sigma is where that integral converges; 6 sigma is also the
         half-width of the convolution's own peak-refinement grid.
@@ -185,11 +185,11 @@ class ScholzKraftRadialDose:
         says ``|r e + sigma Z|^2/sigma^2`` is a noncentral chi-square with 2 dof,
         so ``D_c`` is one of its inverse moments:
 
-        .. code-block:: text
-
-            D_c(r) = D_core [1 - Q_1(r/sigma, r_min/sigma)]
-                   + (k/2 sigma^2) e^-lambda/2 sum_j (lambda/2)^j / (j!)^2
-                                                 [Gamma(j,u_min) - Gamma(j,u_max)]
+        ```text
+        D_c(r) = D_core [1 - Q_1(r/sigma, r_min/sigma)]
+               + (k/2 sigma^2) e^-lambda/2 sum_j (lambda/2)^j / (j!)^2
+                                             [Gamma(j,u_min) - Gamma(j,u_max)]
+        ```
 
         with ``u = r'^2/(2 sigma^2)``, ``Q_1`` the Marcum Q, and the ``j = 0``
         term ``Gamma(0,u) = E_1(u)`` carrying the logarithmic divergence of
@@ -202,14 +202,14 @@ class ScholzKraftRadialDose:
         2-D ``grad^2 r^-m = m^2 r^-m-2``, so ``grad^2n r^-2 = 4^n (n!)^2
         r^-2-2n`` and
 
-        .. code-block:: text
-
-            D_c(r) = (k/r^2) sum_n n! x^n,      x = 2 sigma^2 / r^2
+        ```text
+        D_c(r) = (k/r^2) sum_n n! x^n,      x = 2 sigma^2 / r^2
+        ```
 
         asymptotic, with optimal truncation at ``n ~ 1/x``. Two terms hold to
         ~1e-5 from ``r = 50 nm`` outward and ~3e-6 beyond 100 nm -- at the
         numerical floor of the quadrature below. That is what
-        :class:`~pyradbio.models.lem.base.AnalyticRadialProfile` evaluates, and
+        [`AnalyticRadialProfile`][pyradbio.models.lem.base.AnalyticRadialProfile] evaluates, and
         it is why the LEM II/III Monte Carlo does not have to call this method
         per sample. It also explains the observed switch radii: ``2 sigma^2/r^2 =
         1e-3`` gives 179 nm and ``1e-4`` gives 566 nm, against 175 and 550
@@ -245,14 +245,14 @@ class ScholzKraftRadialDose:
     def local_doses_Gy(self, r_um: npt.ArrayLike, ion: Ion) -> npt.NDArray[np.float64]:
         """Local dose ``D(r)`` [Gy] at every radius in ``r_um`` [um]; same shape.
 
-        A loop over the scalar :meth:`local_dose_Gy` (``float`` of each element), so
+        A loop over the scalar [`local_dose_Gy`][] (``float`` of each element), so
         every value is bit-identical to the scalar call -- the radical-diffusion
         convolution is a per-radius quadrature and is not vectorised here. Replaces
         the ``np.array([model.local_dose_Gy(float(r), ion) for r in radii])`` loops of
         the Elsasser & Scholz 2007 (doi:10.1667/RR0467.1) Fig. 4/5 reconstruction.
 
         Raises:
-            ValueError: if any radius is negative (from :meth:`local_dose_Gy`).
+            ValueError: if any radius is negative (from [`local_dose_Gy`][]).
         """
         radii = np.asarray(r_um, dtype=np.float64)
         doses = np.array([self.local_dose_Gy(float(r), ion) for r in radii.ravel()], dtype=float)
@@ -265,7 +265,7 @@ class ScholzKraftRadialDose:
         Returns ``KEVUM_PER_GY_UM2_GCM3 * rho * integral(D(r)*2*pi*r dr)``, which
         by construction must reproduce ``stopping_power.let_keV_um(ion)``.
 
-        The domain runs to :meth:`r_support_um`, not ``r_max``: with radical
+        The domain runs to [`r_support_um`][], not ``r_max``: with radical
         diffusion those differ, and integrating to ``r_max`` returns 4.6% of the
         LET for a 0.1 MeV/u carbon ion.
         """

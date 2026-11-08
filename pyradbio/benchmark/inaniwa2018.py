@@ -23,7 +23,7 @@ Figs. 2-3 (measured vs modelled survival) are the paper's headline, but they mix
 track structure, geometry, and biology. Fig. 4 is the *intermediate* quantity: it
 isolates our radial-dose + site-geometry pipeline from the effect model entirely.
 Since the paper's table-1 parameters are pinned exactly (see
-:func:`~pyradbio.models.mkm.spectrum_models.StochasticMKM.hsg_inaniwa2018`), any
+[`hsg_inaniwa2018`][pyradbio.models.mkm.spectrum_models.StochasticMKM.hsg_inaniwa2018]), any
 disagreement here is unambiguously *our* microdosimetry -- which makes a later
 survival-curve reconstruction diagnosable instead of merely suggestive.
 
@@ -68,7 +68,7 @@ Panels (a) and (c) are drawn on linear axes sized for the *heaviest* ions, so th
 light-ion curves lie within a hair of the axis. Below roughly 2% of a panel's
 full scale the digitized value is not meaningfully distinguishable from zero --
 e.g. protons in panel (a) sit under 1 Gy against a 1200 Gy scale above ~50 MeV/u.
-Use :func:`resolvable` (or :attr:`Fig4Curve.resolvable_mask`) before comparing;
+Use [`resolvable`][] (or [`Fig4Curve.resolvable_mask`][]) before comparing;
 this is a limitation of the published figure, not of the extraction. Panel (b) is
 well resolved across its whole range and is the panel worth trusting hardest.
 
@@ -98,18 +98,18 @@ _DATA_DIR = "data"
 _CURVE_PREFIX = "inaniwa2018_fig4"
 _SOURCE_PAGE = 11
 
-#: Panel -> (quantity name, y-axis full scale at the frame top [Gy]).
 PANELS: dict[str, tuple[str, float]] = {
     "a": ("z_domain", 1200.0),
     "b": ("z_star_domain", 50.0 / 0.95262),
     "c": ("z_nucleus", 1.25 / 0.86227),
 }
+"""Panel -> (quantity name, y-axis full scale at the frame top [Gy])."""
 
-#: Fraction of a panel's full scale below which the digitized value is unreliable.
 RESOLUTION_FLOOR = 0.02
+"""Fraction of a panel's full scale below which the digitized value is unreliable."""
 
-#: Parameters Fig. 4 was computed with (paper sec 4.2.1; table 1, HSG SMK column).
 FIG4_PARAMETERS = {"domain_radius_um": 0.28, "nucleus_radius_um": 8.1, "z0_Gy": 66.0}
+"""Parameters Fig. 4 was computed with (paper sec 4.2.1; table 1, HSG SMK column)."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -211,13 +211,14 @@ def get_fig4_curve(quantity: str, Z_p: int) -> Fig4Curve:
     return matches[0]
 
 
-#: Fig. 4 quantity -> the :class:`~pyradbio.models.mkm.spectrum_models.SiteSpecificEnergies`
-#: field our model reports it as.
 FIG4_FIELDS: dict[str, str] = {
     "z_domain": "z_1D_Gy",
     "z_star_domain": "z_star_1D_Gy",
     "z_nucleus": "z_nucleus_Gy",
 }
+"""Fig. 4 quantity -> the field our model reports it as, in
+[`SiteSpecificEnergies`][pyradbio.models.mkm.spectrum_models.SiteSpecificEnergies].
+"""
 
 
 def fig4_model_values(
@@ -225,10 +226,10 @@ def fig4_model_values(
 ) -> dict[str, npt.NDArray[np.float64]]:
     """Our three Fig. 4 quantities for ion ``Z_p`` at each kinetic energy [Gy].
 
-    One :meth:`~pyradbio.models.mkm.spectrum_models.StochasticMKM.specific_energies`
+    One [`specific_energies`][pyradbio.models.mkm.spectrum_models.StochasticMKM.specific_energies]
     call per energy, for the ion ``Ion(Z_p, default_mass_number(Z_p), T)``; the
-    keys are those of :data:`FIG4_FIELDS`. Pass the model the figure was computed
-    with, ``StochasticMKM.hsg_inaniwa2018()`` (:data:`FIG4_PARAMETERS`).
+    keys are those of [`FIG4_FIELDS`][]. Pass the model the figure was computed
+    with, ``StochasticMKM.hsg_inaniwa2018()`` ([`FIG4_PARAMETERS`][]).
     """
     A = default_mass_number(Z_p)
     se = [model.specific_energies(Ion(Z_p, A, float(t))) for t in T_MeV_u]
@@ -244,9 +245,9 @@ def fig4_comparison(
     """``(ours, paper, mask)`` for one Fig. 4 series on the grid ``T_MeV_u``.
 
     ``paper`` is the digitized curve interpolated onto ``T_MeV_u``
-    (:meth:`Fig4Curve.interp`); ``mask`` keeps the points where it is
-    :func:`resolvable` and ``ours > 0``. The shape
-    :func:`~pyradbio.benchmark.metrics.ratio_summary` takes
+    ([`Fig4Curve.interp`][]); ``mask`` keeps the points where it is
+    [`resolvable`][] and ``ours > 0``. The shape
+    [`ratio_summary`][pyradbio.benchmark.metrics.ratio_summary] takes
     (``ratio_summary(ours, paper, mask=mask)``).
     """
     curve = get_fig4_curve(quantity, Z_p)
@@ -261,7 +262,7 @@ def fig4_ratios(
 ) -> npt.NDArray[np.float64]:
     """``ours / paper`` for one Fig. 4 series, where the paper's curve is resolvable.
 
-    The masked ratios of :func:`fig4_comparison`, in energy order. Pooling these
+    The masked ratios of [`fig4_comparison`][], in energy order. Pooling these
     over ``Z_p = 1-10`` is the reconstruction score of the module docstring.
     """
     ours, paper, mask = fig4_comparison(model, quantity, Z_p, T_MeV_u)
@@ -269,23 +270,24 @@ def fig4_ratios(
     return ratios
 
 
-#: The factor by which our uncorrected dose-mean domain specific energy ``z_d,D``
-#: runs *low* against Fig. 4(a): ``1 / 0.933 ~ 1.07``, where 0.933 is the median
-#: of :func:`fig4_ratios` pooled over ``Z_p = 1-10`` (134 resolvable points on the
-#: 24-point log grid 0.3-500 MeV/u) with ``SimpleBetheStoppingPower`` on the model
-#: (docs/references/SMK_Inaniwa2018.md, "Fig. 4 reconstruction").
-#: With the library-default stopping power on the model the same median is 0.965,
-#: so the number is tied to that stopping power. A *diagnostic* only -- the OSMK
-#: (Inaniwa 2021) reconstruction rescales ``z_d,D`` by it to ask how much of its
-#: residual this one measured bias explains. Never apply it to a model by default.
 Z_D_BIAS = 1.07
+"""The factor by which our uncorrected dose-mean domain specific energy ``z_d,D``
+runs *low* against Fig. 4(a): ``1 / 0.933 ~ 1.07``, where 0.933 is the median
+of [`fig4_ratios`][] pooled over ``Z_p = 1-10`` (134 resolvable points on the
+24-point log grid 0.3-500 MeV/u) with ``SimpleBetheStoppingPower`` on the model
+(docs/references/SMK_Inaniwa2018.md, "Fig. 4 reconstruction").
+With the library-default stopping power on the model the same median is 0.965,
+so the number is tied to that stopping power. A *diagnostic* only -- the OSMK
+(Inaniwa 2021) reconstruction rescales ``z_d,D`` by it to ask how much of its
+residual this one measured bias explains. Never apply it to a model by default.
+"""
 
 
 # ==========================================================================
 # Figs. 2 (HSG) and 3 (V79): survival curves
 # ==========================================================================
-#: Atomic number per ion label used in the survival panels.
 ION_Z = {"He": 2, "C": 6, "Ne": 10}
+"""Atomic number per ion label used in the survival panels."""
 
 _SURVIVAL_FILE = "inaniwa2018_survival.csv"
 
@@ -380,13 +382,14 @@ def survival_panels(cell_line: str) -> tuple[SurvivalCurve, ...]:
     )
 
 
-#: Cell line -> ``(SMK factory, MK factory)``: the two table-1 columns behind
-#: Fig. 2 (HSG) and Fig. 3 (V79). Both factories take model-field overrides, e.g.
-#: ``stopping_power=...``.
 CELL_MODELS: dict[str, tuple[Callable[..., StochasticMKM], Callable[..., ModifiedMKM]]] = {
     "HSG": (StochasticMKM.hsg_inaniwa2018, ModifiedMKM.hsg_mk_inaniwa2018),
     "V79": (StochasticMKM.v79_inaniwa2018, ModifiedMKM.v79_mk_inaniwa2018),
 }
+"""Cell line -> ``(SMK factory, MK factory)``: the two table-1 columns behind
+Fig. 2 (HSG) and Fig. 3 (V79). Both factories take model-field overrides, e.g.
+``stopping_power=...``.
+"""
 
 
 @dataclass(frozen=True, slots=True, eq=False)
@@ -414,7 +417,7 @@ def reconstruct_panel(
     Nothing is fitted. doi:10.1088/1361-6560/aabede sec 3.2: "we assumed a
     monoenergetic spectrum of 3He-, 12C- and 20Ne-ion beams with reported LETs",
     so the panel's quoted LET is inverted with ``stopping_power``
-    (:func:`~pyradbio.track.stopping_power.energy_for_let_MeV_u`, default
+    ([`energy_for_let_MeV_u`][], default
     high-energy root -- the physical one for the degraded beams of the experiments).
 
     * SMK (``smk``): the three specific energies of that ion, then eqs. (15),
@@ -449,7 +452,7 @@ def dose_at_survival(
     """Dose [Gy] at which a tabulated curve reaches ``survival_fraction``.
 
     Linear interpolation in ``-log10 S`` (survival clipped to ``[1e-12, 1]``), the
-    rule :meth:`SurvivalCurve.dose_at_survival` applies to the digitized curves,
+    rule [`SurvivalCurve.dose_at_survival`][] applies to the digitized curves,
     so our curves and the paper's are summarised identically. ``-log10 S`` must
     rise along ``dose_Gy`` (``np.interp`` needs increasing abscissae).
     """

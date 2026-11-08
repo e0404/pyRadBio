@@ -11,13 +11,15 @@ die because a DSB is misrepaired or fixed (a one-track, linear effect), or
 because two DSBs interact pairwise to form a lethal exchange -- *binary
 misrepair* -- which happens both within one track (intratrack, still linear in
 dose) and between tracks (intertrack, quadratic). Time-integrating that kinetic
-scheme gives the LQ parameters::
+scheme gives the LQ parameters:
 
-    (5)  alpha(q) = theta Sigma(q) + kappa z_F(q) Sigma^2(q)
-    (6)  beta(q)  = (kappa/2) Sigma^2(q)
-    (7)  z_F(q)   = 0.204 LET / d^2                          [Gy]
+```text
+(5)  alpha(q) = theta Sigma(q) + kappa z_F(q) Sigma^2(q)
+(6)  beta(q)  = (kappa/2) Sigma^2(q)
+(7)  z_F(q)   = 0.204 LET / d^2                          [Gy]
+```
 
-with ``Sigma`` the DSB yield [Gy^-1 Gbp^-1] from :mod:`pyradbio.micro.mcds`,
+with ``Sigma`` the DSB yield [Gy^-1 Gbp^-1] from [`pyradbio.micro.mcds`][],
 ``z_F`` the frequency-mean specific energy in a site of diameter ``d``, and
 ``theta`` [Gbp] / ``kappa`` [Gbp^2] two **tissue** parameters that are
 independent of radiation quality.
@@ -26,26 +28,30 @@ independent of radiation quality.
 carries a rejoinable fraction, ``alpha = [1 - f_R(1-theta)]Sigma + kappa z_F
 (f_R Sigma)^2``; his own analysis concludes that "all classes of DSB are
 potentially rejoinable", and Frese drops it. This module implements the Frese
-form, and :meth:`RMFModel.carlson_alpha` exposes the general one.
+form, and [`RMFModel.carlson_alpha`][] exposes the general one.
 
 **The two tissue parameters are not free here.** Given a photon reference
 ``(alpha_x, beta_x)`` measured with a radiation whose own ``Sigma_x`` and
-``z_F,x`` are known, eqs. (5)-(6) invert::
+``z_F,x`` are known, eqs. (5)-(6) invert:
 
-    kappa = 2 beta_x / Sigma_x^2
-    theta = (alpha_x - kappa z_F,x Sigma_x^2) / Sigma_x
+```text
+kappa = 2 beta_x / Sigma_x^2
+theta = (alpha_x - kappa z_F,x Sigma_x^2) / Sigma_x
+```
 
 which is how Frese Table 1's ``theta``/``kappa`` columns are produced. Equivalent
-reference-relative forms are the paper's eqs. (8)-(9)::
+reference-relative forms are the paper's eqs. (8)-(9):
 
-    (8)  alpha(q) = (Sigma(q)/Sigma_x)
-                    x [alpha_x + (2 beta_x/Sigma_x)(Sigma(q) z_F(q) - Sigma_x z_F,x)]
-    (9)  beta(q)  = (Sigma(q)/Sigma_x)^2 beta_x
+```text
+(8)  alpha(q) = (Sigma(q)/Sigma_x)
+                x [alpha_x + (2 beta_x/Sigma_x)(Sigma(q) z_F(q) - Sigma_x z_F,x)]
+(9)  beta(q)  = (Sigma(q)/Sigma_x)^2 beta_x
+```
 
 Eq. (9) says something worth stating plainly: ``sqrt(beta/beta_x) = Sigma/Sigma_x``,
 i.e. the model's ``RBE_min`` **is** the DSB-yield ratio. RMF therefore lands on
 the same ``RBE_min``/``RBE_max`` skeleton as
-:mod:`pyradbio.models.phenomenological`, but with mechanistically computed limits
+[`pyradbio.models.phenomenological`][], but with mechanistically computed limits
 rather than fitted ones. It is not a subclass of that family because its limits
 are functions of ``(Z, beta)``, not of a scalar ``LET_d``.
 
@@ -75,16 +81,18 @@ from pyradbio.micro.mcds import MCDSYields
 from pyradbio.models.base import BiophysicalModel, ModelCapabilities, apply_preset
 from pyradbio.track.stopping_power import StoppingPower, default_stopping_power
 
-#: Eq. (7) prefactor: ``z_F = 0.204 LET / d^2`` for a spherical water site, with
-#: LET in keV/um, ``d`` in um and ``z_F`` in Gy (Carlson eq. 2, from ICRU
-#: microdosimetry; assumes straight tracks and the continuous-slowing-down
-#: approximation, so it is poor where multiple scattering or delta-ray escape
-#: matter).
 Z_F_PREFACTOR: float = 0.204
+"""Eq. (7) prefactor: ``z_F = 0.204 LET / d^2`` for a spherical water site, with
+LET in keV/um, ``d`` in um and ``z_F`` in Gy (Carlson eq. 2, from ICRU
+microdosimetry; assumes straight tracks and the continuous-slowing-down
+approximation, so it is poor where multiple scattering or delta-ray escape
+matter).
+"""
 
-#: Frese: the RMF form is stated to hold "up to at least 100 to 150 keV/um", and
-#: above ~150 the paper reports it over-predicts both alpha and beta.
 RMF_LET_CEILING_KEV_UM: float = 150.0
+"""Frese: the RMF form is stated to hold "up to at least 100 to 150 keV/um", and
+above ~150 the paper reports it over-predicts both alpha and beta.
+"""
 
 
 @dataclass(frozen=True, slots=True)
@@ -97,10 +105,10 @@ class RMFReferenceRadiation:
     """
 
     label: str
-    #: DSB yield of the reference radiation [Gy^-1 Gbp^-1].
     dsb_per_Gy_per_Gbp: float
-    #: Its (unrestricted) LET [keV/um], used only for ``z_F,x``.
+    """DSB yield of the reference radiation [Gy^-1 Gbp^-1]."""
     let_keV_um: float
+    """Its (unrestricted) LET [keV/um], used only for ``z_F,x``."""
 
     def __post_init__(self) -> None:
         if self.dsb_per_Gy_per_Gbp <= 0.0:
@@ -109,18 +117,20 @@ class RMFReferenceRadiation:
             raise ValueError(f"let_keV_um must be > 0, got {self.let_keV_um!r}")
 
 
-#: Frese et al. 2012: "we simulated the reference DSB yield Sigma_x = 8.27
-#: Gy^-1 Gbp^-1 with a reference stopping power of 0.36 keV/um", including a
-#: secondary electron spectrum. Used for the in-vivo/clinical parameter sets.
 CO60_REFERENCE = RMFReferenceRadiation(label="Co-60", dsb_per_Gy_per_Gbp=8.27, let_keV_um=0.36)
+"""Frese et al. 2012: "we simulated the reference DSB yield Sigma_x = 8.27
+Gy^-1 Gbp^-1 with a reference stopping power of 0.36 keV/um", including a
+secondary electron spectrum. Used for the in-vivo/clinical parameter sets.
+"""
 
-#: Frese et al. 2012: "reference DSB yield Sigma_200 kVp = 8.68 Gy^-1 Gbp^-1 for
-#: 200 kVp X-rays was simulated using MCDS with a secondary electron spectrum
-#: obtained from MCNP. The frequency-mean specific energy was calculated for
-#: S_200 kVp = 1.53 keV/um." Used for the Furusawa in-vitro cell lines.
 X_RAY_200KVP_REFERENCE = RMFReferenceRadiation(
     label="200 kVp X-rays", dsb_per_Gy_per_Gbp=8.68, let_keV_um=1.53
 )
+"""Frese et al. 2012: "reference DSB yield Sigma_200 kVp = 8.68 Gy^-1 Gbp^-1 for
+200 kVp X-rays was simulated using MCDS with a secondary electron spectrum
+obtained from MCNP. The frequency-mean specific energy was calculated for
+S_200 kVp = 1.53 keV/um." Used for the Furusawa in-vitro cell lines.
+"""
 
 
 @dataclass(frozen=True, slots=True)
@@ -130,17 +140,17 @@ class RMFAlphaTerms:
     ``alpha = one_track + intratrack``: the one-track term ``theta Sigma`` and the
     intratrack binary-misrepair term ``kappa z_F Sigma^2``. The second carries the
     model's whole LET dependence beyond the DSB yield; returned by
-    :meth:`RMFModel.alpha_terms`.
+    [`RMFModel.alpha_terms`][].
     """
 
-    #: The ion's LET from the model's stopping power [keV/um].
     let_keV_um: float
-    #: DSB yield ``Sigma(q)`` [Gy^-1 Gbp^-1].
+    """The ion's LET from the model's stopping power [keV/um]."""
     dsb_per_Gy_per_Gbp: float
-    #: ``theta Sigma`` [Gy^-1] -- a single DSB misrepaired or fixed.
+    """DSB yield ``Sigma(q)`` [Gy^-1 Gbp^-1]."""
     one_track: float
-    #: ``kappa z_F Sigma^2`` [Gy^-1] -- two DSBs of the same track interacting.
+    """``theta Sigma`` [Gy^-1] -- a single DSB misrepaired or fixed."""
     intratrack: float
+    """``kappa z_F Sigma^2`` [Gy^-1] -- two DSBs of the same track interacting."""
 
     @property
     def alpha(self) -> float:
@@ -161,12 +171,12 @@ class RMFModel(BiophysicalModel):
 
     photon: PhotonParameters
     reference_radiation: RMFReferenceRadiation = CO60_REFERENCE
-    #: Nucleus **diameter** [um] in eq. (7). NB: a diameter, not a radius.
     site_diameter_um: float = 5.0
+    """Nucleus **diameter** [um] in eq. (7). NB: a diameter, not a radius."""
     yields: MCDSYields = field(default_factory=MCDSYields)
     stopping_power: StoppingPower = field(default_factory=default_stopping_power)
-    #: Warn above the stopping power Frese states the form holds to.
     let_ceiling_keV_um: float = RMF_LET_CEILING_KEV_UM
+    """Warn above the stopping power Frese states the form holds to."""
 
     def __post_init__(self) -> None:
         if self.site_diameter_um <= 0.0:
@@ -195,7 +205,7 @@ class RMFModel(BiophysicalModel):
 
     # ---- radiation quality ----------------------------------------------
     def let_keV_um(self, ion: Ion) -> float:
-        """LET of ``ion`` from :attr:`stopping_power` [keV/um]."""
+        """LET of ``ion`` from [`stopping_power`][] [keV/um]."""
         return self.stopping_power.let_keV_um(ion)
 
     def dsb_per_Gy_per_Gbp(self, ion: Ion) -> float:
@@ -250,10 +260,11 @@ class RMFModel(BiophysicalModel):
     def alpha_terms(self, ion: Ion) -> RMFAlphaTerms:
         """Eq. (5) term by term: one-track ``theta Sigma`` and intratrack ``kappa z_F Sigma^2``.
 
-        Their sum is :meth:`alpha_beta`'s ``alpha`` for the same ion, bit for bit.
-        Warns above :attr:`let_ceiling_keV_um`, like :meth:`alpha_beta` (evaluated,
-        not clamped). The LET is :attr:`stopping_power`'s, so pass a model built
-        with the stopping power the terms should be plotted against.
+        Their sum is [`alpha_beta`][pyradbio.models.rmf.model.RMFModel.alpha_beta]'s ``alpha`` for
+        the same ion, bit for bit. Warns above [`let_ceiling_keV_um`][], like
+        [`alpha_beta`][pyradbio.models.rmf.model.RMFModel.alpha_beta] (evaluated, not clamped). The
+        LET is [`stopping_power`][]'s, so pass a model built with the stopping power the terms
+        should be plotted against.
         """
         let = self.let_keV_um(ion)
         self._warn_above_ceiling(let, stacklevel=2)
@@ -271,7 +282,7 @@ class RMFModel(BiophysicalModel):
     def _dose_weight_stopping_power(self, ion: Ion) -> float:
         """Mixed fields (eq. 10) weight fluence by this model's own LET.
 
-        The mixing itself is the inherited :meth:`BiophysicalModel.alpha_beta`
+        The mixing itself is the inherited [`BiophysicalModel.alpha_beta`][]
         template -- dose-average ``alpha`` and ``sqrt(beta)`` (Zaider-Rossi /
         Kanai) -- with binned components integrated over their energy range.
         """
@@ -279,11 +290,11 @@ class RMFModel(BiophysicalModel):
 
     # ---- RBE ------------------------------------------------------------
     def reference(self) -> PhotonParameters:
-        """The photon reference :attr:`photon`.
+        """The photon reference [`photon`][].
 
-        RBE is the inherited :meth:`~pyradbio.models.base.BiophysicalModel.rbe_at_dose`
+        RBE is the inherited [`rbe_at_dose`][pyradbio.models.base.BiophysicalModel.rbe_at_dose]
         -- Frese eq. (16), the photon dose giving the same effect divided by the
-        ion dose -- and :meth:`~pyradbio.models.base.BiophysicalModel.rbe_at_survival`.
+        ion dose -- and [`rbe_at_survival`][pyradbio.models.base.BiophysicalModel.rbe_at_survival].
         Frese eq. (17) shows the former depends on ``(alpha/beta)_x`` but **not**
         on ``alpha_x``: a structural property of the model, not an approximation.
         """

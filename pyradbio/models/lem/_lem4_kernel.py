@@ -1,6 +1,6 @@
 """Numba-accelerated kernel for the LEM IV discrete DSB-pattern.
 
-This module is an *optional acceleration* of :meth:`LEM4._damage_pattern`. It
+This module is an *optional acceleration* of `LEM4._damage_pattern`. It
 reproduces, as compiled parallel loops, the two hot spots of the discrete
 single-traversal DSB pattern: (1) the radical-diffusion convolution of the
 Scholz-Kraft radial dose (Bessel-I0 form) evaluated over the radial profile, and
@@ -10,7 +10,7 @@ Scholz-Kraft radial dose (Bessel-I0 form) evaluated over the radial profile, and
 grid points spread across cores.
 
 Numba is an optional (``fast`` extra) dependency. If it is not installed the
-``@njit`` decorators degrade to no-ops and :data:`HAVE_NUMBA` is ``False``; the
+``@njit`` decorators degrade to no-ops and `HAVE_NUMBA` is ``False``; the
 kernel is then never called (the pure-NumPy path in ``lem4.py`` is used instead,
 so importing this module never requires numba). The compiled path is *not*
 bit-identical to the NumPy path (it uses a polynomial ``i0e`` and trapezoidal
@@ -211,7 +211,7 @@ def damage_pattern(
     [um^2] of one central traversal. Parallel over the radial profile (convolution)
     and the fine grid.
 
-    Reproduces :meth:`LEM4._damage_pattern`: the convolved dose profile on
+    Reproduces `LEM4._damage_pattern`: the convolved dose profile on
     ``r_grid``, then the eta-enhanced DSB yield binned into ``nsub^2`` subvolumes
     on the fine grid ``xs x xs`` (track at a subvolume centre), plus the analytic
     isolated-DSB penumbra (total radial dose-area minus the fine-square dose-area).

@@ -9,7 +9,7 @@ Physics, Phys. Rev. D 110, 030001 (2024), ch. 34, eqs. (34.4), (34.5); CC BY 4.0
 
 with ``K = 0.307075 MeV cm^2/mol`` and ``(Z/A) = 0.55509`` for water (PDG), the bare
 projectile charge ``z = Z`` and the true nuclear mass ``M``
-(:mod:`~pyradbio.track.stopping.masses`). The bare charge OVERESTIMATES partially stripped
+([`masses`][]). The bare charge OVERESTIMATES partially stripped
 ions: measured at 4.7-10 MeV/u (with shell, Barkas, Bloch, Ahlen) vs the ICRU 73
 errata / MSTAR, Si +9% / +17%, Ar +16% / +23%; C within 2% (ICRU 90 carbon: 0.04%).
 Hence ``effective_charge`` (default ``"hubert"``) for Z >= 3;
@@ -17,15 +17,15 @@ protons and alphas are bare in this range. ``"hubert"`` -- Hubert, Bimbot & Gauv
 ``S = (z_eff/2)^2 S_alpha`` at the same velocity, the alpha evaluated with this instance's
 own options; ``"fitted"`` -- Barkas's form with our MSTAR-fitted coefficient; ``"brandt_kitagawa"``
 -- Brandt & Kitagawa (1982) eq. (23); ``"barkas"`` -- the original Barkas form; ``None`` --
-bare; or any :class:`~pyradbio.track.stopping.effective_charge.EffectiveChargeModel`. The
+bare; or any [`EffectiveChargeModel`][]. The
 non-alpha models scale ``S = (z_eff/Z)^2 S_bare``. Measured accuracy: see
-:mod:`~pyradbio.track.stopping.effective_charge`. The alpha-referenced Hubert form trades
+[`effective_charge`][]. The alpha-referenced Hubert form trades
 the ion's own Z-dependent higher-order terms (Barkas, Bloch, Mott/LS) for the alpha's,
 as Hubert et al. fitted it: ICRU 90 carbon 1.1% (bare 0.04%) -- which is why
-:class:`~pyradbio.track.stopping.icru90_procedure.ICRU90Procedure` keeps bare charge.
+[`ICRU90Procedure`][] keeps bare charge.
 PDG states the formula holds for ``0.1 <~ beta*gamma <~ 1000`` "with an accuracy of a
 few percent"; those are the default range limits (options ``min_beta_gamma`` and
-``max_beta_gamma``); outside them :class:`~pyradbio.track.stopping.base.OutOfRangeError`
+``max_beta_gamma``); outside them [`OutOfRangeError`][]
 is raised.
 
 Options:
@@ -37,15 +37,15 @@ Options:
   I = 75 eV (their Cbar = 2 ln(I/hbar omega_p) + 1 identifies it) and are refused for
   other I; ``"sternheimer_peierls"``: the general recipe of R.M. Sternheimer and R.F.
   Peierls, Phys. Rev. B 3, 3681 (1971), for any I; ``"none"``; or any
-  :class:`DensityEffectModel`.
+  [`DensityEffectModel`][].
 * ``shell`` -- subtract ``C/Z``: ``True`` or a
-  :class:`~pyradbio.track.stopping.shell.WaterShellCorrection` (Walske's hydrogenic K and
+  [`WaterShellCorrection`][] (Walske's hydrogenic K and
   L shells for O plus the exact hydrogen atom, ICRU 49 "Model 1" in spirit; its two
-  oxygen ``theta`` are calibrated, see :mod:`~pyradbio.track.stopping.shell`).
+  oxygen ``theta`` are calibrated, see [`shell`][]).
 * ``barkas`` -- add ``z L1``: ``True`` or a
-  :class:`~pyradbio.track.stopping.barkas.WaterBarkasCorrection` (Ashley, Ritchie &
+  [`WaterBarkasCorrection`][] (Ashley, Ritchie &
   Brandt 1973 through ICRU 49 eq. 2.8, ``gamma = 1`` by default -- see
-  :mod:`~pyradbio.track.stopping.barkas`). It needs ``x_O >= 1`` (beta^2 >= 8 alpha^2,
+  [`barkas`][]). It needs ``x_O >= 1`` (beta^2 >= 8 alpha^2,
   ~0.2 MeV/u) and raises below.
 * Measured for protons, ``shell=True, barkas=True, bloch=True``: within
   +-0.13% of PSTAR (ICRU 49, ``i_value_eV=75``) and +-0.15% of ICRU 90 (78 eV) from 0.5
@@ -56,12 +56,12 @@ Options:
   ICRU 90 carbon to 0.058% over 30-833 MeV/u, vs 0.059% with LS); ``lindhard_sorensen``
   -- J. Lindhard and A.H. Sorensen, Phys. Rev. A 53, 2443 (1996), point nucleus, which
   **replaces** Bloch and Mott (combining them raises). See
-  :mod:`~pyradbio.track.stopping.higher_order`. With ``lindhard_sorensen=True`` the
+  [`higher_order`][]. With ``lindhard_sorensen=True`` the
   energy range ends where ``gamma A^(1/3) / 160 = 0.1`` (ASSUMPTION: one tenth of LS's
   estimate, p. 2451, of where finite nuclear size -- not implemented -- starts to matter).
 
 ``quantity="total"`` adds ``nuclear``
-(:class:`~pyradbio.track.stopping.nuclear.WaterNuclearStopping`; default: ZBL for
+([`WaterNuclearStopping`][]; default: ZBL for
 every ion, protons included -- the analytic engines' choice).
 """
 
@@ -114,10 +114,10 @@ BETHE_REFERENCE = (
     "Bethe formula, S. Navas et al. (Particle Data Group), Phys. Rev. D 110, 030001 (2024), "
     "eqs. (34.4), (34.5)"
 )
-#: PDG's stated validity of eq. (34.5) in beta*gamma.
 PDG_BETA_GAMMA_RANGE = (0.1, 1000.0)
-#: With Lindhard-Sorensen, stop at gamma A^(1/3) / 160 = this (point nucleus; ASSUMPTION).
+"""PDG's stated validity of eq. (34.5) in beta*gamma."""
 LS_FINITE_SIZE_FRACTION = 0.1
+"""With Lindhard-Sorensen, stop at gamma A^(1/3) / 160 = this (point nucleus; ASSUMPTION)."""
 _LN10 = math.log(10.0)
 
 
@@ -217,11 +217,13 @@ class TabulatedDensityEffect:
 
 @dataclass(frozen=True)
 class SternheimerDensityEffect:
-    """PDG eq. (34.7) for an insulator, ``x = log10(beta*gamma)``::
+    """PDG eq. (34.7) for an insulator, ``x = log10(beta*gamma)``:
 
+    ```text
     delta = 2 ln10 x - Cbar                     x >= x1
           = 2 ln10 x - Cbar + a (x1 - x)^k      x0 <= x < x1
           = 0                                    x < x0      (delta0 = 0 for water)
+    ```
     """
 
     coefficients: dict[str, float]
@@ -252,17 +254,19 @@ class SternheimerDensityEffect:
 @dataclass(frozen=True)
 class SternheimerPeierlsDensityEffect:
     """General density effect of R.M. Sternheimer and R.F. Peierls, Phys. Rev. B 3, 3681
-    (1971), for condensed materials (solids and liquids), any I::
+    (1971), for condensed materials (solids and liquids), any I:
 
-        X = log10(beta*gamma) = log10(p / m0 c)
-        delta = 4.606 X - Cbar + a (X1 - X)^m     X0 < X < X1      (eq. 1)
-              = 4.606 X - Cbar                    X > X1           (eq. 2)
-              = 0                                 X < X0           (eq. 6, delta(X0) = 0)
-        Cbar = 2 ln(I / h nu_p) + 1,  h nu_p = 28.8 (rho Z/A)^(1/2) eV      (eqs. 3, 5)
-        X_a = Cbar / 4.606,  a = 4.606 (X_a - X0) / (X1 - X0)^m             (eqs. 8, 9)
-        I < 100 eV:  X1 = 2.0, m = 3.0, X0 = 0.2 (Cbar < 3.681) or 0.326 Cbar - 1.0
-        I >= 100 eV: X1 = 3.0, m = 3.0, X0 = 0.2 (Cbar < 5.215) or 0.326 Cbar - 1.5
-                                                                     (eqs. 33-36)
+    ```text
+    X = log10(beta*gamma) = log10(p / m0 c)
+    delta = 4.606 X - Cbar + a (X1 - X)^m     X0 < X < X1      (eq. 1)
+          = 4.606 X - Cbar                    X > X1           (eq. 2)
+          = 0                                 X < X0           (eq. 6, delta(X0) = 0)
+    Cbar = 2 ln(I / h nu_p) + 1,  h nu_p = 28.8 (rho Z/A)^(1/2) eV      (eqs. 3, 5)
+    X_a = Cbar / 4.606,  a = 4.606 (X_a - X0) / (X1 - X0)^m             (eqs. 8, 9)
+    I < 100 eV:  X1 = 2.0, m = 3.0, X0 = 0.2 (Cbar < 3.681) or 0.326 Cbar - 1.0
+    I >= 100 eV: X1 = 3.0, m = 3.0, X0 = 0.2 (Cbar < 5.215) or 0.326 Cbar - 1.5
+                                                                 (eqs. 33-36)
+    ```
 
     "4.606 X is simply 2 ln(p/m0 c)" (their text after eq. 2), so 4.606 is taken as
     2 ln 10. The authors expect errors in dE/dx below 2%, typically about 1%.

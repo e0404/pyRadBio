@@ -1,20 +1,20 @@
 """Source-agnostic reference records for the validation harness.
 
 Every measured-survival database this package can score a model against --
-PIDE (:mod:`pyradbio.benchmark.pide`), RadPhysBio
-(:mod:`pyradbio.benchmark.radphysbio`), or a user's own CSV
-(:func:`load_reference_csv`) -- is reduced to the same small record,
-:class:`ReferenceRecord`: one ion exposure with its matched photon reference,
+PIDE ([`pyradbio.benchmark.pide`][]), RadPhysBio
+([`pyradbio.benchmark.radphysbio`][]), or a user's own CSV
+([`load_reference_csv`][]) -- is reduced to the same small record,
+[`ReferenceRecord`][]: one ion exposure with its matched photon reference,
 both as LQ parameters under ``-ln S = alpha*d + beta*d^2``. The harness in
-:mod:`pyradbio.benchmark.harness` reads nothing else, so a new database is a new
+[`pyradbio.benchmark.harness`][] reads nothing else, so a new database is a new
 loader that returns these records, plus the caveats a reader must know before
-believing a score against it (:class:`ReferenceDataset`).
+believing a score against it ([`ReferenceDataset`][]).
 
 Where a source carries more than the harness reads (PIDE's fit/paper variants,
 RadPhysBio's DSB yields and dose rates), the source module keeps its own richer
 row type and converts; the record here is the *interface*, not the archive.
 
-The :func:`load_dataset` registry is what the CLI drives (``--dataset``); it is
+The [`load_dataset`][] registry is what the CLI drives (``--dataset``); it is
 a plain dict so a user can register a loader for a private dataset without
 touching this package.
 """
@@ -68,20 +68,23 @@ class ReferenceRecord:
     alpha_x: float
     beta_x: float
     A: int | None = None
-    #: Reference photon quality as a raw string (e.g. ``"200kVp"``, ``"60Co"``,
-    #: ``"6MV"``); ``""`` when absent. Kept verbatim -- mapping a quality to a
-    #: reference dose-mean lineal energy is a model concern, not the loader's.
     photon_radiation: str = ""
-    #: Provenance key, ``"<dataset>:<publication or row>"``.
+    """Reference photon quality as a raw string (e.g. ``"200kVp"``, ``"60Co"``,
+    ``"6MV"``); ``""`` when absent. Kept verbatim -- mapping a quality to a
+    reference dose-mean lineal energy is a model concern, not the loader's.
+    """
     source: str = ""
-    #: True when the source gives a nominal beam energy rather than a verified
-    #: target energy. The harness rejects these records for energy-based models.
+    """Provenance key, ``"<dataset>:<publication or row>"``."""
     energy_is_nominal: bool = False
-    #: Skip records *without* an energy on the LET route too, keeping PIDE model
-    #: comparisons on a shared candidate set (the historical default). CSV
-    #: loaders set False because energy is optional there. A known energy below
-    #: the harness floor gates either way, and the ion route always needs one.
+    """True when the source gives a nominal beam energy rather than a verified
+    target energy. The harness rejects these records for energy-based models.
+    """
     require_energy_for_let: bool = True
+    """Skip records *without* an energy on the LET route too, keeping PIDE model
+    comparisons on a shared candidate set (the historical default). CSV
+    loaders set False because energy is optional there. A known energy below
+    the harness floor gates either way, and the ion route always needs one.
+    """
 
     @property
     def rbe_alpha(self) -> float:
@@ -91,7 +94,7 @@ class ReferenceRecord:
 
 @dataclass(frozen=True, slots=True)
 class ReferenceDataset:
-    """A named set of :class:`ReferenceRecord` plus what a reader must know.
+    """A named set of [`ReferenceRecord`][] plus what a reader must know.
 
     ``caveats`` are rendered verbatim into every benchmark report against this
     dataset, next to the model's own. A dataset that was largely digitized, or
@@ -232,8 +235,6 @@ def read_table(path: str | Path) -> Table:
 
 # --- generic column-aliased parser (custom CSVs) -----------------------------
 
-#: Logical field -> accepted *normalised* header aliases, in priority order (see
-#: :func:`normalise_header`): the first alias present in the header row wins.
 REFERENCE_ALIASES: Mapping[str, tuple[str, ...]] = {
     "cell_line": ("cells", "cell", "cellline", "celltype", "name"),
     "Z": ("charge", "z", "atomicnumber"),
@@ -247,6 +248,9 @@ REFERENCE_ALIASES: Mapping[str, tuple[str, ...]] = {
     "photon_radiation": ("photonradiation", "photon", "referenceradiation", "reference"),
     "source": ("publicationname", "source", "publication", "doi", "pmid"),
 }
+"""Logical field -> accepted *normalised* header aliases, in priority order (see
+[`normalise_header`][]): the first alias present in the header row wins.
+"""
 
 _REQUIRED = ("let_keV_um", "alpha_ion", "beta_ion", "alpha_x", "beta_x")
 
@@ -258,9 +262,9 @@ def parse_reference_rows(
     strict: bool = False,
     dataset: str = "csv",
 ) -> list[ReferenceRecord]:
-    """Turn a header row + data rows into :class:`ReferenceRecord` records.
+    """Turn a header row + data rows into [`ReferenceRecord`][] records.
 
-    Columns match logical fields via :data:`REFERENCE_ALIASES`, header-tolerant
+    Columns match logical fields via [`REFERENCE_ALIASES`][], header-tolerant
     (case and punctuation ignored). The ion is resolved from a ``Charge``/``Z``
     column when present, else parsed from an ``Ion`` token (``C-12``, ``12C``,
     ``C``). Rows missing a required numeric field (LET and the four LQ values)
@@ -323,7 +327,7 @@ def load_reference_csv(
 ) -> ReferenceDataset:
     """Load a user-supplied ``.csv``/``.xlsx`` of paired ion/photon LQ parameters.
 
-    Expected columns (header-tolerant; see :data:`REFERENCE_ALIASES`): ``cell``,
+    Expected columns (header-tolerant; see [`REFERENCE_ALIASES`][]): ``cell``,
     ``ion`` (or ``charge``), ``energy`` (MeV/u, optional), ``let`` (keV/um),
     ``alpha_ion``, ``beta_ion``, ``alpha_x``, ``beta_x``, and optionally
     ``photon_radiation`` and ``source``. A missing energy does not exclude a
@@ -349,9 +353,10 @@ def load_reference_csv(
 
 # --- registry ---------------------------------------------------------------
 
-#: A dataset loader: ``(path or None) -> ReferenceDataset``. ``None`` means "use
-#: the source's configured default location".
 DatasetLoader = Callable[[str | Path | None], ReferenceDataset]
+"""A dataset loader: ``(path or None) -> ReferenceDataset``. ``None`` means "use
+the source's configured default location".
+"""
 
 
 def _load_pide_dataset(path: str | Path | None) -> ReferenceDataset:
@@ -372,13 +377,14 @@ def _load_csv_dataset(path: str | Path | None) -> ReferenceDataset:
     return load_reference_csv(path)
 
 
-#: Dataset name -> loader. Extend in user code:
-#: ``DATASET_LOADERS["mine"] = lambda p: ReferenceDataset(...)``.
 DATASET_LOADERS: dict[str, DatasetLoader] = {
     "pide": _load_pide_dataset,
     "radphysbio": _load_radphysbio_dataset,
     "csv": _load_csv_dataset,
 }
+"""Dataset name -> loader. Extend in user code:
+``DATASET_LOADERS["mine"] = lambda p: ReferenceDataset(...)``.
+"""
 
 
 def dataset_names() -> tuple[str, ...]:
@@ -387,7 +393,7 @@ def dataset_names() -> tuple[str, ...]:
 
 
 def load_dataset(name: str, path: str | Path | None = None) -> ReferenceDataset:
-    """Load the registered dataset ``name`` (see :data:`DATASET_LOADERS`)."""
+    """Load the registered dataset ``name`` (see [`DATASET_LOADERS`][])."""
     try:
         loader = DATASET_LOADERS[name]
     except KeyError:

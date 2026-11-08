@@ -10,9 +10,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - `publish.yml` builds and `twine check`s the sdist and wheel on pushes and pull requests to `main`/`develop`, and uploads a `vX.Y.Z` tag to PyPI by trusted publishing.
 - `mirror.yml` mirrors `main`, `develop` and the tags to the internal GitLab, never forced.
 - `CONTRIBUTING.md`; README badges (CI, Codecov, PyPI, Zenodo DOI) and a citing section; the Zenodo concept DOI in `CITATION.cff`.
+- Documentation site built with Zensical (`zensical.toml`, `docs` extra): installation, quick start, a user guide per model family, an examples overview and an API reference generated from the docstrings, inherited members included; built on Read the Docs (`.readthedocs.yaml`) and with `--strict` in CI.
+- `tests/docs` runs every `python` code block in the README and the documentation, and keeps Sphinx/reST syntax out of the docstrings.
 
 ### Changed
 - The README installs from PyPI (`pip install pyradbio`).
+- Docstrings are Markdown instead of Sphinx/reST: mkdocstrings cross-references instead of roles, attribute docstrings instead of `#:` comments, admonitions and fenced code instead of directives and literal blocks (conventions in `AGENTS.md`).
+
+### Fixed
+- README quick start: the LET-route RBE call is `rbe_at_survival_from_let(let_keV_um, survival_fraction)`; `rbe_at_survival(..., let_keV_um=...)` raised a `TypeError`.
 
 ## [0.1.0] - 2026-11-08
 

@@ -3,7 +3,7 @@
 Reference engine for the *full-simulation* ion ``beta_I`` of Friedrich, Scholz,
 Elsasser, Durante & Scholz 2012 (Int. J. Radiat. Biol. 88(1-2):103-107,
 doi:10.3109/09553002.2011.611213, Fig. 4). Unlike the single-particle
-Kraemer-Scholz slope-matching approximation (:meth:`LEMBase._beta`), this places
+Kraemer-Scholz slope-matching approximation (`LEMBase._beta`), this places
 the discrete DSBs of *many* tracks into a **shared** 540 nm giant-loop grid, so
 DSBs from *different* tracks can cluster in the same loop (**intertrack cDSB**).
 That raises ``beta_I`` above the slope-matching value in the intermediate-LET
@@ -19,12 +19,12 @@ two-or-more DSB. Using the same ``(eps_i, eps_c)`` as ``LEM4._globle_lethalities
 makes the single-particle and full-simulation ``alpha`` agree by construction
 (Friedrich 2012: ``alpha_I`` is unchanged; only ``beta_I`` rises).
 
-The NumPy path (:func:`ion_survival_numpy`) is the deterministic reference; the
-compiled numba kernel (:func:`ion_survival_numba`, ``prange`` over realisations)
-is the fast path, mirroring :mod:`._mc_kernel`. Both compute the same estimator
+The NumPy path (`ion_survival_numpy`) is the deterministic reference; the
+compiled numba kernel (`ion_survival_numba`, ``prange`` over realisations)
+is the fast path, mirroring `_mc_kernel`. Both compute the same estimator
 (mean effect ``S = exp(-<E>)``) and agree within Monte-Carlo error; the numba path
 uses numba's per-thread RNG so it is *not* bit-reproducible for a fixed seed (the
-NumPy path is). :data:`HAVE_NUMBA` guards the compiled kernel exactly as there.
+NumPy path is). `HAVE_NUMBA` guards the compiled kernel exactly as there.
 """
 
 from __future__ import annotations
@@ -188,13 +188,13 @@ def _ion_effect_batches_numpy(
     only in ``score(n_iDSB, n_cDSB) -> effect``. Realisations are consumed from
     ``rng`` in one uninterrupted sequence, so a run partitioned into batches
     draws exactly the stream an unbatched run of the same total would -- the
-    property :func:`ion_survival_numpy` relies on to stay a thin wrapper.
+    property `ion_survival_numpy` relies on to stay a thin wrapper.
 
     Returns **mean effects**, not survivals. Survival is ``exp(-<E>)`` over
     realisations, so the effect is the quantity that pools linearly across
     batches; averaging per-batch survivals would apply Jensen at the batch
     boundary. This is what makes a delete-one jackknife over the rows valid
-    (:func:`pyradbio.models.lem.base._delete_one_jackknife`).
+    (`pyradbio.models.lem.base._delete_one_jackknife`).
     """
     doses = np.asarray(doses, dtype=np.float64)
     d_max = float(doses[-1])
@@ -259,8 +259,8 @@ def ion_survival_batches_numpy(
 ) -> npt.NDArray[np.float64]:
     """Per-batch mean effects for the GLOBLE scoring -> ``(n_batches, n_doses)``.
 
-    The batched form of :func:`ion_survival_numpy`, supplying the independent
-    replicates a delete-one jackknife needs. See :func:`_ion_effect_batches_numpy`
+    The batched form of `ion_survival_numpy`, supplying the independent
+    replicates a delete-one jackknife needs. See `_ion_effect_batches_numpy`
     for why the batch quantity is the effect rather than the survival.
     """
     return _ion_effect_batches_numpy(
@@ -316,7 +316,7 @@ def ion_survival_numpy(
     from different tracks land in the same loop (intertrack cDSB). ``doses`` must
     be ascending; ``doses[-1]`` is ``D_max``.
 
-    One pooled curve with no error estimate. :func:`ion_survival_batches_numpy`
+    One pooled curve with no error estimate. `ion_survival_batches_numpy`
     returns the same realisations partitioned into batches, which is what the
     jackknife needs.
     """
@@ -358,7 +358,7 @@ def ion_survival_photon_equivalent_numpy(
 ) -> npt.NDArray[np.float64]:
     """Intertrack survival ``S(D)`` scored via the photon-equivalent (``D_eq``) effect.
 
-    Identical discrete-DSB placement to :func:`ion_survival_numpy` (many domain-extended
+    Identical discrete-DSB placement to `ion_survival_numpy` (many domain-extended
     tracks, shared 540 nm grid, common random numbers), but the per-dose damage pattern
     ``(n_iDSB, n_cDSB)`` is scored through the LEM IV cluster-index -> ``D_eq`` ->
     ``S_gamma(D_eq)`` mapping instead of the bounded GLOBLE per-loop effect: the cluster
@@ -379,7 +379,7 @@ def ion_survival_photon_equivalent_numpy(
     document the ruled-out hypothesis.
 
     One pooled curve with no error estimate;
-    :func:`ion_survival_photon_equivalent_batches_numpy` is the batched form.
+    `ion_survival_photon_equivalent_batches_numpy` is the batched form.
     """
     batches = ion_survival_photon_equivalent_batches_numpy(
         doses,
@@ -421,8 +421,8 @@ def ion_survival_photon_equivalent_batches_numpy(
 ) -> npt.NDArray[np.float64]:
     """Per-batch mean effects for the photon-equivalent scoring.
 
-    Batched form of :func:`ion_survival_photon_equivalent_numpy`; see
-    :func:`_ion_effect_batches_numpy`.
+    Batched form of `ion_survival_photon_equivalent_numpy`; see
+    `_ion_effect_batches_numpy`.
     """
 
     def score(n_i: int, n_c: int) -> float:
@@ -496,7 +496,7 @@ def _ion_accumulate(
     tracked *incrementally* in arrival-dose order (a DSB entering an empty cube adds
     an iDSB; the second DSB converts it to a cDSB), so each dose threshold reads off
     the running ``(n_i, n_c)`` in one pass -- the compiled analogue of the NumPy
-    path's per-dose :func:`count_loops`.
+    path's per-dose `count_loops`.
     """
     n_doses = doses.shape[0]
     e_by_real = np.zeros((n_real, n_doses))
@@ -599,7 +599,7 @@ def ion_survival_numba(
     n_real: int,
 ) -> npt.NDArray[np.float64]:
     """Compiled parallel intertrack survival ``S(D)`` (fast path of
-    :func:`ion_survival_numpy`; same estimator, numba per-thread RNG so not
+    `ion_survival_numpy`; same estimator, numba per-thread RNG so not
     bit-reproducible). ``doses`` must be ascending."""
     batches = ion_survival_batches_numba(
         doses,
@@ -691,10 +691,10 @@ def _ion_accumulate_pe(
 ) -> npt.NDArray[np.float64]:
     """Per-realisation effect ``E(D)`` for the photon-equivalent MC (compiled).
 
-    Identical incremental placement/counting to :func:`_ion_accumulate`, but scores
+    Identical incremental placement/counting to `_ion_accumulate`, but scores
     each dose threshold as ``E = (n_i + n_c) * g(C_I)`` with ``C_I = n_c/(n_i+n_c)``
     (capped at ``ci_max``) and ``g = interp(C_I, ci_grid, g_grid)`` -- the compiled
-    analogue of :func:`ion_survival_photon_equivalent_numpy` (``_interp_cdf`` is a
+    analogue of `ion_survival_photon_equivalent_numpy` (``_interp_cdf`` is a
     generic monotone-``xp`` interpolator, reused here for the ``C_I -> g`` lookup).
     """
     n_doses = doses.shape[0]
@@ -809,7 +809,7 @@ def ion_survival_photon_equivalent_numba(
     n_real: int,
 ) -> npt.NDArray[np.float64]:
     """Compiled parallel photon-equivalent survival ``S(D)`` (fast path of
-    :func:`ion_survival_photon_equivalent_numpy`; same estimator, numba per-thread RNG
+    `ion_survival_photon_equivalent_numpy`; same estimator, numba per-thread RNG
     so not bit-reproducible). ``doses`` must be ascending."""
     batches = ion_survival_photon_equivalent_batches_numba(
         doses,
@@ -849,8 +849,8 @@ def ion_survival_photon_equivalent_batches_numba(
 ) -> npt.NDArray[np.float64]:
     """Per-batch mean effects for the compiled photon-equivalent kernel.
 
-    Batched form of :func:`ion_survival_photon_equivalent_numba`; see
-    :func:`ion_survival_batches_numba` for the reshape argument and the
+    Batched form of `ion_survival_photon_equivalent_numba`; see
+    `ion_survival_batches_numba` for the reshape argument and the
     reproducibility caveat.
     """
     doses = np.asarray(doses, dtype=np.float64)
@@ -898,15 +898,17 @@ def fit_alpha_beta(
     3/16 seeds and moved ``beta`` 0.0632 +- 0.0705 -> 0.0708 +- 0.0542, and at
     LET 130 it inflated the mean 2.1x (0.069 -> 0.148) while halving the spread.
     An error bar computed on a clamped statistic is not an error bar, which is
-    why the jackknife path (:meth:`LEM4.intertrack_mc_beta_jackknife`) consumes
-    this raw value. Same convention, and same reason, as the LEM I Monte-Carlo
-    (the Scholz 1997 reference batch, ``scripts/lem1_mc_reference.py alpha-beta``).
+    why the jackknife path
+    ([`LEM4.intertrack_mc_beta_jackknife`][pyradbio.models.lem.lem4.LEM4.intertrack_mc_beta_jackknife])
+    consumes this raw value. Same convention, and same reason, as the LEM I Monte-Carlo (the Scholz
+    1997 reference batch, ``scripts/lem1_mc_reference.py alpha-beta``).
 
     Callers needing a physically-signed scalar clamp it themselves and say so:
-    :meth:`LEM4.intertrack_mc_beta` floors it at 0 with a ``UserWarning``.
+    [`LEM4.intertrack_mc_beta`][pyradbio.models.lem.lem4.LEM4.intertrack_mc_beta] floors it at 0
+    with a ``UserWarning``.
 
     ``S`` is clipped to ``[1e-300, 1]`` before the log, then the fit is
-    :func:`pyradbio.core.lq.fit_lq_linearised` -- the same arithmetic in the same
+    [`pyradbio.core.lq.fit_lq_linearised`][] -- the same arithmetic in the same
     order as this function's former body (bit-equality on recorded LEM IV inputs
     is pinned in ``tests/core/test_lq_fits.py``). Degenerate doses (fewer than 2,
     non-positive, a single repeated value) or a NaN survival raise ``ValueError``

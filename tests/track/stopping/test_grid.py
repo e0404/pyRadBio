@@ -37,7 +37,7 @@ def _stopping_like(energy: npt.ArrayLike) -> npt.NDArray[np.float64]:
 
 _PEAK_MEV_U = 0.08 * (0.45 / 0.8) ** (1.0 / 1.25)
 
-#: An irregular source grid, 14 points per decade with mantissas like a printed table.
+# An irregular source grid, 14 points per decade with mantissas like a printed table.
 _MANTISSAS = (1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)
 _SOURCE_E = np.array([m * 10.0**k for k in range(-3, 3) for m in _MANTISSAS] + [1000.0])
 _SOURCE_S = _stopping_like(_SOURCE_E)

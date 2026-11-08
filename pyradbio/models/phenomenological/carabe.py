@@ -34,10 +34,12 @@ CARABE_RBE_MIN_SLOPE = 0.006 * CARABE_SCALE  # = 0.016116
 class Carabe(RBEMinMaxModel):
     """Carabe et al. 2012, Phys. Med. Biol. 57:1159, doi:10.1088/0031-9155/57/5/1159.
 
-    Both asymptotes are linear in ``LET_d`` with a ``1/(alpha/beta)_x`` slope::
+    Both asymptotes are linear in ``LET_d`` with a ``1/(alpha/beta)_x`` slope:
 
-        RBE_max = 0.843 + 0.154*2.686 * LET_d / (alpha/beta)_x
-        RBE_min = 1.09  + 0.006*2.686 * LET_d / (alpha/beta)_x
+    ```text
+    RBE_max = 0.843 + 0.154*2.686 * LET_d / (alpha/beta)_x
+    RBE_min = 1.09  + 0.006*2.686 * LET_d / (alpha/beta)_x
+    ```
 
     Two features set this model apart from the others in the package and are
     pinned by test:

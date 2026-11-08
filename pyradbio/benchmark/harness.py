@@ -3,12 +3,12 @@
 Evaluates a pyRadBio model's predicted initial-slope ``alpha`` (and the derived
 ``RBE_alpha = alpha_ion / alpha_x``) against measured values, point by point,
 and rolls the residuals up into the aggregate metrics from
-:mod:`pyradbio.benchmark.metrics`.
+[`pyradbio.benchmark.metrics`][].
 
-The measurements come from any :class:`~pyradbio.benchmark.dataset.ReferenceDataset`
--- PIDE, RadPhysBio, or a user's own CSV (see :mod:`pyradbio.benchmark.dataset`);
+The measurements come from any [`ReferenceDataset`][]
+-- PIDE, RadPhysBio, or a user's own CSV (see [`pyradbio.benchmark.dataset`][]);
 the harness reads only the source-agnostic
-:class:`~pyradbio.benchmark.dataset.ReferenceRecord`, so nothing below is tied
+[`ReferenceRecord`][], so nothing below is tied
 to one database. The prose in this module still says "PIDE" where it describes
 that database's particular scope, because the caveats were written against it.
 
@@ -30,8 +30,8 @@ further special case: its ``alpha_0`` is a V79 ion-response intercept, not a
 function of the row's ``alpha_x``, so its prediction is the same V79 fit whatever
 cell line the row describes.
 
-Two evaluation routes exist, selected per model by :class:`ModelSpec`: the
-track-structure families take an :class:`Ion` and derive LET themselves, while the
+Two evaluation routes exist, selected per model by [`ModelSpec`][]: the
+track-structure families take an [`Ion`][] and derive LET themselves, while the
 phenomenological family is a closed form in ``LET_d`` and is fed PIDE's own
 tabulated LET.
 
@@ -66,30 +66,34 @@ if TYPE_CHECKING:
 
 _T = TypeVar("_T")
 
-#: model name -> loose default D_t [Gy] is *not* attempted; D_t is a single shared
-#: knob (see :func:`run_benchmark`). LEM class registry lives in the factory.
 LEM_MODELS = ("lem1", "lem2", "lem3", "lem4")
+"""model name -> loose default D_t [Gy] is *not* attempted; D_t is a single shared
+knob (see [`run_benchmark`][]). LEM class registry lives in the factory.
+"""
 
-#: Benchmark name -> the MKM-family class and the published preset it runs under.
-#: Each is a single cell line's fitted parameter set applied to every PIDE row --
-#: the same coarse global choice the generic ``mkm`` entry already documents.
 MKM_MODELS = ("mkm", "mmkm", "smk", "mcf", "osmk2021", "osmk2023", "imk")
+"""Benchmark name -> the MKM-family class and the published preset it runs under.
+Each is a single cell line's fitted parameter set applied to every PIDE row --
+the same coarse global choice the generic ``mkm`` entry already documents.
+"""
 
-#: Benchmark name -> class in :mod:`pyradbio.models.phenomenological`. These carry
-#: no free parameters beyond the photon reference, which PIDE supplies per row, so
-#: the registry adds nothing of its own: each is the published fit as printed.
-#: The RMF model. A single entry, not a set of presets: its two tissue
-#: parameters are *derived* from the row's own photon pair (Frese et al. 2012
-#: eqs. 8-9), which PIDE supplies, so a preset would override the very thing the
-#: model keys on.
 RMF_MODELS = ("rmf",)
+"""Benchmark name -> class in [`pyradbio.models.phenomenological`][]. These carry
+no free parameters beyond the photon reference, which PIDE supplies per row, so
+the registry adds nothing of its own: each is the published fit as printed.
+The RMF model. A single entry, not a set of presets: its two tissue
+parameters are *derived* from the row's own photon pair (Frese et al. 2012
+eqs. 8-9), which PIDE supplies, so a preset would override the very thing the
+model keys on.
+"""
 
-#: Benchmark name -> a published Katz et al. 1971 cell-parameter set. Only the
-#: **aerobic mammalian** fits are registered: PIDE aggregates aerobic mammalian
-#: in-vitro survival, so the anoxic/N2 pairs, the bacterial spores and the
-#: haploid yeast in the same table have no comparable rows. All ten remain
-#: available on ``KatzCellularModel.published_presets()``.
 KATZ_MODELS = ("katz_hamster", "katz_hela", "katz_t1_todd", "katz_t1_barendsen")
+"""Benchmark name -> a published Katz et al. 1971 cell-parameter set. Only the
+**aerobic mammalian** fits are registered: PIDE aggregates aerobic mammalian
+in-vitro survival, so the anoxic/N2 pairs, the bacterial spores and the
+haploid yeast in the same table have no comparable rows. All ten remain
+available on ``KatzCellularModel.published_presets()``.
+"""
 
 PHENOMENOLOGICAL_MODELS = (
     "wilkens",
@@ -115,19 +119,21 @@ class PointResult:
     cell_line: str
     Z: int
     A: int
-    #: ``None`` for a LET-based evaluation of a record whose source gives no
-    #: usable target energy (see ``ReferenceRecord.energy_is_nominal``).
     energy_MeV_u: float | None
+    """``None`` for a LET-based evaluation of a record whose source gives no
+    usable target energy (see ``ReferenceRecord.energy_is_nominal``).
+    """
     let_keV_um: float
     alpha_x: float
     predicted_alpha: float
     measured_alpha: float
-    #: The quadratic terms, filled by :func:`run_benchmark` (``None`` on a
-    #: hand-built point): the row's photon ``beta_x``, the model's ``beta`` and the
-    #: measured ``beta_ion`` [Gy^-2]. The scores never read them -- ``beta`` is
-    #: a far noisier measurement than ``alpha`` -- but the per-point ratios
-    #: ``beta / beta_x`` are what Pfuhl et al. 2022 (Fig. 6) plot next to RBE_alpha.
     beta_x: float | None = None
+    """The quadratic terms, filled by [`run_benchmark`][] (``None`` on a
+    hand-built point): the row's photon ``beta_x``, the model's ``beta`` and the
+    measured ``beta_ion`` [Gy^-2]. The scores never read them -- ``beta`` is
+    a far noisier measurement than ``alpha`` -- but the per-point ratios
+    ``beta / beta_x`` are what Pfuhl et al. 2022 (Fig. 6) plot next to RBE_alpha.
+    """
     predicted_beta: float | None = None
     measured_beta: float | None = None
 
@@ -154,27 +160,31 @@ class BenchmarkResult:
     model_name: str
     points: tuple[PointResult, ...]
     n_skipped: int
-    #: Points the model's own fit does not cover (wrong ion species, or no
-    #: ``beta_x`` for a model parameterised by ``(alpha/beta)_x``). Kept apart
-    #: from :attr:`n_skipped` because a scope limit is a property of the
-    #: published fit, not a failure to evaluate.
     n_out_of_scope: int = 0
-    #: ``UserWarning``s raised by the model during evaluation -- in practice the
-    #: out-of-fitted-domain warnings of the phenomenological family. They are
-    #: captured rather than emitted: one per point would drown a full-PIDE run.
-    #: Deliberately **not** every warning: pyMKM raises a scipy
-    #: ``DeprecationWarning`` on each call, and counting those as domain warnings
-    #: reported 1742 of them for a model that has no stated domain at all.
+    """Points the model's own fit does not cover (wrong ion species, or no
+    ``beta_x`` for a model parameterised by ``(alpha/beta)_x``). Kept apart
+    from [`n_skipped`][] because a scope limit is a property of the
+    published fit, not a failure to evaluate.
+    """
     n_warnings: int = 0
-    #: Which reference dataset the points came from, and what its loader says a
-    #: reader must know before believing a score against it (rendered by the
-    #: report). Defaults describe the original PIDE-only harness.
+    """``UserWarning``s raised by the model during evaluation -- in practice the
+    out-of-fitted-domain warnings of the phenomenological family. They are
+    captured rather than emitted: one per point would drown a full-PIDE run.
+    Deliberately **not** every warning: pyMKM raises a scipy
+    ``DeprecationWarning`` on each call, and counting those as domain warnings
+    reported 1742 of them for a model that has no stated domain at all.
+    """
     dataset_name: str = "PIDE"
+    """Which reference dataset the points came from, and what its loader says a
+    reader must know before believing a score against it (rendered by the
+    report). Defaults describe the original PIDE-only harness.
+    """
     dataset_caveats: tuple[str, ...] = ()
-    #: ``(Z, n)`` in ascending ``Z``: how many points of each ion passed every
-    #: filter (and the ``limit_per_ion`` cap) and were handed to the model. A
-    #: count above that ion's evaluated points means the model failed on the rest.
     attempted_by_ion: tuple[tuple[int, int], ...] = ()
+    """``(Z, n)`` in ascending ``Z``: how many points of each ion passed every
+    filter (and the ``limit_per_ion`` cap) and were handed to the model. A
+    count above that ion's evaluated points means the model failed on the rest.
+    """
 
     @property
     def n_points(self) -> int:
@@ -209,27 +219,28 @@ class BenchmarkResult:
         return groups
 
 
-#: A factory maps a PIDE entry's photon reference to a ready-to-evaluate model.
 ModelFactory = Callable[[float, float], BiophysicalModel]
+"""A factory maps a PIDE entry's photon reference to a ready-to-evaluate model."""
 
-#: A per-row LEM transition dose: ``(alpha_x, beta_x) -> D_t`` [Gy], e.g. Pfuhl et
-#: al. 2022 eq. (3) ``D_t = 4 Gy + 1.1 alpha_x/beta_x``. Passed as ``D_t`` to
-#: :func:`build_model_spec` in place of one shared value.
 TransitionDoseRule = Callable[[float, float], float]
+"""A per-row LEM transition dose: ``(alpha_x, beta_x) -> D_t`` [Gy], e.g. Pfuhl et
+al. 2022 eq. (3) ``D_t = 4 Gy + 1.1 alpha_x/beta_x``. Passed as ``D_t`` to
+[`build_model_spec`][] in place of one shared value.
+"""
 
-#: How :func:`run_benchmark` thins each ion to ``limit_per_ion`` points.
 Stratify = Literal["let"]
+"""How [`run_benchmark`][] thins each ion to ``limit_per_ion`` points."""
 
 
 @dataclass(frozen=True, slots=True)
 class ModelSpec:
     """How to build a benchmarkable model *and* how it must be evaluated.
 
-    ``model_type`` selects the evaluation route: :attr:`let_based` is derived
+    ``model_type`` selects the evaluation route: [`let_based`][] is derived
     from it (``issubclass(model_type, LETModel)``, equivalently
     ``capabilities.let_route``). Track-structure models (LEM, MKM)
-    take an :class:`Ion` and derive LET internally; the phenomenological models
-    (:class:`~pyradbio.models.base.LETModel`) take a LET directly, and are fed
+    take an [`Ion`][] and derive LET internally; the phenomenological models
+    ([`LETModel`][]) take a LET directly, and are fed
     **PIDE's own tabulated LET** rather than one
     recomputed from ``(Z, E)``. That is the faithful choice -- the published fits
     were made against the experiments' quoted LET -- and it also keeps our
@@ -239,35 +250,34 @@ class ModelSpec:
 
     ``applicable_z`` and ``needs_beta_x`` record what the *published fit* covers,
     so points outside it are tallied separately (see
-    :attr:`BenchmarkResult.n_out_of_scope`) instead of looking like errors.
+    [`BenchmarkResult.n_out_of_scope`][]) instead of looking like errors.
     """
 
     build: ModelFactory
-    #: The class ``build`` returns. Only used to route; ``None`` (the default)
-    #: is the ion route.
     model_type: type[BiophysicalModel] | None = None
-    #: Atomic numbers the fit covers, or ``None`` for "no species restriction".
+    """The class ``build`` returns. Only used to route; ``None`` (the default)
+    is the ion route.
+    """
     applicable_z: frozenset[int] | None = None
-    #: True when the model is parameterised by ``(alpha/beta)_x`` and so cannot
-    #: be evaluated on a PIDE row whose ``beta_x`` is missing or zero.
+    """Atomic numbers the fit covers, or ``None`` for "no species restriction"."""
     needs_beta_x: bool = False
-    #: Memoise predictions on ``(photon pair, Z, A, energy)``. PIDE repeats the
-    #: same exposure across cell lines -- 892 evaluable rows hold only 520
-    #: distinct ions -- which is worth ~40% of the run time for the spectrum MKM
-    #: models, where one point costs tens of milliseconds. Safe only for the
-    #: stateless models it is switched on for.
+    """True when the model is parameterised by ``(alpha/beta)_x`` and so cannot
+    be evaluated on a PIDE row whose ``beta_x`` is missing or zero.
+    """
     cache_by_ion: bool = False
+    """Memoise predictions on ``(photon pair, Z, A, energy)``. PIDE repeats the
+    same exposure across cell lines -- 892 evaluable rows hold only 520
+    distinct ions -- which is worth ~40% of the run time for the spectrum MKM
+    models, where one point costs tens of milliseconds. Safe only for the
+    stateless models it is switched on for.
+    """
 
     @property
     def let_based(self) -> bool:
-        """Evaluated from the record's LET: the model is an :class:`LETModel`."""
+        """Evaluated from the record's LET: the model is an [`LETModel`][]."""
         return self.model_type is not None and issubclass(self.model_type, LETModel)
 
 
-#: Model name -> what a reader must know before believing its score. Registered
-#: here rather than in the report so that adding a model and stating its caveat
-#: are one edit. :func:`model_caveats` merges the family note with the per-model
-#: ones; :mod:`pyradbio.benchmark.report` renders the result.
 _FAMILY_CAVEATS: dict[str, str] = {
     "lem": (
         "D_t = 30 Gy and R_n = 5 um are a single global choice across every cell "
@@ -306,12 +316,18 @@ _FAMILY_CAVEATS: dict[str, str] = {
         "Wedenberg and Carabe, which were fitted to subsets of the same corpus."
     ),
 }
+"""Model name -> what a reader must know before believing its score. Registered
+here rather than in the report so that adding a model and stating its caveat
+are one edit. [`model_caveats`][] merges the family note with the per-model
+ones; [`pyradbio.benchmark.report`][] renders the result.
+"""
 
-#: Models whose coefficients are still not fully attributable to their own
-#: paper. Only Tilly remains: its primary states that the slopes were fitted
-#: "as shown in figure 2" but prints no number, so Rorvik et al. 2018's
-#: appendix B is the only numeric source even with the primary in hand.
 _SECOND_HAND_COEFFICIENTS = frozenset({"tilly2", "tilly10"})
+"""Models whose coefficients are still not fully attributable to their own
+paper. Only Tilly remains: its primary states that the slopes were fitted
+"as shown in figure 2" but prints no number, so Rorvik et al. 2018's
+appendix B is the only numeric source even with the primary in hand.
+"""
 
 _SECOND_HAND_CAVEAT = (
     "The fitted slope is **not printed by its own paper**, which states only "
@@ -345,8 +361,8 @@ _KATZ_SHARED_CAVEATS: tuple[str, ...] = (
     "The fit is one 1960s cell line's four parameters applied to every PIDE row, "
     "the same coarse global choice the LEM and MKM family notes already carry.",
     "Katz fitted against the L values tabulated in his own Table I; this run "
-    "derives LET from the package's default stopping power (analytic Bethe) "
-    "instead, so the two do not share an x-axis definition.",
+    "derives LET from the package's default stopping power instead, so the two "
+    "do not share an x-axis definition.",
 )
 
 _MODEL_CAVEATS: dict[str, tuple[str, ...]] = {
@@ -449,13 +465,13 @@ _MODEL_CAVEATS: dict[str, tuple[str, ...]] = {
     ),
 }
 
-#: True of every run this harness produces, whatever the model or dataset.
 BENCHMARK_SCOPE_NOTE = (
     "This scores a model against **measured survival data**, not against a paper's "
     "own published model line. It ranks models on a shared point set; it is not a "
     "reconstruction check, and a residual here must not be used to choose between "
     "implementations or parameter variants."
 )
+"""True of every run this harness produces, whatever the model or dataset."""
 
 
 def model_caveats(model_name: str) -> tuple[str, ...]:
@@ -481,7 +497,7 @@ def _lem_factory(
 ) -> ModelFactory:
     """Build LEM models on demand, one per unique ``(alpha_x, beta_x)`` photon pair.
 
-    ``D_t`` is one shared value or a :data:`TransitionDoseRule` evaluated on the
+    ``D_t`` is one shared value or a [`TransitionDoseRule`][] evaluated on the
     photon pair of the first row that builds each model.
     """
     from pyradbio.models.lem.lem1 import LEM1
@@ -517,7 +533,8 @@ def _mkm_factory(
 ) -> ModelFactory:
     """A single photon-independent MKM model, reused for every point.
 
-    Runs on :class:`MKMModel`'s default, pyMKM-free ``NativeMKMBackend``.
+    Runs on [`MKMModel`][pyradbio.models.mkm.model.MKMModel]'s default, pyMKM-free
+    ``NativeMKMBackend``.
     """
     from pyradbio.models.mkm.model import MKMModel
 
@@ -541,7 +558,7 @@ def _preset_mkm_factory(model_name: str) -> ModelFactory:
     fitted together -- SMK's ``R_n = 8.1 um`` (Inaniwa & Kanematsu 2018) against
     mMKM's 4.3, MCF MKM's 4.5 -- so letting the LEM-ish ``R_n = 5 um`` default
     leak in would silently produce a model nobody published. Overrides are
-    refused rather than ignored; build a :class:`ModelSpec` directly to vary one.
+    refused rather than ignored; build a [`ModelSpec`][] directly to vary one.
 
     One caveat carries over from the family's own reference notes: the reference
     ``y_D`` these models calibrate against belongs to a specific photon quality,
@@ -687,13 +704,13 @@ def build_model_spec(
     alpha0: float | None = None,
     beta0: float | None = None,
 ) -> ModelSpec:
-    """Return a :class:`ModelSpec` for ``model_name`` with documented defaults.
+    """Return a [`ModelSpec`][] for ``model_name`` with documented defaults.
 
     LEM defaults: ``D_t = 30 Gy`` and ``R_n = 5 um`` are representative V79/HSG
     values (Elsasser & Scholz 2007; Friedrich 2012) used as a single global choice
     across cell lines. The generic ``mkm`` entry defaults
     ``(alpha0, beta0, r_d, R_n) = (0.1, 0.05, 0.44 um, 5 um)``, order-of-magnitude
-    HSG values (Inaniwa 2010). ``D_t`` may instead be a :data:`TransitionDoseRule`
+    HSG values (Inaniwa 2010). ``D_t`` may instead be a [`TransitionDoseRule`][]
     ``(alpha_x, beta_x) -> D_t`` evaluated per photon pair, as Pfuhl et al. 2022
     eq. (3) prescribes for LEM IV.
 
@@ -767,17 +784,17 @@ def build_model_spec(
 
 
 def benchmark_models() -> tuple[str, ...]:
-    """Every model name :func:`build_model_spec` accepts, in registry order."""
+    """Every model name [`build_model_spec`][] accepts, in registry order."""
     return (*LEM_MODELS, *MKM_MODELS, *RMF_MODELS, *KATZ_MODELS, *PHENOMENOLOGICAL_MODELS)
 
 
 def build_model_factory(
     model_name: str, *, D_t: float | TransitionDoseRule | None = None, **kwargs: float | None
 ) -> ModelFactory:
-    """The :data:`ModelFactory` of ``model_name``'s spec (see :func:`build_model_spec`).
+    """The [`ModelFactory`][] of ``model_name``'s spec (see [`build_model_spec`][]).
 
     Kept for callers that only need to *build* the model; anything that evaluates
-    one wants the whole :class:`ModelSpec`, since that carries the evaluation
+    one wants the whole [`ModelSpec`][], since that carries the evaluation
     route and the fit's scope.
     """
     return build_model_spec(model_name, D_t=D_t, **kwargs).build
@@ -844,7 +861,7 @@ def stratified_by_let(
     numpy rounds) in the LET-sorted order -- a stable sort, so ties keep their
     input order. Duplicate ranks collapse, so a cap close to ``n`` can return
     fewer than ``cap`` items; ``n <= cap`` items are all returned, LET-sorted.
-    This is the thinning :func:`run_benchmark` applies per ion for
+    This is the thinning [`run_benchmark`][] applies per ion for
     ``limit_per_ion``.
     """
     if cap < 1:
@@ -876,14 +893,14 @@ def run_benchmark(
     Only entries with a known energy, ``Z <= max_z``, energy
     ``>= min_energy_MeV_u``, and a positive measured ``alpha_ion`` are
     evaluated; everything else (including any per-point model error) is skipped
-    and tallied in :attr:`BenchmarkResult.n_skipped`. The energy conditions are
+    and tallied in [`BenchmarkResult.n_skipped`][]. The energy conditions are
     waived for a LET-based spec on records marked ``energy_is_nominal``. On
     records with ``require_energy_for_let=False`` (as set by the custom-CSV
     loader) a LET-based spec waives only the *missing*-energy condition; a known
     energy below ``min_energy_MeV_u`` is still skipped. A LET-based model never
     reads the energy. Points that the model's own
     published fit does not cover are tallied in
-    :attr:`BenchmarkResult.n_out_of_scope` instead -- a proton-only fit meeting a
+    [`BenchmarkResult.n_out_of_scope`][] instead -- a proton-only fit meeting a
     carbon point is a scope limit, not a failure.
 
     By default the energy filters apply to LET-based models too, so that PIDE
@@ -892,17 +909,17 @@ def run_benchmark(
     column is optional. ``limit`` caps the
     number of *evaluated* points (useful for a quick slice).
     ``spec`` overrides ``model_name`` + ``D_t`` + ``factory_kwargs`` (both passed to
-    :func:`build_model_spec`, so ``D_t`` may be a :data:`TransitionDoseRule`);
+    [`build_model_spec`][], so ``D_t`` may be a [`TransitionDoseRule`][]);
     a bare ``factory`` is shorthand for an ion-based spec with no scope limit.
 
     ``limit_per_ion`` instead thins every ion (``Z``) to at most that many of the
     points that passed the filters above, chosen by ``stratify``. ``"let"``, the
-    only rule, keeps points evenly spaced in LET rank (:func:`stratified_by_let`),
+    only rule, keeps points evenly spaced in LET rank ([`stratified_by_let`][]),
     so a bounded run still spans each ion's whole LET range. The dropped points
     are neither skipped nor out of scope -- they are simply not asked -- and the
     run then evaluates, and returns, its points grouped by ascending ``Z`` and in
     ascending LET within an ion. Without it the input order is kept.
-    :attr:`BenchmarkResult.attempted_by_ion` counts what each ion handed the model.
+    [`BenchmarkResult.attempted_by_ion`][] counts what each ion handed the model.
 
     Records marked ``energy_is_nominal`` are accepted only by LET-based specs.
     An energy-based run raises ``ValueError`` before evaluating any points if
@@ -911,15 +928,15 @@ def run_benchmark(
 
     ``entries`` may be a bare sequence of records (the result is then labelled
     with the PIDE defaults, for back-compatibility) or a
-    :class:`~pyradbio.benchmark.dataset.ReferenceDataset`, whose name and caveats
+    [`ReferenceDataset`][], whose name and caveats
     are carried into the result and so into the report.
 
     ``max_z`` defaults to 10 (hydrogen-neon, the light-ion range the families
     are validated on) so that benchmark point sets stay
     comparable between runs; it is not a stopping-power limit. The default
-    stopping power is analytic Bethe
-    (:func:`~pyradbio.track.stopping_power.default_stopping_power`), which has
-    no table edge in ``Z``.
+    stopping power
+    ([`default_stopping_power`][pyradbio.track.stopping_power.default_stopping_power]) has no table
+    edge in ``Z``: analytic Bethe covers everything outside its ICRU 90 and Hubert branches.
     """
     if stratify != "let":
         raise ValueError(f"stratify must be 'let', got {stratify!r}")

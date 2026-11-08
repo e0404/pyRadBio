@@ -1,23 +1,25 @@
 """Logarithmic energy grids, log-log regridding and the shipped-table CSV format.
 
-* :class:`LogEnergyGrid` -- a user-defined log-uniform energy grid with exact
+* [`LogEnergyGrid`][] -- a user-defined log-uniform energy grid with exact
   endpoints.
-* :class:`RegriddedTable` -- one ion's values on a set of nodes, interpolated in
+* [`RegriddedTable`][] -- one ion's values on a set of nodes, interpolated in
   ``log E -> log S``: a not-a-knot cubic spline by default, monotone cubic (PCHIP)
-  for comparison. Outside its nodes it raises :class:`OutOfRangeError`.
-* :func:`leave_one_out_relative_error` -- the interpolation-error estimate available
+  for comparison. Outside its nodes it raises [`OutOfRangeError`][].
+* [`leave_one_out_relative_error`][] -- the interpolation-error estimate available
   for a real table, where nothing is known between the source points.
-* :func:`write_table_csv` / :func:`read_table_csv` -- the long-format CSV our
+* [`write_table_csv`][] / [`read_table_csv`][] -- the long-format CSV our
   regridded tables ship in, with a provenance header and per-ion metadata.
 
-CSV format ``pyradbio-stopping-table/1``::
+CSV format ``pyradbio-stopping-table/1``:
 
-    # free-text provenance notes, one per line
-    #@ format = "pyradbio-stopping-table/1"
-    #@ <key> = <JSON value>                      file-level metadata
-    #@ ion.<Z>.<A> = <JSON IonSourceInfo>        one line per ion
-    Z,A,energy_MeV_u,<column>,<column>,...
-    6,12,0.001,...
+```text
+# free-text provenance notes, one per line
+#@ format = "pyradbio-stopping-table/1"
+#@ <key> = <JSON value>                      file-level metadata
+#@ ion.<Z>.<A> = <JSON IonSourceInfo>        one line per ion
+Z,A,energy_MeV_u,<column>,<column>,...
+6,12,0.001,...
+```
 
 Values are written with ``repr`` so a file round-trips bit for bit.
 """
@@ -39,8 +41,8 @@ from scipy.interpolate import CubicSpline, PchipInterpolator
 
 from pyradbio.track.stopping.base import IonSourceInfo, OutOfRangeError
 
-#: Interpolants available in log-log space.
 Interpolation = Literal["cubic", "pchip"]
+"""Interpolants available in log-log space."""
 
 TABLE_FORMAT = "pyradbio-stopping-table/1"
 _META_PREFIX = "#@ "
@@ -134,7 +136,7 @@ class RegriddedTable:
     """One ion's values on strictly increasing nodes, interpolated in log-log space.
 
     Calling the table evaluates the interpolant; any energy outside
-    ``[energy_MeV_u[0], energy_MeV_u[-1]]`` raises :class:`OutOfRangeError`.
+    ``[energy_MeV_u[0], energy_MeV_u[-1]]`` raises [`OutOfRangeError`][].
     """
 
     energy_MeV_u: npt.NDArray[np.float64]

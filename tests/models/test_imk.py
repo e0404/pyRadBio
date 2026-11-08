@@ -1,6 +1,6 @@
 """IMK -- integrated microdosimetric-kinetic model (Matsuya et al. 2025).
 
-Physics acceptance for :class:`~pyradbio.models.mkm.imk.IMKModel`
+Physics acceptance for `pyradbio.models.mkm.imk.IMKModel`
 (doi:10.1002/mp.70040; equations restated in
 ``docs/references/IMK_Matsuya2025.md``):
 
@@ -11,7 +11,7 @@ Physics acceptance for :class:`~pyradbio.models.mkm.imk.IMKModel`
   irradiation collapses the whole model onto mMKM exactly;
 * ``F`` for one continuous block reproduces the paper's printed closed form
   ``2[(a+c)T + e^-((a+c)T) - 1]/((a+c)T)^2`` -- computed here from the general
-  :mod:`~pyradbio.core.protraction` route, so the two derivations cross-check;
+  `pyradbio.core.protraction` route, so the two derivations cross-check;
 * the micronucleus channel (eq. 3) is the survival LQ scaled by ``h``, and
   ``RBE_MN`` (eq. 6) is therefore independent of ``h``;
 * eq. (4)'s ``D10`` is the LQ inversion the core already owns.
@@ -145,7 +145,7 @@ def test_time_factor_matches_the_printed_closed_form(duration_h: float) -> None:
     """Eq. (1): ``F = 2[x + e^-x - 1]/x^2`` with ``x = (a+c) T``.
 
     The model computes ``F`` through the general block route in
-    :mod:`~pyradbio.core.protraction`; this is the paper's own expression,
+    `pyradbio.core.protraction`; this is the paper's own expression,
     written out independently.
     """
     model = hsg()

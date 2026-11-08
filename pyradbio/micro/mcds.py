@@ -7,24 +7,28 @@ revision); the algorithm itself is Semenenko & Stewart 2004, Radiat. Res.
 
 **No Monte Carlo is run here.** The 2006 paper's sec. 2.2 fits the published
 track-structure simulations of Nikjoo et al. and Friedland et al. to a closed
-form, and that closed form is what the RMF model consumes::
+form, and that closed form is what the RMF model consumes:
 
-    (3)  f(x) = u + (v - u) x / (x + w),        x = Z_eff^2 / beta^2
+```text
+(3)  f(x) = u + (v - u) x / (x + w),        x = Z_eff^2 / beta^2
+```
 
 with ``f(1) ~ f(0) = u`` and ``f(inf) = v``, so ``u`` is the low-quality (photon
 / fast-ion) limit, ``v`` the saturation value and ``w`` the half-saturation
 point. The fitted constants are printed in sec. 2.2 (yields) and eq. (5)
 (``n_seg``).
 
-The quality parameter is Katz's::
+The quality parameter is Katz's:
 
-    (1)  Z_eff = Z [1 - exp(-125 beta Z^{-2/3})]     (Barkas 1963)
-    (2)  beta  = sqrt(1 - 1/(1 + T/m_0 c^2)^2)
+```text
+(1)  Z_eff = Z [1 - exp(-125 beta Z^{-2/3})]     (Barkas 1963)
+(2)  beta  = sqrt(1 - 1/(1 + T/m_0 c^2)^2)
+```
 
 and the paper cites **Katz (1970)** for using ``Z^2/beta^2`` as the variable
 against which to interpolate radiation quality -- the same scaling
-:mod:`pyradbio.models.katz` uses, and the same effective charge
-:func:`pyradbio.track.stopping_power.effective_charge` already provides, which
+[`pyradbio.models.katz`][] uses, and the same effective charge
+[`pyradbio.track.stopping_power.effective_charge`][] already provides, which
 is delegated to rather than duplicated.
 
 **Trends.** DSB yield *rises* with ``x`` (48.9 -> 164.5 Gy^-1 cell^-1) while SSB
@@ -45,23 +49,25 @@ from dataclasses import dataclass
 from pyradbio.core.radiation import Ion
 from pyradbio.track.stopping_power import effective_charge
 
-#: Fit domain of eq. (3), sec. 2.3: "most appropriate for 1 <= Z_eff^2/beta^2
-#: <= 3200". At the upper limit T ~ 0.105 MeV (protons) and ~2 MeV (alphas).
 MCDS_DOMAIN_MIN: float = 1.0
+"""Fit domain of eq. (3), sec. 2.3: "most appropriate for 1 <= Z_eff^2/beta^2
+<= 3200". At the upper limit T ~ 0.105 MeV (protons) and ~2 MeV (alphas).
+"""
 MCDS_DOMAIN_MAX: float = 3200.0
 
-#: Gbp of DNA per cell implied by the paper's own dual-unit yields: it prints
-#: 48.9/8.15, 164.5/27.4, 1134/189 and 291/48.5, all of which give 6.0. That is
-#: a diploid mammalian genome, and it is the only conversion between the two
-#: unit systems used in this lineage (Carlson 2008 works per cell, Frese 2012
-#: per Gbp).
 GBP_PER_CELL: float = 6.0
+"""Gbp of DNA per cell implied by the paper's own dual-unit yields: it prints
+48.9/8.15, 164.5/27.4, 1134/189 and 291/48.5, all of which give 6.0. That is
+a diploid mammalian genome, and it is the only conversion between the two
+unit systems used in this lineage (Carlson 2008 works per cell, Frese 2012
+per Gbp).
+"""
 
 
 def effective_charge_barkas(z: int, beta: float) -> float:
     """MCDS eq. (1) ``Z_eff = Z[1 - exp(-125 beta Z^{-2/3})]`` (Barkas 1963).
 
-    Identical to :func:`pyradbio.track.stopping_power.effective_charge` and to
+    Identical to [`pyradbio.track.stopping_power.effective_charge`][] and to
     Katz et al. 1971 eq. (12); delegated so the three cannot drift apart.
     """
     return effective_charge(z, beta)
@@ -107,14 +113,14 @@ class MCDSYields:
     ssb_v_per_Gy_per_cell: float = 291.0
     ssb_w: float = 1615.0
     # -- eq. (5): the MCDS algorithm's own inputs --------------------------
-    #: Strand breaks per Gy per cell, fixed at its approximate optimum.
     sigma_Sb_per_Gy_per_cell: float = 1300.0
-    #: Base damages per strand break, carried over from the 2004 paper.
+    """Strand breaks per Gy per cell, fixed at its approximate optimum."""
     base_damage_to_strand_break_ratio: float = 3.0
-    #: Minimum undamaged bp separating two clusters.
+    """Base damages per strand break, carried over from the 2004 paper."""
     n_min_bp: int = 9
-    #: eq. (3) constants for the DNA segment length [bp Gy^-1 cell^-1].
+    """Minimum undamaged bp separating two clusters."""
     n_seg_u_bp: float = 149200.0
+    """eq. (3) constants for the DNA segment length [bp Gy^-1 cell^-1]."""
     n_seg_v_bp: float = 25600.0
     n_seg_w: float = 267.0
 

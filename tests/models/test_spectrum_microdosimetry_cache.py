@@ -265,7 +265,7 @@ _CHOICE_REPLACEMENTS: dict[str, Any] = {
     "domain_treatment": "sato_moments",
     "nucleus_treatment": "numerical",
 }
-#: Fields a class refuses to take off their default (OSMK refuses the SMK axes).
+# Fields a class refuses to take off their default (OSMK refuses the SMK axes).
 _REFUSED: dict[type, set[str]] = {
     OSMK2021: {"domain_treatment", "nucleus_treatment"},
     OSMK2023: {"domain_treatment", "nucleus_treatment"},
@@ -309,7 +309,7 @@ def test_every_field_moves_the_key_or_leaves_the_result_alone(
     """For EVERY dataclass field: the key changes, the cache is bypassed, or the
     route's output is unchanged.
 
-    The check is against :func:`_original_route`, which reads the perturbed
+    The check is against `_original_route`, which reads the perturbed
     model's fields directly (not the key). With the base entry already cached, a
     perturbation the key fails to see is served the base value, and that differs
     from the independent reference whenever the field matters -- so an incomplete

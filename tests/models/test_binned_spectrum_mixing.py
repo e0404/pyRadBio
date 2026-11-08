@@ -1,12 +1,12 @@
 """Binned spectrum components are integrated over their energy range.
 
-A :class:`~pyradbio.core.radiation.SpectrumComponent` with ``energy_lo_MeV_u`` /
+A `pyradbio.core.radiation.SpectrumComponent` with ``energy_lo_MeV_u`` /
 ``energy_hi_MeV_u`` is a finite energy bin. Every model that accepts a mixed
 field must integrate it on a sub-grid with the dose weight ``phi(E) S(E)``,
 not evaluate it at the representative ``component.ion`` energy (AGENTS.md,
 "Spectral / intra-bin integration"). The oracle here is an explicit dense
 log-grid dose-weighted average written out in the test, independent of
-:mod:`pyradbio.core.mixing`:
+`pyradbio.core.mixing`:
 
 * LQ families (LEM, RMF): dose-average ``alpha`` and ``sqrt(beta)``;
 * MKM: dose-average ``z*_1D``, then ``alpha = alpha0 + beta0 z*``;

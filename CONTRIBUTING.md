@@ -1,7 +1,8 @@
 # Contributing to pyRadBio
 
 The binding rules -- test-driven development, golden tests, licence hygiene,
-data handling and numerics -- are in [`AGENTS.md`](AGENTS.md). They apply to
+data handling and numerics -- are in
+[`AGENTS.md`](https://github.com/e0404/pyRadBio/blob/develop/AGENTS.md). They apply to
 human and AI contributors alike. This page covers the workflow.
 
 ## Setup

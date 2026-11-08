@@ -18,7 +18,7 @@ machinery here is amorphous (``pyradbio.track``) and micrometric
 mean-field local dose. Substituting one would make any comparison against a
 published NanOx curve uninterpretable -- a disagreement could be the spectrum
 or the assembly -- so the ion route refuses instead. The same treatment as the
-track-width regime of :mod:`pyradbio.models.katz`.
+track-width regime of [`pyradbio.models.katz`][].
 """
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ from pyradbio.models.nanox.ellf import LocalTargetSpectrum
 class NanOxNanodosimetryRequired(NotImplementedError):
     """Raised when a NanOx route needs nanodosimetric input that is not present.
 
-    Subclasses :class:`NotImplementedError` so that callers sweeping many models
+    Subclasses `NotImplementedError` so that callers sweeping many models
     (for instance a benchmark harness) treat it as "this model does not cover
     this case" rather than as a bug.
     """

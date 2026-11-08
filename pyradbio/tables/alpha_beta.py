@@ -1,9 +1,9 @@
 """Build (ion, energy) -> (alpha, beta) tables for any model.
 
-The canonical in-memory table is a small typed object (:class:`AlphaBetaTable`)
+The canonical in-memory table is a small typed object ([`AlphaBetaTable`][])
 that carries only core-Python types, so it can be built, compared and CSV-
 serialized without the optional ``tables`` extra. Parquet and pandas views live
-in :mod:`pyradbio.tables.io` behind that extra.
+in [`pyradbio.tables.io`][] behind that extra.
 """
 
 from __future__ import annotations
@@ -14,16 +14,18 @@ from dataclasses import dataclass, field, fields, is_dataclass
 from pyradbio.core.radiation import Ion
 from pyradbio.models.base import BiophysicalModel
 
-#: Column order used by the CSV/Parquet writers, matching :class:`AlphaBetaRow`.
 COLUMNS: tuple[str, ...] = ("Z", "A", "energy_MeV_u", "alpha", "beta")
+"""Column order used by the CSV/Parquet writers, matching [`AlphaBetaRow`][]."""
 
-#: Metadata key under which :func:`model_provenance` is stored by
-#: :func:`build_alpha_beta_table`.
 MODEL_CONFIG_KEY: str = "model_config"
+"""Metadata key under which [`model_provenance`][] is stored by
+[`build_alpha_beta_table`][].
+"""
 
-#: Attributes worth recording on a non-dataclass collaborator (e.g. a stopping
-#: power), beyond its class name.
 _COLLABORATOR_ATTRS: tuple[str, ...] = ("source", "name")
+"""Attributes worth recording on a non-dataclass collaborator (e.g. a stopping
+power), beyond its class name.
+"""
 
 
 @dataclass(frozen=True, slots=True)
@@ -46,7 +48,7 @@ class AlphaBetaTable:
 
     ``metadata`` holds JSON-serializable provenance (model name, cell line,
     photon reference ``alpha_x``/``beta_x``, geometry). It round-trips through
-    the CSV/Parquet writers in :mod:`pyradbio.tables.io`.
+    the CSV/Parquet writers in [`pyradbio.tables.io`][].
     """
 
     rows: tuple[AlphaBetaRow, ...]
@@ -123,7 +125,7 @@ def build_alpha_beta_table(
     isotope per species.
 
     Unless ``record_model_config`` is false, the model's resolved configuration
-    (:func:`model_provenance`) is stored under :data:`MODEL_CONFIG_KEY` so the
+    ([`model_provenance`][]) is stored under [`MODEL_CONFIG_KEY`][] so the
     written table says which protocol produced it. Explicit ``metadata`` keys
     win on collision.
     """

@@ -15,7 +15,7 @@ from typing import Literal, get_args
 
 Engine = Literal["auto", "numpy", "numba"]
 
-#: The allowed :data:`Engine` values, derived from the ``Literal``.
 ENGINES: tuple[Engine, ...] = get_args(Engine)
+"""The allowed [`Engine`][] values, derived from the ``Literal``."""
 
 __all__ = ["ENGINES", "Engine"]

@@ -18,39 +18,38 @@ Which panels are digitized, and which are *derived*
 
 * **Fig. 2** (``eta(D)``) is digitized. It is the paper's own model output
   (eq. 9 evaluated from fixed constants), so it doubles as an independent check
-  on :class:`~pyradbio.models.lem.lem2.ClusterModel` -- see the warning below.
+  on [`ClusterModel`][pyradbio.models.lem.lem2.ClusterModel] -- see the warning below.
 * **Fig. 3** (modified photon dose-effect) is **derived, not digitized**: it is
-  exactly :meth:`~pyradbio.models.lem.lem2.LEM2.photon_log_kill`, i.e. the
+  exactly [`photon_log_kill`][pyradbio.models.lem.lem2.LEM2.photon_log_kill], i.e. the
   shouldered LQ below ``D_t`` and ``-ln S_x(D_t) + s_max * (eta(D)*D - D_t)``
   above it (eq. 10), with ``s_max = alpha_x + 2*beta_x*D_t``. Every ingredient is
   fixed by Fig. 2's ``eta`` plus the photon inputs, so digitizing it would add no
   information -- confirmed by digitizing it anyway: the derivation reproduces the
   dashed (``eta = 1``) tails to 1.3-1.6% RMS and the clustered ones to 2.7%.
   It is drawn for **CHO**, and its caption's ``D_t = 30`` Gy is a paper error
-  (the panel uses CHO's old ``D_t = 40`` Gy); see :data:`FIG3_D_T_OLD_GY`.
+  (the panel uses CHO's old ``D_t = 40`` Gy); see [`FIG3_D_T_OLD_GY`][].
 
   Note that ``eta`` **multiplies the dose** in eq. 10; it is not integrated over
   it. Reading eq. 10 as an enhanced local slope (``s_max * integral eta dD'``)
   misses Fig. 3 by 22.7% RMS.
 * **Fig. 4** (radial dose vs *experimental* data) is digitized: the paper's only
   absolute, measured check on
-  :class:`~pyradbio.track.scholz_kraft.ScholzKraftRadialDose`, and its only panel
+  [`ScholzKraftRadialDose`][], and its only panel
   outside carbon. Panel a is 2.57 MeV/u ``16O`` in **tissue-equivalent gas**
   (Varma, Baum & Kuehner 1977); panel b is 377 MeV/u ``20Ne`` in **water** (Varma
   & Baum 1980). Axes are ``r`` in **cm** and dose in **Gy**.
 
-  .. important::
-
-     **Fig. 4's "modified" line is the UN-convolved profile** -- the ``r_min``
-     reduction to 0.3 nm alone, *without* the sigma = 4 nm radical-diffusion
-     Gaussian that Fig. 5's ``D~(r)`` shows and that ``lem2()`` applies. The raster
-     settles it: the curve plateaus flat to a **sharp knee** at ~3e-8 cm and is a
-     straight ``1/r^2`` line after it, where a Gaussian would round the knee and
-     drop the plateau ~50x. Numerically, against panel a our
-     ``radical_diffusion=False`` variant scores relRMS(log10) = **0.021** and the
-     convolved ``lem2()`` **0.874**. So compare Fig. 4 to
-     ``ScholzKraftRadialDose(r_min_nm=LEM2_RMIN_NM, radical_diffusion=False)``;
-     using ``lem2()`` here is apples-to-oranges and looks like a 50x core deficit.
+!!! important
+    **Fig. 4's "modified" line is the UN-convolved profile** -- the ``r_min``
+    reduction to 0.3 nm alone, *without* the sigma = 4 nm radical-diffusion
+    Gaussian that Fig. 5's ``D~(r)`` shows and that ``lem2()`` applies. The raster
+    settles it: the curve plateaus flat to a **sharp knee** at ~3e-8 cm and is a
+    straight ``1/r^2`` line after it, where a Gaussian would round the knee and
+    drop the plateau ~50x. Numerically, against panel a our
+    ``radical_diffusion=False`` variant scores relRMS(log10) = **0.021** and the
+    convolved ``lem2()`` **0.874**. So compare Fig. 4 to
+    ``ScholzKraftRadialDose(r_min_nm=LEM2_RMIN_NM, radical_diffusion=False)``;
+    using ``lem2()`` here is apples-to-oranges and looks like a 50x core deficit.
 
   Agreement is essentially exact: RMS(log10) is 0.013-0.078 across the four model
   lines. There is a small positive offset (median ratio O modified 1.05, O original
@@ -68,7 +67,7 @@ Which panels are digitized, and which are *derived*
   Drawing two cell lines from one code path makes it the paper's sharpest test of
   the nuclear geometry -- the lines differ mainly by ``r_nucleus`` (3.8 vs 4.7 um)
   -- and that makes it sensitive to the ``effective_size_factor`` convention (see
-  :class:`PaperCellInputs`). Its V79 lines are Fig. 6's ``lem_old``/``lem_new``
+  [`PaperCellInputs`][]). Its V79 lines are Fig. 6's ``lem_old``/``lem_new``
   re-drawn and, traced independently, agree with them to 0.3% / 1.5% relRMS.
 * **Fig. 9** (RBE at 10% survival, V79 carbon) is digitized: both model lines
   plus the Weyrather 1999 experimental squares (``series="data"``).
@@ -116,86 +115,85 @@ Which panels are digitized, and which are *derived*
   against the correct one, and the carbon peak lands at 70 keV/um where the model
   puts it at ~196.
 
-.. warning::
+!!! warning
+    **Our ``ClusterModel`` does not reproduce the digitized Fig. 2.** Writing
+    ``q(mu)`` for the clustered DSBs per stagger-interval and
+    ``mu = alpha_SSB*D*h/G``, eq. 9 gives
 
-   **Our ``ClusterModel`` does not reproduce the digitized Fig. 2.** Writing
-   ``q(mu)`` for the clustered DSBs per stagger-interval and
-   ``mu = alpha_SSB*D*h/G``, eq. 9 gives
+        eta(D) - 1 = (alpha_SSB/alpha_DSB) * q(mu)/mu = 41.667 * q(mu)/mu
 
-       eta(D) - 1 = (alpha_SSB/alpha_DSB) * q(mu)/mu = 41.667 * q(mu)/mu
+    so the genome size and stagger only set the ``mu``<->``D`` scale and **cannot**
+    change the peak *height*: ``max[q/mu]`` identifies the clustering rule. The
+    digitized Fig. 2 peaks at ``eta = 14.79`` (D = 4.4e5 Gy; the caption says
+    "about 5e5 Gy"), requiring ``max[q/mu] = 0.3310``. Our fixed-``h``-bin rule
+    gives 0.2984 -> ``eta_peak = 13.43`` at the fitted genome size 8.6e9 (the
+    default 6.0e9 gives ``ClusterModel.eta_max`` 13.40, i.e. 0.2976; the spread is
+    Monte-Carlo noise). Agreement is within 4% below ~3e4 Gy but the
+    tail is -32% at 1e6 Gy and -46% at 3e6 Gy. The two independent digitizations
+    bracket the requirement at 0.3297-0.3310, so the ~11% shortfall of our rule is
+    far outside digitization error. Note also that
+    ``ClusterParameters.genome_size_bp = 6.0e9`` is **our assumption**: the paper
+    only says "only the genomic size is required" and never states a number.
 
-   so the genome size and stagger only set the ``mu``<->``D`` scale and **cannot**
-   change the peak *height*: ``max[q/mu]`` identifies the clustering rule. The
-   digitized Fig. 2 peaks at ``eta = 14.79`` (D = 4.4e5 Gy; the caption says
-   "about 5e5 Gy"), requiring ``max[q/mu] = 0.3310``. Our fixed-``h``-bin rule
-   gives 0.2984 -> ``eta_peak = 13.43`` at the fitted genome size 8.6e9 (the
-   default 6.0e9 gives ``ClusterModel.eta_max`` 13.40, i.e. 0.2976; the spread is
-   Monte-Carlo noise). Agreement is within 4% below ~3e4 Gy but the
-   tail is -32% at 1e6 Gy and -46% at 3e6 Gy. The two independent digitizations
-   bracket the requirement at 0.3297-0.3310, so the ~11% shortfall of our rule is
-   far outside digitization error. Note also that
-   ``ClusterParameters.genome_size_bp = 6.0e9`` is **our assumption**: the paper
-   only says "only the genomic size is required" and never states a number.
+    **Fig. 2 is not reachable from the paper's own stated rule, for any genome
+    size.** The prose (p. 321) requires two SSBs *on opposite strands* within
+    ``h = 25`` bp, with at most one DSB per 25-bp interval ("any additional strand
+    break within a 25-bp interval including two SSBs or a DSB [...] is discarded").
+    A direct Monte Carlo of that literal algorithm gives ``max[q/mu] = 0.2304``, i.e.
+    ``eta_peak = 10.6`` -- further from Fig. 2 than our own rule. Fitting each
+    candidate's one free parameter (``G``) to the whole digitized curve ranks them:
 
-   **Fig. 2 is not reachable from the paper's own stated rule, for any genome
-   size.** The prose (p. 321) requires two SSBs *on opposite strands* within
-   ``h = 25`` bp, with at most one DSB per 25-bp interval ("any additional strand
-   break within a 25-bp interval including two SSBs or a DSB [...] is discarded").
-   A direct Monte Carlo of that literal algorithm gives ``max[q/mu] = 0.2304``, i.e.
-   ``eta_peak = 10.6`` -- further from Fig. 2 than our own rule. Fitting each
-   candidate's one free parameter (``G``) to the whole digitized curve ranks them:
+    ===========================================  =========  ========  =====  =======
+    rule                                         max[q/mu]  eta_peak  rms    G fit
+    ===========================================  =========  ========  =====  =======
+    any-strand + 25-bp discard                   0.3183     14.20     0.64   1.28e10
+    fixed bins >= 2 SSBs (**ours**)              0.2984     13.43     1.53   8.6e9
+    paper's literal rule (opposite + discard)    0.2304     10.58     2.43   8.8e9
+    opposite-strand, no exclusion                0.3339     14.91     3.32   4.7e9
+    ===========================================  =========  ========  =====  =======
 
-   ===========================================  =========  ========  =====  =======
-   rule                                         max[q/mu]  eta_peak  rms    G fit
-   ===========================================  =========  ========  =====  =======
-   any-strand + 25-bp discard                   0.3183     14.20     0.64   1.28e10
-   fixed bins >= 2 SSBs (**ours**)              0.2984     13.43     1.53   8.6e9
-   paper's literal rule (opposite + discard)    0.2304     10.58     2.43   8.8e9
-   opposite-strand, no exclusion                0.3339     14.91     3.32   4.7e9
-   ===========================================  =========  ========  =====  =======
+    The closest rule needs ``G = 1.28e10`` bp (over twice a mammalian genome) *and*
+    discards the opposite-strand physics the paper states. Meanwhile Fig. 2's peak
+    is within 0.7% of **exactly 1/3**, which is the ceiling of opposite-strand
+    pairing with *no* exclusion (each DSB consumes 3 SSBs on average, since half of
+    the neighbouring SSBs are on the same strand). A curve that peaks and then falls
+    cannot attain its own no-exclusion asymptote, so Fig. 2 appears **inconsistent
+    with the paper's own prose** -- a third paper error alongside the Fig. 3 caption
+    ([`FIG3_D_T_OLD_GY`][]), not a bug of ours.
 
-   The closest rule needs ``G = 1.28e10`` bp (over twice a mammalian genome) *and*
-   discards the opposite-strand physics the paper states. Meanwhile Fig. 2's peak
-   is within 0.7% of **exactly 1/3**, which is the ceiling of opposite-strand
-   pairing with *no* exclusion (each DSB consumes 3 SSBs on average, since half of
-   the neighbouring SSBs are on the same strand). A curve that peaks and then falls
-   cannot attain its own no-exclusion asymptote, so Fig. 2 appears **inconsistent
-   with the paper's own prose** -- a third paper error alongside the Fig. 3 caption
-   (:data:`FIG3_D_T_OLD_GY`), not a bug of ours.
+    **The same group's later paper settles it.** Friedrich, Durante & Scholz 2015
+    ("Simulation of DSB yield for high LET radiation", doi:10.1093/rpd/ncv147)
+    recompute this exact quantity from the *same* ``alpha_SSB = 1250``,
+    ``alpha_DSB = 30``, ``t = 25`` bp, with a closed form and a **stricter** rule
+    than either of the above -- it drops SSBs shadowed by a real DSB, takes the
+    opposite-strand factor explicitly, and forbids one SSB serving two DSBs
+    ([`Friedrich2015ClusterModel`][pyradbio.models.lem.lem2.Friedrich2015ClusterModel]). Its peak is
+    **13.51**, i.e. on top of our 13.40 and 8.6% *below* Fig. 2's 14.79. Over the
+    doses an ion track can actually produce -- ``<= 1e5`` Gy in a carbon track
+    centre, per that paper's own Discussion -- the two rules agree to **3.0% RMS**
+    and both sit 0.5-4.7% under the digitized Fig. 2. They part company only above
+    ~1e6 Gy (+37% vs -42% against Fig. 2, 140% apart from each other), which is
+    exactly the regime the 2015 paper says is undetermined: "it is not clear how to
+    exactly implement the conversion of candidates for DSB into actual DSB [...] the
+    high dose part around the maximum of eta [...] is affected, while the course of
+    the curve at lower doses remains rather unchanged."
 
-   **The same group's later paper settles it.** Friedrich, Durante & Scholz 2015
-   ("Simulation of DSB yield for high LET radiation", doi:10.1093/rpd/ncv147)
-   recompute this exact quantity from the *same* ``alpha_SSB = 1250``,
-   ``alpha_DSB = 30``, ``t = 25`` bp, with a closed form and a **stricter** rule
-   than either of the above -- it drops SSBs shadowed by a real DSB, takes the
-   opposite-strand factor explicitly, and forbids one SSB serving two DSBs
-   (:class:`~pyradbio.models.lem.lem2.Friedrich2015ClusterModel`). Its peak is
-   **13.51**, i.e. on top of our 13.40 and 8.6% *below* Fig. 2's 14.79. Over the
-   doses an ion track can actually produce -- ``<= 1e5`` Gy in a carbon track
-   centre, per that paper's own Discussion -- the two rules agree to **3.0% RMS**
-   and both sit 0.5-4.7% under the digitized Fig. 2. They part company only above
-   ~1e6 Gy (+37% vs -42% against Fig. 2, 140% apart from each other), which is
-   exactly the regime the 2015 paper says is undetermined: "it is not clear how to
-   exactly implement the conversion of candidates for DSB into actual DSB [...] the
-   high dose part around the maximum of eta [...] is affected, while the course of
-   the curve at lower doses remains rather unchanged."
+    So the honest reading is: **Fig. 2's peak is the outlier**, our ``eta`` is
+    within a few percent of an independent implementation by the paper's own group
+    everywhere it matters, and the disagreement lives in a dose regime that is both
+    unreachable by a track and explicitly not pinned down by its authors.
 
-   So the honest reading is: **Fig. 2's peak is the outlier**, our ``eta`` is
-   within a few percent of an independent implementation by the paper's own group
-   everywhere it matters, and the disagreement lives in a dose regime that is both
-   unreachable by a track and explicitly not pinned down by its authors.
+    **This mismatch is, however, NOT a LEM II RBE deficit.** Substituting the
+    paper's own digitized ``eta`` here for [`ClusterModel`][pyradbio.models.lem.lem2.ClusterModel]
+    moves Fig. 9's peak RBE only 2.43 -> 2.48 and Fig. 6's peak ``RBE_alpha`` 7.73 -> 7.89: a
+    *perfect* ``eta`` buys ~1.5 RBE points of a ~12% shortfall. Do not expect fixing the clustering
+    rule to move the RBE panels.
 
-   **This mismatch is, however, NOT a LEM II RBE deficit.** Substituting the
-   paper's own digitized ``eta`` here for :class:`ClusterModel` moves Fig. 9's peak
-   RBE only 2.43 -> 2.48 and Fig. 6's peak ``RBE_alpha`` 7.73 -> 7.89: a *perfect*
-   ``eta`` buys ~1.5 RBE points of a ~12% shortfall. Do not expect fixing the
-   clustering rule to move the RBE panels.
-
-   What does move them is the nuclear radius: an ``effective_size_factor`` of 0.8
-   shrinks the paper's quoted nucleus radius a second time and produces that ~12%
-   RBE shortfall (see :class:`PaperCellInputs`). Configure these panels through
-   ``FIGURE_INPUTS`` and pass ``effective_size_factor`` on, and Fig. 6's six
-   variants land within +-2.4% of the paper.
+    What does move them is the nuclear radius: an ``effective_size_factor`` of 0.8
+    shrinks the paper's quoted nucleus radius a second time and produces that ~12%
+    RBE shortfall (see [`PaperCellInputs`][]). Configure these panels through
+    ``FIGURE_INPUTS`` and pass ``effective_size_factor`` on, and Fig. 6's six
+    variants land within +-2.4% of the paper.
 
 Each curve lives in its own CSV under ``data/`` named
 ``elsasser2007_figure<N>_<description>.csv`` with a four-line header (metadata
@@ -204,7 +202,7 @@ the ``series``/``variant`` metadata records which figure line or symbol set each
 point came from (``series="calc"`` for the paper's model lines, ``"data"`` for
 experimental symbols).
 
-Each figure carries the paper's own cell/target inputs (see :data:`FIGURE_INPUTS`)
+Each figure carries the paper's own cell/target inputs (see [`FIGURE_INPUTS`][])
 so the reconstruction script can configure LEM II with exactly the parameters
 used in that panel.
 """
@@ -246,7 +244,7 @@ class PaperCellInputs:
     reducing ``D_t`` gives unrealistically high RBE (Fig. 6, thin dashed line).
 
     ``effective_size_factor`` is **1.0 and must be passed on to the**
-    :class:`~pyradbio.core.cell.CellTarget`: the paper quotes a nucleus radius to
+    [`CellTarget`][]: the paper quotes a nucleus radius to
     be used as-is. ``CellTarget``'s default is 1.0 (a 0.8 would shrink the radius to
     the chromatin-bearing fraction), and the factor is still passed explicitly so
     the convention stays visible at the construction. Letting a 0.8 through shrinks
@@ -256,7 +254,7 @@ class PaperCellInputs:
     LEM II "cluster deficit": with 0.8, Fig. 6's six variants sit at -2 to -20%
     bias; with ``1.0`` they are all within +-2.4%, and Fig. 8's V79/CHO lines
     best-fit at the paper's own stated 3.8 / 4.7 um. Same convention as
-    :class:`~pyradbio.benchmark.scholz1997.PaperCellInputs`.
+    [`PaperCellInputs`][pyradbio.benchmark.scholz1997.PaperCellInputs].
     """
 
     alpha_x: float  # Gy^-1
@@ -523,11 +521,11 @@ def get_curve(
 class DigitizedEtaCluster:
     """A cluster response whose ``eta(D)`` is the paper's *digitized* Fig. 2.
 
-    Swapped in for :class:`~pyradbio.models.lem.lem2.ClusterModel`, it turns Fig. 3
+    Swapped in for [`ClusterModel`][pyradbio.models.lem.lem2.ClusterModel], it turns Fig. 3
     into a test of eq. 10 **alone** (Elsasser & Scholz 2007, doi:10.1667/RR0467.1):
     the photon inputs and ``eta`` are then both the paper's own, so any residual is
     the formula's fault rather than our clustering rule's. Implements
-    :class:`~pyradbio.models.lem.lem2.ClusterResponse`, so it can be passed as
+    [`ClusterResponse`][pyradbio.models.lem.lem2.ClusterResponse], so it can be passed as
     ``LEM2(cluster=...)``.
 
     ``eta`` is 1 at and below the first digitized dose and, above it, linear in
@@ -561,7 +559,7 @@ class DigitizedEtaCluster:
         return float(np.interp(np.log10(dose_Gy), self._log10_dose, self.eta_values))
 
     def eta_array(self, dose_Gy: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
-        """Vectorised :meth:`eta` (same floor, same interpolation)."""
+        """Vectorised [`eta`][] (same floor, same interpolation)."""
         dose = np.asarray(dose_Gy, dtype=np.float64)
         with np.errstate(divide="ignore", invalid="ignore"):
             interpolated = np.interp(np.log10(dose), self._log10_dose, self.eta_values)
@@ -583,15 +581,13 @@ def digitized_eta_cluster() -> DigitizedEtaCluster:
     ``DigitizedEtaCluster(dose_Gy=fig2.x, eta_values=fig2.y)`` with
     ``fig2 = get_curve("fig2_eta_vs_dose")`` (Elsasser & Scholz 2007,
     doi:10.1667/RR0467.1, Fig. 2). Feeding it to ``LEM2(cluster=...)`` and calling
-    :meth:`~pyradbio.models.lem.lem2.LEM2.photon_log_kill` derives Fig. 3 from the
+    [`photon_log_kill`][pyradbio.models.lem.lem2.LEM2.photon_log_kill] derives Fig. 3 from the
     paper's own ``eta``.
     """
     fig2 = get_curve("fig2_eta_vs_dose")
     return DigitizedEtaCluster(dose_Gy=np.array(fig2.x), eta_values=np.array(fig2.y))
 
 
-#: LET bands [keV/um] of the eq. (8) method diagnostic, low LET (largest
-#: ``r_max/R_eff``) first.
 METHOD_BANDS_KEV_UM: tuple[tuple[float, float], ...] = (
     (13.0, 30.0),
     (30.0, 70.0),
@@ -599,17 +595,20 @@ METHOD_BANDS_KEV_UM: tuple[tuple[float, float], ...] = (
     (150.0, 300.0),
     (300.0, 600.0),
 )
+"""LET bands [keV/um] of the eq. (8) method diagnostic, low LET (largest
+``r_max/R_eff``) first.
+"""
 
-#: The two initial-slope methods the diagnostic compares, in :class:`MethodBand` order.
 _METHOD_MODES: tuple[InitialSlopeModel, InitialSlopeModel] = (
     "lethal_central_saturating",
     "cross_section",
 )
+"""The two initial-slope methods the diagnostic compares, in [`MethodBand`][] order."""
 
 
 @dataclass(frozen=True)
 class MethodBand:
-    """One LET band of :func:`paper_method_bands`.
+    """One LET band of [`paper_method_bands`][].
 
     ``n`` reference points fall in ``[let_lo_keV_um, let_hi_keV_um)``;
     ``r_max_over_r_eff`` is the carbon track's ``r_max`` at the band's geometric-mean
@@ -661,12 +660,12 @@ def paper_method_bands(
     Two carbon LEM I models (``photon``, ``cell``, ``radial_dose``,
     ``stopping_power``; ``initial_slope_model`` ``"lethal_central_saturating"`` and
     ``"cross_section"``) are swept over ``energies_MeV_u`` and sorted by LET
-    (:func:`~pyradbio.benchmark.sweeps.sweep_energies`); their
+    ([`sweep_energies`][]); their
     ``RBE_alpha = alpha / photon.alpha_x`` is interpolated in log LET onto the
     ``reference`` points (default: Fig. 6 ``lem_old``, the simplest line in the
     paper: no clusters, no convolution, LQ photon input), NaN outside the swept LET
     range. Each band of ``bands`` holding at least two reference points gives one
-    :class:`MethodBand`; bands with fewer are skipped. The expression order is the
+    [`MethodBand`][]; bands with fewer are skipped. The expression order is the
     reconstruction script's, so its printed table is unchanged.
     """
     ref = (

@@ -400,13 +400,13 @@ def test_finite_fraction_duration_lowers_g_slightly() -> None:
 # --------------------------------------------------------------------------
 # Golden: Dale 1985, the one printed (undigitized) reference for the time axis
 # --------------------------------------------------------------------------
-#: Dale 1985 table II -- Mitchell's (1960) data for the healing of small skin
-#: tumours: isoeffective total dose vs overall treatment time, delivered
-#: continuously. Printed in the paper, so no digitization is involved.
+# Dale 1985 table II -- Mitchell's (1960) data for the healing of small skin
+# tumours: isoeffective total dose vs overall treatment time, delivered
+# continuously. Printed in the paper, so no digitization is involved.
 _DALE_TABLE_II_TIME_H = (1.67, 10.0, 24.0, 48.5, 70.3, 169.0, 336.0, 600.0)
 _DALE_TABLE_II_DOSE_GY = (18.0, 22.5, 28.8, 33.0, 36.0, 45.0, 48.0, 49.5)
-#: The dose-rate column the paper prints alongside them, used only as a
-#: transcription check (it is just dose/time).
+# The dose-rate column the paper prints alongside them, used only as a
+# transcription check (it is just dose/time).
 _DALE_TABLE_II_RATE_GY_H = (10.78, 2.25, 1.20, 0.68, 0.51, 0.27, 0.14, 0.08)
 
 

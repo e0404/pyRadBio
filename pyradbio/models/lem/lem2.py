@@ -7,7 +7,7 @@ Elsasser & Scholz 2007 (doi:10.1667/RR0467.1). Two additions over LEM I:
    form an *additional* double-strand break (DSB). This scales the photon
    survival's exponential tail above ``D_t`` by a damage enhancement ``eta(D)``
    (eqs. 9-10): ``S(D) = S_t * exp(-s_max * (eta(D)*D - D_t))`` for ``D > D_t``.
-   :class:`ClusterModel` computes ``eta(D)`` from a Monte-Carlo base-distribution
+   [`ClusterModel`][] computes ``eta(D)`` from a Monte-Carlo base-distribution
    of SSBs (SSB=1250/Gy/cell, DSB=30/Gy/cell).
 
    Note ``eta`` **multiplies the dose**; it is *not* integrated over it. Reading
@@ -21,7 +21,7 @@ Elsasser & Scholz 2007 (doi:10.1667/RR0467.1). Two additions over LEM I:
    ``validation/elsasser2007_lem2.py``.
 2. **Refined radial dose.** ``r_min`` drops from ~10 nm to 0.3 nm and the profile
    is convolved with a sigma=4 nm Gaussian (radical diffusion). Both live in
-   :class:`~pyradbio.track.scholz_kraft.ScholzKraftRadialDose` (``.lem2``).
+   [`ScholzKraftRadialDose`][] (``.lem2``).
 
 The refit reduces ``D_t`` per cell line (V79 30 -> 7.5 Gy); both the cluster
 extension and the refined radial dose are needed -- combining them without
@@ -79,10 +79,10 @@ class ClusterResponse(Protocol):
     """The damage-enhancement ``eta(D)`` interface LEM II/III consume.
 
     Elsasser & Scholz 2007 eq. 10 scales the photon tail's dose by ``eta(D)``;
-    everything :class:`LEM2` needs from a cluster model is listed here, so any
+    everything [`LEM2`][] needs from a cluster model is listed here, so any
     object implementing it can be injected as ``LEM2(cluster=...)``. Both
-    bundled models -- the Monte-Carlo :class:`ClusterModel` and the closed-form
-    :class:`Friedrich2015ClusterModel` -- satisfy it.
+    bundled models -- the Monte-Carlo [`ClusterModel`][] and the closed-form
+    [`Friedrich2015ClusterModel`][] -- satisfy it.
     """
 
     def eta(self, dose_Gy: float) -> float:
@@ -90,7 +90,7 @@ class ClusterResponse(Protocol):
         ...
 
     def eta_array(self, dose_Gy: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
-        """Vectorised :meth:`eta`; the pair-overlap integrals call it on ~1e5 doses."""
+        """Vectorised [`eta`][]; the pair-overlap integrals call it on ~1e5 doses."""
         ...
 
     def kernel_eta_table(self) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
@@ -189,7 +189,7 @@ class ClusterModel:
         return float(np.interp(math.log10(dose_Gy), self._log_dose, self._eta))
 
     def eta_array(self, dose_Gy: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
-        """Vectorised :meth:`eta`, for the array photon response.
+        """Vectorised [`eta`][], for the array photon response.
 
         The pair-overlap integrals evaluate the log-kill on ~1e5-element dose
         grids, so a scalar ``eta`` in that loop dominates the runtime. Same
@@ -204,7 +204,7 @@ class ClusterModel:
         """``(log10 dose, eta)`` for the compiled Monte-Carlo kernel.
 
         The kernel interpolates linearly in ``log10 D`` and clamps flat outside,
-        which is exactly what :meth:`eta` does -- so handing it this table costs
+        which is exactly what [`eta`][] does -- so handing it this table costs
         no accuracy at all. The first node is ``(1 Gy, 1.0)``, so the clamp below
         it *is* the below-onset floor.
         """
@@ -216,7 +216,7 @@ class ClusterModel:
 
         ``s_max * eta_max`` bounds the photon log-kill *per unit dose* and is the
         saturation cap for the rapidLEM (``lethal_central``) initial slope: under
-        eq. 10 (see :meth:`LEM2.photon_log_kill`),
+        eq. 10 (see [`LEM2.photon_log_kill`][]),
         ``N(D)/D = s_max*eta(D) - beta*D_t^2/D <= s_max*eta_max`` for ``D > D_t``,
         and below ``D_t`` the LQ gives ``N(D)/D = alpha + beta*D < s_max``. So
         ``N(D) <= s_max*eta_max*D`` pointwise, hence ``N_1 <= s_max*eta_max*D_1``.
@@ -229,18 +229,20 @@ class Friedrich2015ClusterModel:
     """Closed-form ``eta(D)`` from Friedrich, Durante & Scholz 2015.
 
     doi:10.1093/rpd/ncv147, eqs. (2)-(8). Same group, same endpoint and the same
-    inputs as :class:`ClusterModel` (``alpha_SSB = 1250``, ``alpha_DSB = 30``,
+    inputs as [`ClusterModel`][] (``alpha_SSB = 1250``, ``alpha_DSB = 30``,
     ``t = 25`` bp), but a *different and more detailed* coincidence rule, and
     analytic rather than Monte-Carlo -- so it is an independent check on our
     reading of Elsasser & Scholz 2007 eq. (9), not a reimplementation of it.
 
     With SSB/DSB line densities ``rho = alpha D / L_gen``, an SSB is converted
-    into an inter-track DSB with probability ``P = P_noDSB * P_cand * P_conv``::
+    into an inter-track DSB with probability ``P = P_noDSB * P_cand * P_conv``:
 
-        P_noDSB = exp(-rho_DSB t)              (4)  no intra-track DSB within t/2
-        P_cand  = (1 - exp(-rho_SSB t)) / 2    (5)  next SSB within t, opposite strand
-        P_conv  = 1 / (1 + P_cand)             (6)  not already spent on another DSB
-        eta     = 1 + P alpha_SSB / alpha_DSB  (8)
+    ```text
+    P_noDSB = exp(-rho_DSB t)              (4)  no intra-track DSB within t/2
+    P_cand  = (1 - exp(-rho_SSB t)) / 2    (5)  next SSB within t, opposite strand
+    P_conv  = 1 / (1 + P_cand)             (6)  not already spent on another DSB
+    eta     = 1 + P alpha_SSB / alpha_DSB  (8)
+    ```
 
     The three factors are what our binned rule leaves out: it neither excludes
     SSBs shadowed by a real DSB nor stops one SSB from serving two DSBs, and it
@@ -259,7 +261,7 @@ class Friedrich2015ClusterModel:
     ``docs/references/LEM_II_Elsasser2007.md``.
 
     Note ``genome_size_bp``: this paper uses ``L_gen = 5.4e9`` bp where
-    :class:`ClusterParameters` defaults to ``6.0e9``. That shifts the dose axis
+    [`ClusterParameters`][] defaults to ``6.0e9``. That shifts the dose axis
     but not the peak height, which is ``1 + (alpha_SSB/alpha_DSB) max_D P`` with
     ``L_gen`` cancelling out of ``P``'s two exponents jointly.
     """
@@ -279,7 +281,7 @@ class Friedrich2015ClusterModel:
         return 1.0 + p_no_dsb * p_cand * p_conv * p.ssb_per_gy_cell / p.dsb_per_gy_cell
 
     def eta_array(self, dose_Gy: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
-        """Vectorised :meth:`eta` (the closed form is elementwise already)."""
+        """Vectorised [`eta`][] (the closed form is elementwise already)."""
         dose = np.asarray(dose_Gy, dtype=np.float64)
         p = self.params
         rho_ssb = p.ssb_per_gy_cell * dose / p.genome_size_bp
@@ -293,7 +295,7 @@ class Friedrich2015ClusterModel:
     def kernel_eta_table(self) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
         """``(log10 dose, eta)`` for the compiled Monte-Carlo kernel.
 
-        Unlike :class:`ClusterModel` this eta is a closed form, so the table is a
+        Unlike [`ClusterModel`][] this eta is a closed form, so the table is a
         *sampling* of it and the kernel's linear-in-``log10 D`` interpolation is
         an approximation. eta is smooth and the grid is dense (see
         ``_KERNEL_ETA_NODES``); ``tests/models/lem/test_mc_eta_kernel.py`` pins
@@ -310,7 +312,7 @@ class Friedrich2015ClusterModel:
     def beta_dsb_per_gy2(self) -> float:
         """Quadratic DSB-induction coefficient ``alpha_SSB^2 t / (2 L_gen)`` (eq. 10).
 
-        The small-dose expansion of :meth:`eta`: two independent SSBs are needed,
+        The small-dose expansion of [`eta`][]: two independent SSBs are needed,
         hence ``alpha_SSB^2``; ``t / L_gen`` is the chance the partner lands close
         enough; the ``1/2`` is because two SSBs make one DSB. ``alpha_DSB`` over
         this is the local dose where inter- and intra-track DSBs balance
@@ -321,7 +323,7 @@ class Friedrich2015ClusterModel:
 
     @property
     def eta_max(self) -> float:
-        """Peak damage enhancement, found on a log-dose scan (see :class:`ClusterModel`)."""
+        """Peak damage enhancement, found on a log-dose scan (see [`ClusterModel`][])."""
         doses = np.logspace(0.0, 9.0, 20_000)
         return float(max(self.eta(float(d)) for d in doses))
 
@@ -330,13 +332,13 @@ class Friedrich2015ClusterModel:
 def _default_cluster_model(
     params: ClusterParameters, rng_seed: int, n_bins: int, n_trials: int
 ) -> ClusterModel:
-    """Memoised default :class:`ClusterModel`.
+    """Memoised default [`ClusterModel`][].
 
     The eta table is a seeded Monte-Carlo that depends only on its
     ``ClusterParameters`` (and RNG/grid settings), never on the photon or cell,
     yet it costs ~0.3 s to build. Every LEM II/III instance that does not supply
     its own cluster model shares one memoised table (keyed on the hashable frozen
-    :class:`ClusterParameters`), so building a per-cell-line table set does not
+    [`ClusterParameters`][]), so building a per-cell-line table set does not
     rebuild the identical curve tens of times. The returned model is read-only
     after construction, so sharing one instance is safe.
     """
@@ -349,16 +351,16 @@ class LEM2(LEMBase):
     high-dose cluster enhancement ``eta(D)`` on the photon tail.
 
     Set the *refit* (reduced) ``D_t`` on the photon parameters (V79 7.5 Gy, not
-    the LEM I 30 Gy). ``cluster`` is any :class:`ClusterResponse`; when omitted,
-    a :class:`ClusterModel` is built from ``photon.cluster`` (or default
-    :class:`ClusterParameters`).
+    the LEM I 30 Gy). ``cluster`` is any [`ClusterResponse`][]; when omitted,
+    a [`ClusterModel`][] is built from ``photon.cluster`` (or default
+    [`ClusterParameters`][]).
     """
 
-    #: Optional injection; None derives the response from photon.cluster.
     cluster: ClusterResponse | None = None
+    """Optional injection; None derives the response from photon.cluster."""
     beta_model: SharedBetaModel = "slope_matching"
-    #: Active eq.-10 response, recomputed from constructor inputs on replace.
     resolved_cluster: ClusterResponse = field(init=False, repr=False, compare=False)
+    """Active eq.-10 response, recomputed from constructor inputs on replace."""
 
     def _kernel_eta_table(self) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
         """eq. 10's ``eta(D)``, so the compiled MC kernel simulates LEM II/III.
@@ -379,7 +381,7 @@ class LEM2(LEMBase):
         object.__setattr__(self, "resolved_cluster", cluster)
 
     def _beta_for_ion(self, ion: Ion, alpha_ion: float) -> float:
-        """``beta_I`` per :attr:`beta_model`; all three come from :class:`LEMBase`.
+        """``beta_I`` per [`beta_model`][]; all three come from [`LEMBase`][].
 
         LEM II/III inherit the whole family unchanged because their lethal-event
         density is still a *pointwise* function of the local dose -- eq. 10 scales
@@ -388,7 +390,7 @@ class LEM2(LEMBase):
         its scalar and array forms are overridden together above.
 
         ``"rapid_lem"`` uses the un-enhanced ``s_max`` for ``beta_z``, not the
-        ``s_max * eta_max`` of :meth:`_max_local_slope`, and that is deliberate:
+        ``s_max * eta_max`` of `_max_local_slope`, and that is deliberate:
         ``beta_z`` is a ``D_t``-scale quantity and ``eta(D_t) ~ 1`` (the cluster
         onset is ~1e3 Gy, ``D_t`` is tens of Gy). The enhanced cap belongs to
         ``alpha``, which samples core doses ~1e5 Gy.
@@ -408,7 +410,7 @@ class LEM2(LEMBase):
         photon tail slope is ``s_max * eta(D)`` (Elsasser 2007 eq. 10), so the
         steepest local slope -- and the correct cap -- is ``s_max * eta_max``. This
         keeps the cluster enhancement the un-enhanced ``s_max`` cap would drop (see
-        :meth:`~pyradbio.models.lem.base.LEMBase.lethal_central_initial_slope`).
+        [`lethal_central_initial_slope`][pyradbio.models.lem.base.LEMBase.lethal_central_initial_slope]).
         """
         return self.photon.max_slope() * self._cluster().eta_max
 
@@ -420,9 +422,9 @@ class LEM2(LEMBase):
         above it (doi:10.1667/RR0467.1, eq. 10; ``s_max = alpha_x + 2*beta_x*D_t``).
         This is exactly the curve of the paper's Fig. 3, so a reconstruction can draw
         it without reaching into the model. It returns what the private hook
-        :meth:`_photon_log_kill` returns -- that hook stays, because
-        :class:`~pyradbio.models.lem.base.LEMBase` calls it polymorphically for every
-        LEM version (and :meth:`_photon_log_kill_array` must stay in step with it).
+        `_photon_log_kill` returns -- that hook stays, because
+        [`LEMBase`][] calls it polymorphically for every
+        LEM version (and `_photon_log_kill_array` must stay in step with it).
         """
         return self._photon_log_kill(dose_Gy)
 
@@ -450,7 +452,7 @@ class LEM2(LEMBase):
         return lk_t + self.photon.max_slope() * (enhanced - d_t)
 
     def _photon_log_kill_array(self, dose_Gy: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
-        """Vectorised :meth:`_photon_log_kill`, cluster enhancement included.
+        """Vectorised `_photon_log_kill`, cluster enhancement included.
 
         Kept in step with the scalar override by construction. Overriding only
         the scalar would leave the array-based beta models
@@ -459,7 +461,7 @@ class LEM2(LEMBase):
         for correctness, not speed.
 
         Uses the cluster's vectorised ``eta_array`` (part of
-        :class:`ClusterResponse`): the pair integrals evaluate it on ~1e5 doses,
+        [`ClusterResponse`][]): the pair integrals evaluate it on ~1e5 doses,
         so a scalar loop is never an option.
         """
         d_t = self.photon.D_t

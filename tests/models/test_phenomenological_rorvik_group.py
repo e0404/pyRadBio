@@ -3,7 +3,7 @@
 Rorvik et al. 2018 (Phys. Med. Biol. 63:185013, doi:10.1088/1361-6560/aad9db)
 restates eleven published proton-RBE models as a pair of closed forms for
 ``RBE_max`` and ``RBE_min`` -- exactly this package's
-:class:`~pyradbio.models.phenomenological.base.RBEMinMaxModel` skeleton. Six of
+`pyradbio.models.phenomenological.base.RBEMinMaxModel` skeleton. Six of
 those eleven were already implemented from their own primary papers; the models
 here are the remainder that a scalar ``LET_d`` can express.
 
@@ -41,7 +41,7 @@ from pyradbio.models.phenomenological import (
     WilkensOelfke,
 )
 
-#: The photon reference Rorvik's appendix uses for its Wilkens/Chen worked cases.
+# The photon reference Rorvik's appendix uses for its Wilkens/Chen worked cases.
 RORVIK_ALPHA_X = 0.112
 RORVIK_BETA_X = 0.0298
 RORVIK_RATIO = RORVIK_ALPHA_X / RORVIK_BETA_X  # 3.758... Gy, the paper's "3.76"

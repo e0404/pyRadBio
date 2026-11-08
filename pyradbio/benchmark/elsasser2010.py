@@ -49,7 +49,7 @@ digitized here -- complete coverage of Fig. 4:
 
 Each curve lives in its own CSV under ``data/`` named
 ``elsasser2010_figure4<a|b>_<cell>_<particle>_<series>_<quantity>.csv`` with
-the same four-line header convention as :mod:`pyradbio.benchmark.elsasser2007`
+the same four-line header convention as [`pyradbio.benchmark.elsasser2007`][]
 (metadata keys, metadata values, x/y quantities, x/y units), then ``x,y``
 data rows.
 
@@ -74,7 +74,7 @@ error bars: they sit on the drawn marker centres, with ``y_err`` the half-height
 of the drawn bar (averaging each marker with a bar endpoint would put them ~7%
 high). The carbon RBE_alpha data are the direct digitization of Fig. 4b's own
 filled circles (``fig4b_hsg_rbe_vs_let``, ``carbon``, ``data``, ``rbe_alpha``),
-not :mod:`pyradbio.benchmark.elsasser2007` Fig. 11's ``alpha`` series divided
+not [`pyradbio.benchmark.elsasser2007`][] Fig. 11's ``alpha`` series divided
 by ``alpha_x``.
 
 See ``docs/references/LEM_IV_Elsasser2010.md``.
@@ -102,8 +102,8 @@ class PaperCellInputs:
 
     ``effective_size_factor = 1.0``: the paper quotes a nucleus radius to be
     used as-is, the same convention as
-    :class:`pyradbio.benchmark.elsasser2007.PaperCellInputs` and
-    :class:`pyradbio.benchmark.elsasser2008.SuzukiCell`.
+    [`pyradbio.benchmark.elsasser2007.PaperCellInputs`][] and
+    [`pyradbio.benchmark.elsasser2008.SuzukiCell`][].
     ``CellTarget`` defaults to 1.0; the factor is still passed explicitly so the
     convention stays visible at the construction.
     """

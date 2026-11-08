@@ -7,16 +7,17 @@ same **Alper & Howard-Flanders** hyperbola (doi:10.1038/178978a0), so it lives
 here rather than inside any one model.
 
 ``pO2`` is an *environment* variable -- not cell geometry
-(:class:`~pyradbio.core.cell.CellTarget`) and not radiation quality
-(:class:`~pyradbio.core.radiation.RadiationField`). It is therefore passed to
-models as an explicit argument, the way dose is, and :class:`OxygenCondition` is
+([`CellTarget`][]) and not radiation quality
+([`RadiationField`][]). It is therefore passed to
+models as an explicit argument, the way dose is, and [`OxygenCondition`][] is
 offered only as a convenience bundle for ``pO2`` with its ``K``.
 
 Form
 ----
-::
 
-    R(pO2) = (pO2 + K) / (pO2 + K / Rmax)
+```text
+R(pO2) = (pO2 + K) / (pO2 + K / Rmax)
+```
 
 ``R >= 1`` is the factor by which the saturation-corrected domain specific energy
 ``z*_d`` must be *increased* at ``pO2`` to reach the effect it would have at the
@@ -38,24 +39,27 @@ from dataclasses import dataclass
 import numpy as np
 import numpy.typing as npt
 
-#: Anoxic condition [mmHg].
 ANOXIC_PO2_MMHG: float = 0.0
+"""Anoxic condition [mmHg]."""
 
-#: The experimental "aerobic" condition [mmHg] -- 21% oxygen at 1 atm, the
-#: reference oxygenation of the Furusawa 2000 and Tinganelli 2015 data OSMK is
-#: fitted to. Note this is *not* the ``R = 1`` limit; see :func:`relative_radioresistance`.
 AEROBIC_PO2_MMHG: float = 160.0
+"""The experimental "aerobic" condition [mmHg] -- 21% oxygen at 1 atm, the
+reference oxygenation of the Furusawa 2000 and Tinganelli 2015 data OSMK is
+fitted to. Note this is *not* the ``R = 1`` limit; see [`relative_radioresistance`][].
+"""
 
-#: Physiological tumour normoxia used in the OSMK 2021 treatment-planning study
-#: [mmHg] (its pancreatic case assigns 50 mmHg outside the GTV, falling to
-#: 2.5 mmHg at the GTV centre; Koong et al 2000, McKeown 2014).
 NORMOXIC_TISSUE_PO2_MMHG: float = 50.0
+"""Physiological tumour normoxia used in the OSMK 2021 treatment-planning study
+[mmHg] (its pancreatic case assigns 50 mmHg outside the GTV, falling to
+2.5 mmHg at the GTV centre; Koong et al 2000, McKeown 2014).
+"""
 
-#: Half-effect pressure ``K`` [mmHg]. Measured for cells exposed to **photons**
-#: (Wouters & Brown 1997; Hall & Giaccia 2006) and assumed by both OSMK papers to
-#: be independent of cell line *and* radiation quality -- "as a first
-#: approximation", since no high-LET measurement exists (2021 sec 3.2).
 K_HALF_EFFECT_MMHG: float = 3.0
+"""Half-effect pressure ``K`` [mmHg]. Measured for cells exposed to **photons**
+(Wouters & Brown 1997; Hall & Giaccia 2006) and assumed by both OSMK papers to
+be independent of cell line *and* radiation quality -- "as a first
+approximation", since no high-LET measurement exists (2021 sec 3.2).
+"""
 
 
 def relative_radioresistance(
@@ -71,7 +75,7 @@ def relative_radioresistance(
     pO2_mmHg
         Oxygen partial pressure, ``>= 0``. ``inf`` is allowed and returns 1.
     k_mmHg
-        Half-effect pressure ``K``. See :data:`K_HALF_EFFECT_MMHG`.
+        Half-effect pressure ``K``. See [`K_HALF_EFFECT_MMHG`][].
     r_max
         Maximum radioresistance, reached at ``pO2 = 0``. Must be ``>= 1``.
         In OSMK 2021 this is itself a function of radiation quality
@@ -129,5 +133,5 @@ class OxygenCondition:
         return cls(AEROBIC_PO2_MMHG)
 
     def relative_radioresistance(self, r_max: float) -> float:
-        """:func:`relative_radioresistance` at this condition."""
+        """[`relative_radioresistance`][] at this condition."""
         return float(relative_radioresistance(self.pO2_mmHg, k_mmHg=self.k_mmHg, r_max=r_max))

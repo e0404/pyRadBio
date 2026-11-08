@@ -2,10 +2,12 @@
 
 ICRU Report 49 (1993), sec. 4.3, with the corrections of ICRU Report 90 (2014), App. A.3,
 footnote 35. For a projectile of charge ``z``, mass ``M`` [u] and kinetic energy ``T``
-[keV] on target atoms ``(Z, M_t, A)``::
+[keV] on target atoms ``(Z, M_t, A)``:
 
-    T_hat = 32.536 T / [a(z, Z) (1 + M/M_t) z Z]                                 (4.14)
-    S_nuc/rho = 5105.3 z Z / [a(z, Z) (1 + M_t/M) A] S_hat(T_hat)   [MeV cm^2/g] (4.15)
+```text
+T_hat = 32.536 T / [a(z, Z) (1 + M/M_t) z Z]                                 (4.14)
+S_nuc/rho = 5105.3 z Z / [a(z, Z) (1 + M_t/M) A] S_hat(T_hat)   [MeV cm^2/g] (4.15)
+```
 
 ``S_hat`` is ICRU 49 Table 4.1, tabulated for two interatomic potentials:
 
@@ -30,13 +32,13 @@ footnote 35. For a projectile of charge ``z``, mass ``M`` [u] and kinetic energy
   <= 4e-5 of S_tot.
 
 Water is a Bragg-additive mixture of H and O by mass, with mean atomic masses from the
-shipped NIST isotope table (:func:`~pyradbio.track.stopping.masses.mean_atomic_mass_u`);
+shipped NIST isotope table ([`mean_atomic_mass_u`][]);
 the projectile mass is the isotope's atomic mass. Measured (ZBL): ASTAR /
 ICRU 90 alpha and ICRU 90 C-12 nuclear columns reproduced to <= 0.07% everywhere.
 
 ``proton_potential`` selects the protons' potential (default ``"zbl"``: one universal
 potential for every ion, the analytic engines' choice); every heavier ion uses ZBL.
-:data:`ICRU49_PROTON_POTENTIAL` is ICRU 49's own choice.
+[`ICRU49_PROTON_POTENTIAL`][] is ICRU 49's own choice.
 
 ``S_hat`` ships as our regridded copy of Table 4.1 (``data/icru49_reduced_nuclear.csv``,
 cubic in log-log, ``T_hat`` = 1e-5 to 1e8). Below 1e-5 the model raises; above 1e8,
@@ -75,17 +77,17 @@ ICRU49_NUCLEAR_REFERENCE = (
     "App. A.3, footnote 35"
 )
 SHIPPED_STEM = "icru49_reduced_nuclear"
-#: ICRU 49 used Moliere's potential for protons.
 ICRU49_PROTON_POTENTIAL: Potential = "moliere"
-#: Constants of ICRU 49 eqs. (4.14) and (4.15) (T in keV; result in MeV cm^2/g).
+"""ICRU 49 used Moliere's potential for protons."""
 T_HAT_PER_KEV = 32.536
+"""Constants of ICRU 49 eqs. (4.14) and (4.15) (T in keV; result in MeV cm^2/g)."""
 S_NUC_COEFFICIENT = 5105.3
-#: Liquid water: (Z, atoms per molecule).
 _WATER = ((1, 2), (8, 1))
-#: Moliere's Thomas-Fermi fit (Moliere 1947 eq. 7,1; ICRU 49 eq. 4.6): (a_i, b_i).
+"""Liquid water: (Z, atoms per molecule)."""
 MOLIERE_SCREENING = ((0.10, 6.0), (0.55, 1.2), (0.35, 0.3))
-#: ICRU 49 eq. (4.5): r_s = 0.88534 r_Bohr Z^(-1/3) for protons.
+"""Moliere's Thomas-Fermi fit (Moliere 1947 eq. 7,1; ICRU 49 eq. 4.6): (a_i, b_i)."""
 THOMAS_FERMI_CONSTANT = 0.88534
+"""ICRU 49 eq. (4.5): r_s = 0.88534 r_Bohr Z^(-1/3) for protons."""
 _INV_ALPHA = 137.035999084
 _ME_U = ELECTRON_MASS_MEV / ATOMIC_MASS_UNIT_MEV
 

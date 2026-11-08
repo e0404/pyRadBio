@@ -531,7 +531,7 @@ def _pre_h3_energy_for_let(
     return float(brentq(excess, a, b, xtol=1e-10, rtol=1e-12))
 
 
-#: (source, Z, A, LET, branch, value printed by the reference algorithm on the development machine).
+# (source, Z, A, LET, branch, value printed by the reference algorithm on the development machine).
 _PRE_H3_VALUES = [
     ("bethe", 6, 12, 13.0, "high", 282.3854986099179),
     ("bethe", 6, 12, 77.0, "high", 25.197112682464333),

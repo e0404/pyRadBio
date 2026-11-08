@@ -2,14 +2,14 @@
 
 An ion moving slower than its own orbital electrons carries some of them along, so
 its stopping power scales with an *effective* charge ``z_eff <= Z`` rather than
-with ``Z``. :class:`EffectiveChargeModel` is the pluggable interface;
-:class:`BarkasEffectiveCharge` (the default) is Barkas's empirical form
+with ``Z``. [`EffectiveChargeModel`][] is the pluggable interface;
+[`BarkasEffectiveCharge`][] (the default) is Barkas's empirical form
 
     z_eff = Z * (1 - exp(-125 * beta * Z^(-2/3)))
 
 (W.H. Barkas, *Nuclear Research Emulsions*, Vol. I, Academic Press, New York, 1963),
 the form used across the track-structure literature and by Katz, MCDS and the
-lineal-energy engines here. :func:`barkas_effective_charge` is the scalar function
+lineal-energy engines here. [`barkas_effective_charge`][] is the scalar function
 those modules have always called (re-exported as
 ``pyradbio.track.stopping_power.effective_charge``).
 
@@ -19,15 +19,15 @@ inside the electron cloud, so the stopping charge is larger. Further models,
 each measured with Bethe (shell, Barkas, Bloch, Ahlen) for Z 3-18 at
 4.7-300 MeV/u, worst |S/S_ref - 1| vs MSTAR / the ICRU 73 errata / ICRU 90 carbon:
 
-* :class:`HubertEffectiveCharge` -- F. Hubert, R. Bimbot and H. Gauvin, At. Data Nucl.
+* [`HubertEffectiveCharge`][] -- F. Hubert, R. Bimbot and H. Gauvin, At. Data Nucl.
   Data Tables 46, 1 (1990), eqs. (2)-(9): an empirical stopping-charge fit (3-90 MeV/u,
   O to U in Be to U) relative to **alpha particles**, ``S = (gamma Z/2)^2 S_alpha`` at the
   same velocity (``reference_Z = 2``). Water is outside their solids; ``target_Z = 8``
   (oxygen, ASSUMPTION; their separate carbon fit is worse). 5.0% / 4.6% / 1.1%.
-* :class:`BarkasEffectiveCharge` with :data:`FITTED_BARKAS_COEFFICIENT` -- Barkas's form
+* [`BarkasEffectiveCharge`][] with [`FITTED_BARKAS_COEFFICIENT`][] -- Barkas's form
   with the velocity coefficient fitted to MSTAR for Z 3-18 (CALIBRATION, our own):
   3.4% / 5.4% / 1.3% (MSTAR is the fit target, so only the other two are checks).
-* :class:`BrandtKitagawaEffectiveCharge` -- W. Brandt and M. Kitagawa, Phys. Rev. B 25,
+* [`BrandtKitagawaEffectiveCharge`][] -- W. Brandt and M. Kitagawa, Phys. Rev. B 25,
   5631 (1982), eq. (23) with their Table II ionization and eq. (15) ion size, for the
   water valence plasma: 12.1% / 16.9% / 7.6% -- the Thomas-Fermi stripping of Table II
   leaves too many bound electrons at these velocities.
@@ -49,15 +49,17 @@ from scipy.interpolate import PchipInterpolator
 
 from pyradbio.core.constants import ATOMIC_MASS_UNIT_MEV, HARTREE_MEV
 
-#: Barkas (1963) velocity coefficient in ``exp(-125 beta Z^(-2/3))``.
 BARKAS_COEFFICIENT = 125.0
-#: Barkas's form refitted for stopping powers in water: the coefficient minimising the rms
-#: deviation of Bethe (shell, Barkas, Bloch, Ahlen) from MSTAR, Z 3-18, 4.7-300 MeV/u
-#: (CALIBRATION).
+"""Barkas (1963) velocity coefficient in ``exp(-125 beta Z^(-2/3))``."""
 FITTED_BARKAS_COEFFICIENT = 162.0
-#: Hubert, Bimbot & Gauvin (1990) eqs. (3)-(9): D(Z2) = d0 + d1 exp(d2 Z2), B, C, and
-#: x2..x4 = a + b ln Z2.
+"""Barkas's form refitted for stopping powers in water: the coefficient minimising the rms
+deviation of Bethe (shell, Barkas, Bloch, Ahlen) from MSTAR, Z 3-18, 4.7-300 MeV/u
+(CALIBRATION).
+"""
 HUBERT_1990 = "F. Hubert, R. Bimbot and H. Gauvin, At. Data Nucl. Data Tables 46, 1 (1990)"
+"""Hubert, Bimbot & Gauvin (1990) eqs. (3)-(9): D(Z2) = d0 + d1 exp(d2 Z2), B, C, and
+x2..x4 = a + b ln Z2.
+"""
 BRANDT_KITAGAWA_1982 = "W. Brandt and M. Kitagawa, Phys. Rev. B 25, 5631 (1982)"
 BRANDT_KITAGAWA_TABLE = "brandt1982_ionization.csv"
 _INV_ALPHA = 137.035999084

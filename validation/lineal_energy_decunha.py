@@ -75,7 +75,7 @@ from pyradbio.track.stopping_power import default_stopping_power, describe_stopp
 
 FIGURES = figures_dir(globals().get("__file__"))
 
-#: DeCunha scoring geometry: "<cube>_<binning>", cube 1mm|5um, binning linear|logarithmic.
+# DeCunha scoring geometry: "<cube>_<binning>", cube 1mm|5um, binning linear|logarithmic.
 GEOMETRY = "5um_linear"
 N_DELTA_SAMPLES = pick(300_000, 20_000)  # delta-ray Monte-Carlo samples per spectrum
 if quick_mode():

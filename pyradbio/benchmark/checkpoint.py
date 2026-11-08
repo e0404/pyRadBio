@@ -5,21 +5,21 @@ point by point, and the validation scripts, the ``benchmark.<paper>`` loaders an
 their unit tests read them back. This module is the single definition of those
 file formats, so writer and readers cannot drift apart:
 
-* :class:`CsvCheckpoint` -- the per-point CSVs of ``scripts/lem1_mc_reference.py``:
+* [`CsvCheckpoint`][] -- the per-point CSVs of ``scripts/lem1_mc_reference.py``:
   ``alpha-beta`` (``mc_results.csv``), ``sk1996-final-slope``
   (``sk1996_mc_observables.csv``) and ``z-slope`` (``sk1997_z_slope.csv``,
   several rows per point), all in ``validation/data/``. Rows are grouped by a point
   key (``(particle, energy_MeV_u)`` by default), a point is replaced as a whole,
   and the file is rewritten sorted by key after every point.
-* :func:`parse_point_spec` -- the ``--only carbon:20,proton:6`` CLI parser the
+* [`parse_point_spec`][] -- the ``--only carbon:20,proton:6`` CLI parser the
   batches share.
-* :class:`JsonPointCache` and :func:`config_key` -- the hash-keyed per-point
+* [`JsonPointCache`][] and [`config_key`][] -- the hash-keyed per-point
   cache ``validation/data/survival_our_mc.json`` that
   ``scripts/lem_mc_vs_survival.py`` writes. The out-of-repo ``checkpoint.json``
   of ``scripts/survival_paired_mc.py`` (``model|ion|E`` keys, ``"failed"``
   string entries) has the same format and round-trips too; that script loops
   over every top-level key, so give its file a provenance header only once it
-  reads through :meth:`JsonPointCache.keys`.
+  reads through [`JsonPointCache.keys`][].
 
 **Byte-exact round trip.** Reading a checkpoint and writing it back reproduces
 the file byte for byte: rows read from disk keep their original cell strings
@@ -27,7 +27,7 @@ the file byte for byte: rows read from disk keep their original cell strings
 file's own line terminator is reused, and new rows are formatted as
 ``csv.DictWriter`` formats them (``str()`` per cell, so floats
 are their shortest round-trip ``repr``). A provenance header round-trips byte
-for byte in its canonical form ``# key: value`` (the form :meth:`CsvCheckpoint.save`
+for byte in its canonical form ``# key: value`` (the form [`CsvCheckpoint.save`][]
 writes); a hand-written ``#key:value`` reads the same but is rewritten
 canonically. Every rewrite goes through a temporary file in the same directory
 and ``os.replace``, so a run killed mid-save leaves the previous file intact.
@@ -37,16 +37,16 @@ the ASCII files the batches write).
 **Provenance header.** Every committed MC artefact is gated by a *numeric
 fingerprint*, so a change to the code that produced it fails a fast test
 instead of silently invalidating it. A CSV checkpoint may start with
-``# key: value`` lines (keys unique); readers skip them and :func:`read_header`
-returns them. The value under ``fingerprint`` (:data:`FINGERPRINT_KEY`) is one line of JSON:
+``# key: value`` lines (keys unique); readers skip them and [`read_header`][]
+returns them. The value under ``fingerprint`` ([`FINGERPRINT_KEY`][]) is one line of JSON:
 1-2 points recomputed at a small sample size with ``engine="numpy"`` and fixed
 seeds, e.g. ``[{"particle": "carbon", "energy_MeV_u": 6.0, "n_realizations":
 200, "seed": 1, "alpha": ..., "beta": ...}]``. A JSON cache carries the same
 mapping under the reserved top-level key ``"_provenance"``
-(:data:`PROVENANCE_KEY`): that is the least invasive form, since a legacy reader
+([`PROVENANCE_KEY`][]): that is the least invasive form, since a legacy reader
 looks entries up by their 16-hex-digit hash and never sees it, and rewrites it
 untouched. A fast test recomputes the fingerprint and compares it with
-:func:`assert_fingerprint`; on mismatch it tells the reader which
+[`assert_fingerprint`][]; on mismatch it tells the reader which
 ``scripts/<generator>.py`` regenerates the artefact. Files without a header
 round-trip unchanged and get none added.
 
@@ -87,10 +87,10 @@ DEFAULT_KEY_COLUMNS: tuple[str, ...] = ("particle", "energy_MeV_u")
 """The point identity every batch checkpoint uses: ``(particle, float(energy))``."""
 
 FINGERPRINT_KEY = "fingerprint"
-"""Header key holding the JSON fingerprint (decoded by :func:`read_header`)."""
+"""Header key holding the JSON fingerprint (decoded by [`read_header`][])."""
 
 PROVENANCE_KEY = "_provenance"
-"""Reserved top-level key of a :class:`JsonPointCache` holding its header."""
+"""Reserved top-level key of a [`JsonPointCache`][] holding its header."""
 
 _CSV_DEFAULT_TERMINATOR = "\r\n"  # csv.DictWriter's default, used by every batch script
 
@@ -162,13 +162,13 @@ class CsvCheckpoint:
     """A resumable per-point CSV checkpoint (read, replace points, rewrite).
 
     Opening the checkpoint reads ``path`` if it exists (the batches' resume
-    step). :meth:`put` / :meth:`put_group` replace one point in memory and
-    :meth:`save` rewrites the whole file sorted by point key -- the batches call
+    step). [`put`][] / [`put_group`][] replace one point in memory and
+    [`save`][] rewrites the whole file sorted by point key -- the batches call
     it after every point, and the rewrite is atomic (temporary file plus
     ``os.replace``), so a killed run loses at most the point in flight.
 
     A point stored in several rows is kept as one group by default (the
-    ``sk1997_z_slope.csv`` layout), and :meth:`record` refuses it. The
+    ``sk1997_z_slope.csv`` layout), and [`record`][] refuses it. The
     single-row scripts instead read their file into a dict, so a duplicated
     point silently kept its *last* row and the next write dropped the others;
     ``one_row_per_point=True`` reproduces that policy.
@@ -182,27 +182,27 @@ class CsvCheckpoint:
     path:
         The checkpoint file. It need not exist yet.
     fieldnames:
-        The columns written by :meth:`save`, in order (the scripts'
+        The columns written by [`save`][], in order (the scripts'
         ``FIELDNAMES``). ``None`` reuses the header row of the existing file,
         which is what a reader that does not know the columns wants.
     key_columns:
         Columns forming the point key; default ``("particle", "energy_MeV_u")``.
     text_columns:
-        Columns that stay strings in :meth:`record` (and in the key); every
+        Columns that stay strings in [`record`][] (and in the key); every
         other non-empty cell is parsed with ``float``.
     lineterminator:
         ``None`` (default) reuses the existing file's terminator and otherwise
         writes ``"\\r\\n"``, the ``csv`` default every batch script wrote with.
     one_row_per_point:
         Keep only the last row of a point read from disk (dict-based loading)
-        and reject multi-row :meth:`put_group` calls.
+        and reject multi-row [`put_group`][] calls.
 
     Attributes
     ----------
     header:
         The provenance header, ``{key: value}`` in file order. Values are
-        ``str``, except :data:`FINGERPRINT_KEY`, which holds decoded JSON. Empty
-        for files without a header; :meth:`save` writes none then.
+        ``str``, except [`FINGERPRINT_KEY`][], which holds decoded JSON. Empty
+        for files without a header; [`save`][] writes none then.
     """
 
     def __init__(
@@ -232,7 +232,7 @@ class CsvCheckpoint:
 
     @property
     def fieldnames(self) -> list[str] | None:
-        """The columns :meth:`save` writes: the given ones, else the file's own."""
+        """The columns [`save`][] writes: the given ones, else the file's own."""
         if self._fieldnames is not None:
             return list(self._fieldnames)
         return list(self._file_fieldnames) if self._file_fieldnames is not None else None
@@ -276,7 +276,7 @@ class CsvCheckpoint:
         return key in self._groups
 
     def keys(self) -> list[CheckpointKey]:
-        """All point keys, sorted as :meth:`save` writes them."""
+        """All point keys, sorted as [`save`][] writes them."""
         return sorted(self._groups)
 
     def rows(self, key: CheckpointKey) -> list[dict[str, Any]]:
@@ -355,7 +355,7 @@ def parse_point_spec(spec: str, species: Collection[str] | None = None) -> set[t
 
     With ``species=None`` particle names are stripped but kept as typed. With a
     ``species`` collection names are lower-cased and an unknown one raises
-    :class:`argparse.ArgumentTypeError`. A token that is not ``name:energy``
+    `argparse.ArgumentTypeError`. A token that is not ``name:energy``
     raises ``ValueError`` (argparse reports both as an invalid value).
     """
     out: set[tuple[str, float]] = set()
@@ -387,13 +387,13 @@ class JsonPointCache:
     The file is one JSON object ``{config_key: entry}`` written with
     ``indent=1, sort_keys=True`` and no trailing newline. A missing, unreadable or
     corrupt file reads as an empty cache; valid JSON that is not an object raises
-    ``TypeError``. :meth:`put` re-reads the file before writing, so points a sibling
+    ``TypeError``. [`put`][] re-reads the file before writing, so points a sibling
     run added meanwhile are kept; if that re-read fails (a sibling caught mid-write,
     a Windows sharing violation) the entries already in memory are kept instead of being
     discarded. Writes are atomic (temporary file plus ``os.replace``).
 
     The optional provenance header lives under the reserved top-level key
-    :data:`PROVENANCE_KEY` and is exposed as :attr:`provenance`, never as an
+    [`PROVENANCE_KEY`][] and is exposed as [`provenance`][], never as an
     entry; a non-object value there raises ``ValueError``. Line endings of an
     existing file are kept; a new file is written with the platform's, like
     ``Path.write_text``.
@@ -438,7 +438,7 @@ class JsonPointCache:
 
     @property
     def provenance(self) -> dict[str, Any] | None:
-        """The provenance header (with :data:`FINGERPRINT_KEY`), or ``None``."""
+        """The provenance header (with [`FINGERPRINT_KEY`][]), or ``None``."""
         return dict(self._provenance) if self._provenance is not None else None
 
     @provenance.setter
@@ -491,9 +491,9 @@ class JsonPointCache:
 def read_header(path: str | os.PathLike[str]) -> dict[str, Any]:
     """The provenance header of a checkpoint; ``{}`` if it has none or is missing.
 
-    ``.json`` files are read as a :class:`JsonPointCache` (the
-    :data:`PROVENANCE_KEY` object), anything else as a CSV whose leading
-    ``# key: value`` lines form the header. In both, :data:`FINGERPRINT_KEY`
+    ``.json`` files are read as a [`JsonPointCache`][] (the
+    [`PROVENANCE_KEY`][] object), anything else as a CSV whose leading
+    ``# key: value`` lines form the header. In both, [`FINGERPRINT_KEY`][]
     holds decoded JSON.
     """
     path = Path(path)
@@ -585,7 +585,7 @@ def assert_fingerprint(
         (``.py`` is appended unless given).
     rtol, atol:
         Pass when ``|a - b| <= max(rtol * max(|a|, |b|), atol)``
-        (:func:`math.isclose`).
+        (`math.isclose`).
 
     Raises
     ------

@@ -12,22 +12,22 @@ not pyRadBio's MIT licence.
 References: H. Paul and A. Schinner, Nucl. Instrum. Methods Phys. Res. B 179 (2001)
 299; B 195 (2002) 166; Atomic Data Nucl. Data Tables 85 (2003) 377.
 
-* :mod:`.spline` -- MSSPL1/MSSPL2 (natural cubic spline, linear axes);
-* :mod:`.database` -- MSRDB1 (reader for the alpha database ``msdbs1.d``);
-* :mod:`.paul` -- MSPAUL and MSTAR1 (Paul's ratio, mode handling);
-* :class:`AlphaSpline` -- MSSEAL (alpha stopping power of one target);
-* :class:`MSTAR` -- the port as a :class:`~pyradbio.track.stopping.base.MassStoppingPowerModel`,
+* [`spline`][] -- MSSPL1/MSSPL2 (natural cubic spline, linear axes);
+* [`database`][] -- MSRDB1 (reader for the alpha database ``msdbs1.d``);
+* [`paul`][] -- MSPAUL and MSTAR1 (Paul's ratio, mode handling);
+* [`AlphaSpline`][] -- MSSEAL (alpha stopping power of one target);
+* [`MSTAR`][] -- the port as a [`MassStoppingPowerModel`][],
   evaluated directly from a local ``msdbs1.d`` (the database is raw source data and
   is not shipped; see ``data/stopping/mstar/PROVENANCE.md``).
 
-:class:`~pyradbio.track.stopping.xstar.XSTAR` serves MSTAR heavy ions from tables
+[`XSTAR`][] serves MSTAR heavy ions from tables
 this port generated (``scripts/stopping/build_tables.py``), and evaluates the port
 directly only on request.
 
 Conventions: MSTAR's energy is kinetic energy per nucleon and it evaluates the alpha
 at exactly 4x that energy; it ignores the ion mass. We take its value as that of the
 element's most abundant isotope and velocity-scale other isotopes with true masses,
-as everywhere in :mod:`pyradbio.track.stopping`.
+as everywhere in [`pyradbio.track.stopping`][].
 """
 
 from __future__ import annotations
@@ -58,14 +58,14 @@ from pyradbio.track.stopping.mstar.paul import (
 from pyradbio.track.stopping.mstar.spline import msspl1, msspl2
 from pyradbio.track.stopping.nuclear import WaterNuclearStopping
 
-#: MSTAR's water I-value is that of its alpha data, ICRU 49 / ASTAR [eV].
 MSTAR_I_VALUE_EV = 75.0
+"""MSTAR's water I-value is that of its alpha data, ICRU 49 / ASTAR [eV]."""
 MSTAR_REFERENCE = (
     "H. Paul and A. Schinner, MSTAR 3.12 (IAEA NDS); Nucl. Instrum. Methods B 179 (2001) "
     "299, B 195 (2002) 166; At. Data Nucl. Data Tables 85 (2003) 377"
 )
-#: mg -> g: MSTAR returns MeV cm^2/mg.
 _PER_MG_TO_PER_G = 1000.0
+"""mg -> g: MSTAR returns MeV cm^2/mg."""
 
 
 class AlphaSpline:
@@ -99,9 +99,9 @@ class MSTAR(MassStoppingPowerModel):
     """MSTAR 3.12 for liquid water, evaluated directly from ``msdbs1.d`` (Z 3-18).
 
     MSTAR itself is electronic stopping only; ``quantity="total"`` adds ``nuclear``
-    (:class:`~pyradbio.track.stopping.nuclear.WaterNuclearStopping`, default ZBL).
+    ([`WaterNuclearStopping`][], default ZBL).
     ``mode`` is MSTAR's mode of operation ('b' default, the authors' recommendation).
-    Raises :class:`MSTARModeError` where the original refuses a mode (mode 'h' for Mg,
+    Raises [`MSTARModeError`][] where the original refuses a mode (mode 'h' for Mg,
     Al, Si, P).
     """
 

@@ -23,7 +23,7 @@ targets") is ported -- the other branches belong to targets we do not support.
 **Floating-point fidelity.** FORTRAN 77 constants written without a ``D`` exponent
 are REAL*4; MSTAR has several (two coefficients of mode 'c'/'d', every mode 'h'
 coefficient, the effective-Z table). They are rounded to single precision here
-(:func:`_r4`) exactly as the original does, and every expression keeps the
+(`_r4`) exactly as the original does, and every expression keeps the
 FORTRAN's operation order.
 """
 
@@ -32,14 +32,14 @@ from __future__ import annotations
 import math
 import struct
 
-#: MSTAR's identification number of liquid water (ICRU / ASTAR target ID).
 WATER_LIQUID_ID = 276
+"""MSTAR's identification number of liquid water (ICRU / ASTAR target ID)."""
 
-#: Modes of MSTAR1 (see data/stopping/mstar/PROVENANCE.md).
 MODES = ("a", "b", "c", "d", "g", "h")
+"""Modes of MSTAR1 (see data/stopping/mstar/PROVENANCE.md)."""
 
-#: Mode 'h' (Z2-independent gas fits) exists for these ions only (MSPAUL).
 MODE_H_IONS = (3, 4, 5, 6, 7, 8, 9, 10, 11, 16, 17, 18)
+"""Mode 'h' (Z2-independent gas fits) exists for these ions only (MSPAUL)."""
 
 
 class MSTARModeError(ValueError):
@@ -51,10 +51,9 @@ def _r4(value: float) -> float:
     return float(struct.unpack("f", struct.pack("f", value))[0])
 
 
-#: Effective target Z of liquid water: MSID2Z's DZTAB entry for ID 276 (REAL*4).
 WATER_LIQUID_DZ2 = _r4(7.216742)
+"""Effective target Z of liquid water: MSID2Z's DZTAB entry for ID 276 (REAL*4)."""
 
-#: Mode 'h' coefficients (a, b, c) per ion, MSPAUL (REAL*4 constants in the source).
 _MODE_H = {
     3: (0.59251, -0.71211, 1.91956),
     4: (0.35030, -0.28291, 2.92675),
@@ -69,6 +68,7 @@ _MODE_H = {
     17: (0.05163, 0.37948, 2.81286),
     18: (0.048, 0.38887, 2.84076),
 }
+"""Mode 'h' coefficients (a, b, c) per ion, MSPAUL (REAL*4 constants in the source)."""
 
 
 def _coefficients(mode: str, z1: int, z2: int) -> tuple[float, float, float]:

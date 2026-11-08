@@ -4,7 +4,7 @@ CSV uses only the standard library, so it works without the ``tables`` extra.
 Parquet (and any pandas view) needs ``pyarrow`` from that extra and is guarded.
 The pyMKM classic ``.txt`` z* format is documented in
 ``docs/references/pyMKM_API.md`` and round-tripped by
-:func:`write_pymkm_txt` / :func:`read_pymkm_txt`.
+[`write_pymkm_txt`][] / [`read_pymkm_txt`][].
 """
 
 from __future__ import annotations
@@ -49,7 +49,7 @@ def write_csv(table: AlphaBetaTable, path: str | Path) -> None:
 
 
 def read_csv(path: str | Path) -> AlphaBetaTable:
-    """Read a table written by :func:`write_csv` back into an AlphaBetaTable."""
+    """Read a table written by [`write_csv`][] back into an AlphaBetaTable."""
     path = Path(path)
     metadata: dict[str, object] = {}
     with path.open("r", newline="", encoding="utf-8") as fh:
@@ -102,7 +102,7 @@ def write_parquet(table: AlphaBetaTable, path: str | Path) -> None:
 
 
 def read_parquet(path: str | Path) -> AlphaBetaTable:
-    """Read a table written by :func:`write_parquet`."""
+    """Read a table written by [`write_parquet`][]."""
     _pa, pq = _require_pyarrow()
     pa_table = pq.read_table(str(path))
     cols = pa_table.to_pydict()
@@ -152,7 +152,7 @@ def write_pymkm_txt(table: ZStarTable, path: str | Path) -> None:
 
 
 def read_pymkm_txt(path: str | Path) -> ZStarTable:
-    """Read a pyMKM classic ``.txt`` z* table into a :class:`ZStarTable`.
+    """Read a pyMKM classic ``.txt`` z* table into a [`ZStarTable`][].
 
     Tolerates the stochastic (SMK) 4-column layout by keeping the
     ``z_bar_star_domain`` column.

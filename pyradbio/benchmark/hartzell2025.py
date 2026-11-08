@@ -1,8 +1,8 @@
 """Hartzell et al. 2025 AMF / TOPAS-nBio spectra (benchmark-layer alias).
 
-The digitized curves and their loader live in :mod:`pyradbio.micro.hartzell2025`,
+The digitized curves and their loader live in [`pyradbio.micro.hartzell2025`][],
 because the micro layer fits its Sato-AMF coefficients to them
-(:mod:`pyradbio.micro.sato_coefficients`) and must not import the benchmark
+([`pyradbio.micro.sato_coefficients`][]) and must not import the benchmark
 layer. This module re-exports that API unchanged for benchmark code.
 
 Hartzell, Parisi, Sato, Beltran & Furutani 2025, Phys. Med. Biol. 70 105010,

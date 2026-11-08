@@ -41,7 +41,7 @@ class AlphaTable:
 
 @dataclass(frozen=True)
 class MSTARDatabase:
-    """All targets of ``msdbs1.d``; :meth:`target` returns one :class:`AlphaTable`."""
+    """All targets of ``msdbs1.d``; [`target`][] returns one [`AlphaTable`][]."""
 
     energy_MeV: tuple[float, ...]
     targets: dict[int, tuple[str, tuple[float, ...]]]

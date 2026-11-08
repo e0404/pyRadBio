@@ -8,7 +8,7 @@ intertrack enhancement that the shipped continuum ``"local_dose"`` engine cannot
 produce.
 
 **It does not recover it, and the reason is a theorem** -- see
-:func:`test_discrete_mean_counts_equals_the_continuum_density` and
+`test_discrete_mean_counts_equals_the_continuum_density` and
 ``docs/references/LEM_IV_Friedrich2012.md``. These tests pin that result so the
 line of attack cannot be quietly reopened.
 """
@@ -411,7 +411,7 @@ def test_golden_lem4_discrete_dsb_against_friedrich2012_fig4() -> None:
     Reference: Friedrich, Scholz, Elsasser, Durante & Scholz 2012, Int. J. Radiat.
     Biol. 88(1-2):103-107, doi:10.3109/09553002.2011.611213, Fig. 4 (p. 107),
     hypothetical cell (alpha_g = 0.25, beta_g = 0.05, D_t = 9.5 Gy, R_n = 5 um) --
-    digitized in :mod:`pyradbio.benchmark.friedrich2012`.
+    digitized in `pyradbio.benchmark.friedrich2012`.
 
     This engine was built to beat the shipped ``"local_dose"`` convolution on the
     high-LET roll-off. **It does not**, for the theorem reason pinned above, and it

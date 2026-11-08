@@ -6,17 +6,17 @@ doi:10.1002/mp.70040. Model equations and parameters:
 
 Contents
 ========
-* Digitized curves and their fits: :func:`get_fig2_curve` (survival, sec. 3.1.1),
-  :func:`get_fig4_curve` (micronuclei, sec. 3.1.2) and :func:`get_fig7_curve`
+* Digitized curves and their fits: [`get_fig2_curve`][] (survival, sec. 3.1.1),
+  [`get_fig4_curve`][] (micronuclei, sec. 3.1.2) and [`get_fig7_curve`][]
   (dose rate, secs. 3.1.3-3.1.4), each described in its section below.
-* Values recovered from them: :data:`RECOVERED_Z_STAR_1D_GY`, :data:`ANCHORS`
-  (the four carbon fit points, secs. 3.1.1 and 4.1), :func:`recovered_z_star_1D`,
-  :func:`recovered_h`, :func:`recovered_z_star_1D_from_mn` and
-  :func:`paper_rbe_alpha` (eq. 6 on the fig. 2 lines).
-* Reconstruction helpers: :func:`microdosimetry_routes` with :data:`PAPER_ROUTE`
+* Values recovered from them: [`RECOVERED_Z_STAR_1D_GY`][], [`ANCHORS`][]
+  (the four carbon fit points, secs. 3.1.1 and 4.1), [`recovered_z_star_1D`][],
+  [`recovered_h`][], [`recovered_z_star_1D_from_mn`][] and
+  [`paper_rbe_alpha`][] (eq. 6 on the fig. 2 lines).
+* Reconstruction helpers: [`microdosimetry_routes`][] with [`PAPER_ROUTE`][]
   (the four ``z*_1D`` routes for one table-1 cell line, sec. 2.1),
-  :func:`fig7_schedule`, :func:`fig7_protocol`, :func:`relative_mn` and
-  :func:`dose_rate_shape_fit` (fig. 7, secs. 3.1.3-3.1.4).
+  [`fig7_schedule`][], [`fig7_protocol`][], [`relative_mn`][] and
+  [`dose_rate_shape_fit`][] (fig. 7, secs. 3.1.3-3.1.4).
 
 Fig. 2 -- cell survival
 =======================
@@ -36,14 +36,16 @@ Why this panel is worth digitizing
 ----------------------------------
 The paper computes every ``y*`` with PHITS and prints none of them, which
 otherwise leaves ``alpha(photon)`` -- the denominator of every RBE -- unavailable
-(see :class:`~pyradbio.models.mkm.imk.IMKModel`). But the *calculated* curves are
+(see [`IMKModel`][]). But the *calculated* curves are
 plain LQ, so fitting one and inverting the model's own eq. (1) with the printed
-``alpha0``/``beta0`` recovers the ``z*_1D`` that produced it::
+``alpha0``/``beta0`` recovers the ``z*_1D`` that produced it:
 
-    z*_1D = (alpha_fitted - alpha0) / beta0
+```text
+z*_1D = (alpha_fitted - alpha0) / beta0
+```
 
-:func:`recovered_z_star_1D` does this. The results (see
-:data:`RECOVERED_Z_STAR_1D_GY`) are self-validating in three ways:
+[`recovered_z_star_1D`][] does this. The results (see
+[`RECOVERED_Z_STAR_1D_GY`][]) are self-validating in three ways:
 
 1. every fitted ``beta`` lands on the printed ``beta0`` -- all six curves within
    0.5%, against HSG's 0.0467 and SCC's 0.0298 -- which checks the
@@ -66,7 +68,7 @@ Two traps this closes
 * **In fig. 2a the two experimental carbon series pair with the opposite
   calculated line**, by a factor 8-10 in RMS log-residual (0.107/0.082 swapped
   versus 0.821/0.842 as labelled). They are stored here under the LET they
-  actually match; :func:`series_pairing_residuals` reproduces the evidence, and
+  actually match; [`series_pairing_residuals`][] reproduces the evidence, and
   ``tests/benchmark/test_matsuya2025.py`` pins it. Whether the swap is in the
   digitization or in the figure's own symbol legend is not settled here.
 
@@ -87,14 +89,14 @@ own ``alpha``/``beta`` for these exact three radiations, the fig. 4 curves are
 forced to be ``h x`` those. Fitting them measures ``h`` instead of assuming it,
 and it comes out at **0.275 -- table 1's cell-line-independent value, not table
 2's HSG-specific 0.245** (which is 11% off, an order of magnitude outside the
-0.6% residual the table-1 value leaves). :func:`recovered_h` does this.
+0.6% residual the table-1 value leaves). [`recovered_h`][] does this.
 
 Fitting fig. 4 on its own then re-derives the paper's unprinted PHITS inputs a
 second time, from a different figure: 1.039 / 2.905 / 16.420 Gy against fig.
-2a's 1.045 / 2.923 / 16.184 (:data:`RECOVERED_Z_STAR_1D_GY`), i.e. 0.6%, 0.6%
+2a's 1.045 / 2.923 / 16.184 ([`RECOVERED_Z_STAR_1D_GY`][]), i.e. 0.6%, 0.6%
 and 1.5%. Two independent hand digitizations of two different panels agreeing
 to that level is the strongest available check on the recovery in
-:func:`recovered_z_star_1D`.
+[`recovered_z_star_1D`][].
 
 Unlike fig. 2a, **fig. 4's experimental points are not swapped**: its LET-100
 series sits on its own calculated line (RMS relative residual 0.11, against 1.6
@@ -105,7 +107,7 @@ other pair.
 
 One digitization floor to know about: the y axis resolves ~0.0011 MN per
 binucleated cell per pixel, and the three lowest traced points sit at exactly
-one, two and four times that. :data:`FIG4_MIN_FIT_DOSE_GY` keeps them out of
+one, two and four times that. [`FIG4_MIN_FIT_DOSE_GY`][] keeps them out of
 every fit; they are still stored, because the file is the digitization.
 
 Fig. 7 -- the dose-rate axis
@@ -124,12 +126,12 @@ the y calibration. Reading these as absolute MN counts is the panel's one trap,
 and it is a tempting one, because both curves happen to top out near 1.
 
 **What this panel actually validates.** Eq. (1) makes the relative frequency
-affine in the Lea-Catcheside factor, so :func:`dose_rate_shape_fit` fits
+affine in the Lea-Catcheside factor, so [`dose_rate_shape_fit`][] fits
 ``A + B F(rate)`` with ``F`` supplied by the caller and tests the *shape* alone.
 On DU145 that lands within **0.0019** of a 58-point curve spanning 0.45 --
 and halving or doubling the printed ``a+c = 2.10/h`` degrades it 25-fold, to
 0.048 and 0.053. That is a sharp, published-model-line test of
-:func:`~pyradbio.core.protraction.lea_catcheside_g`, not a soft one.
+[`lea_catcheside_g`][], not a soft one.
 
 **WI-38 is not a test, and must not be reported as one.** Its whole effect is
 0.028 in y, and the same fit gives 0.0041 / 0.0039 / 0.0042 at the printed rate,
@@ -141,7 +143,7 @@ fit of the photon ``z*_1D`` bottoms out at 0.0 Gy and barely moves out to 11 Gy.
 **Neither panel pins the photon reference.** DU145's best-fit photon ``z*_1D``
 is 0.736 Gy, but the RMS only doubles outside [0.255, 1.299] Gy -- consistent
 with fig. 2's 0.99-1.05 and with nothing else useful. That is why
-:mod:`~pyradbio.models.mkm.imk` still leaves DU145 and WI-38 without a photon
+[`imk`][pyradbio.models.mkm.imk] still leaves DU145 and WI-38 without a photon
 reference: this panel does not supply one, however tempting the number looks.
 
 Delivery: the paper's line is **continuous**, not its sec. 3.1.4 fractionated
@@ -178,16 +180,13 @@ _FIG2_FILE = "matsuya2025_fig2_survival.csv"
 _FIG4_FILE = "matsuya2025_fig4_micronuclei.csv"
 _FIG7_FILE = "matsuya2025_fig7_dose_rate.csv"
 
-#: Doses below this are dropped from every fig. 4 fit. The panel's y axis
-#: resolves ~0.0011 MN/BN-cell per pixel and its three lowest traced points sit
-#: at one, two and four times that, so their *relative* value is quantization,
-#: not signal -- the worst of them is a factor 4 off its own curve.
 FIG4_MIN_FIT_DOSE_GY: float = 0.05
+"""Doses below this are dropped from every fig. 4 fit. The panel's y axis
+resolves ~0.0011 MN/BN-cell per pixel and its three lowest traced points sit
+at one, two and four times that, so their *relative* value is quantization,
+not signal -- the worst of them is a factor 4 off its own curve.
+"""
 
-#: ``z*_1D`` [Gy] recovered from each calculated curve by :func:`recovered_z_star_1D`
-#: with the printed table-1 ``alpha0``/``beta0``, fitted over the full traced
-#: range. Keyed by ``(cell_line, let_keV_um)``, photons at ``0.0``.
-#: **These are the paper's own PHITS inputs, not a fit of ours.**
 RECOVERED_Z_STAR_1D_GY: dict[tuple[str, float], float] = {
     ("HSG", 0.0): 1.045,
     ("HSG", 13.0): 2.923,
@@ -196,16 +195,22 @@ RECOVERED_Z_STAR_1D_GY: dict[tuple[str, float], float] = {
     ("SCC", 46.0): 7.007,
     ("SCC", 80.0): 10.825,
 }
+"""``z*_1D`` [Gy] recovered from each calculated curve by [`recovered_z_star_1D`][]
+with the printed table-1 ``alpha0``/``beta0``, fitted over the full traced
+range. Keyed by ``(cell_line, let_keV_um)``, photons at ``0.0``.
+**These are the paper's own PHITS inputs, not a fit of ours.**
+"""
 
-#: The paper's four carbon fit points (secs. 3.1.1, 4.1), in LET order: the
-#: ``(cell_line, let_keV_um)`` keys of :data:`RECOVERED_Z_STAR_1D_GY` that are
-#: not photons -- fig. 2a's HSG at 13 and 100 keV/um, fig. 2b's SCC at 46 and 80.
 ANCHORS: tuple[tuple[str, float], ...] = (
     ("HSG", 13.0),
     ("SCC", 46.0),
     ("SCC", 80.0),
     ("HSG", 100.0),
 )
+"""The paper's four carbon fit points (secs. 3.1.1, 4.1), in LET order: the
+``(cell_line, let_keV_um)`` keys of [`RECOVERED_Z_STAR_1D_GY`][] that are
+not photons -- fig. 2a's HSG at 13 and 100 keV/um, fig. 2b's SCC at 46 and 80.
+"""
 
 
 @dataclass(frozen=True, slots=True)
@@ -414,8 +419,8 @@ class Fig4Curve:
         """Least-squares ``(alpha_m, beta_m)`` of ``F_MN = alpha_m D + beta_m D^2``.
 
         Eq. (3)'s micronucleus LQ, i.e. the survival LQ times ``h``. The default
-        ``min_dose_Gy`` is :data:`FIG4_MIN_FIT_DOSE_GY`; see its note for why the
-        cut is on dose here and on ``-ln S`` in :meth:`Fig2Curve.lq_fit`.
+        ``min_dose_Gy`` is [`FIG4_MIN_FIT_DOSE_GY`][]; see its note for why the
+        cut is on dose here and on ``-ln S`` in [`Fig2Curve.lq_fit`][].
         """
         dose, mn = self.dose, self.mn
         keep = dose > min_dose_Gy
@@ -500,7 +505,7 @@ def recovered_z_star_1D_from_mn(
     """``(h, z*_1D)`` from a calculated Fig. 4 curve alone.
 
     Undoes eq. (3) with the ``h`` the same curve implies, then inverts eq. (1)
-    exactly as :func:`recovered_z_star_1D` does for fig. 2 -- giving a wholly
+    exactly as [`recovered_z_star_1D`][] does for fig. 2 -- giving a wholly
     independent reading of the paper's unprinted PHITS inputs from a different
     panel. See the module docstring for how closely the two agree.
     """
@@ -603,9 +608,11 @@ def dose_rate_shape_fit(
     -- ``A`` carries the (rate-independent) linear term and ``B`` the quadratic
     one -- so a two-parameter fit with ``F`` supplied by the caller tests the
     *shape* alone, with no reference to ``alpha`` or to the normalisation. Pass
-    ``time_factor`` as a callable of the dose rate in Gy/h, e.g.::
+    ``time_factor`` as a callable of the dose rate in Gy/h, e.g.:
 
-        model.time_factor(DoseSchedule.continuous(4.0, duration_h=4.0 / rate))
+    ```text
+    model.time_factor(DoseSchedule.continuous(4.0, duration_h=4.0 / rate))
+    ```
 
     See the module docstring for what the residual is worth on each panel: it
     discriminates sharply on DU145 and not at all on WI-38.
@@ -626,7 +633,7 @@ def dose_rate_shape_fit(
 def paper_rbe_alpha(cell_line: str, let_keV_um: float) -> float:
     """Eq. (6)'s ``RBE_alpha = alpha*/alpha(photon)`` from the paper's own fig. 2 lines.
 
-    Both ``alpha`` come from :meth:`Fig2Curve.lq_fit` of the calculated curves
+    Both ``alpha`` come from [`Fig2Curve.lq_fit`][] of the calculated curves
     (carbon at ``let_keV_um`` and the same panel's X-ray arm), so this is the
     paper's model, not a measurement and not ours.
     """
@@ -638,25 +645,27 @@ def paper_rbe_alpha(cell_line: str, let_keV_um: float) -> float:
 # --------------------------------------------------------------------------
 # Microdosimetry routes for one table-1 cell line
 # --------------------------------------------------------------------------
-#: The route that follows *this paper's* own method. Two independent statements
-#: pick it out: the domain is a **sphere** (sec. 2.1, "the shape is generally
-#: assumed to be a simple sphere with a diameter of < 1.0 um"), and ``y*`` comes
-#: from the PHITS ``[t-sed]`` tally (sec. 3.1.1), which evaluates **Sato's
-#: analytical microdosimetric function** -- what
-#: :class:`~pyradbio.micro.sato.SatoLinealEnergyEngine` implements, on a spherical
-#: site. The MKM-family default (``"impact/cyl"``) is Inaniwa's *disk* convention,
-#: right for the SMK/mMKM papers and not for this one. Faithful is not best: it is
-#: not the closest-scoring route at mid LET (``docs/references/IMK_Matsuya2025.md``).
 PAPER_ROUTE = "sato-AMF"
+"""The route that follows *this paper's* own method. Two independent statements
+pick it out: the domain is a **sphere** (sec. 2.1, "the shape is generally
+assumed to be a simple sphere with a diameter of < 1.0 um"), and ``y*`` comes
+from the PHITS ``[t-sed]`` tally (sec. 3.1.1), which evaluates **Sato's
+analytical microdosimetric function** -- what
+[`SatoLinealEnergyEngine`][pyradbio.micro.sato.SatoLinealEnergyEngine] implements, on a spherical
+site. The MKM-family default (``"impact/cyl"``) is Inaniwa's *disk* convention,
+right for the SMK/mMKM papers and not for this one. Faithful is not best: it is
+not the closest-scoring route at mid LET (``docs/references/IMK_Matsuya2025.md``).
+"""
 
-#: Normalised cell-line name -> the :class:`~pyradbio.models.mkm.imk.IMKModel`
-#: table-1 preset constructor.
 _PRESETS = {
     "hsg": "hsg_matsuya2025",
     "scc": "scc_matsuya2025",
     "wi38": "wi38_matsuya2025",
     "du145": "du145_matsuya2025",
 }
+"""Normalised cell-line name -> the [`IMKModel`][]
+table-1 preset constructor.
+"""
 
 
 def microdosimetry_routes(
@@ -671,7 +680,7 @@ def microdosimetry_routes(
     * ``"impact/sph"`` -- the same over a sphere, the domain shape this paper
       states (sec. 2.1).
     * ``"sato-AMF"`` -- Sato's AMF single-event ``d(y)`` on a sphere of the
-      domain radius: :data:`PAPER_ROUTE`.
+      domain radius: [`PAPER_ROUTE`][].
     * ``"analytic"`` -- the Xapsos-Kellerer chord/straggling ``d(y)``,
       restricted, with the delta-ray tail folded in, on the same sphere.
 
@@ -684,7 +693,7 @@ def microdosimetry_routes(
     ``stopping_power`` is required and drives the two ``d(y)`` engines only: the
     caller chooses it. The impact-parameter routes keep the model's own default
     stopping power, so passing anything other than
-    :func:`~pyradbio.track.stopping_power.default_stopping_power` mixes two
+    [`default_stopping_power`][pyradbio.track.stopping_power.default_stopping_power] mixes two
     stopping powers across the four routes.
     """
     from pyradbio.micro.lineal_energy import AnalyticSpectrumEngine, SphericalSite
@@ -712,9 +721,10 @@ def microdosimetry_routes(
 # --------------------------------------------------------------------------
 # Fig. 7 delivery and its relative MN frequency
 # --------------------------------------------------------------------------
-#: Fig. 7's total dose [Gy] and the rate its y axis is normalised at [Gy/h]
-#: (sec. 3.1.3).
 FIG7_DOSE_GY: float = 4.0
+"""Fig. 7's total dose [Gy] and the rate its y axis is normalised at [Gy/h]
+(sec. 3.1.3).
+"""
 FIG7_NORM_RATE_GY_PER_H: float = 60.0
 
 
@@ -722,8 +732,8 @@ def fig7_schedule(rate_Gy_per_h: float) -> DoseSchedule:
     """Fig. 7's delivery: 4 Gy **continuous** at ``rate_Gy_per_h``.
 
     Continuous is what reproduces the paper's line (see the module docstring);
-    :func:`fig7_protocol` is the sec. 3.1.4 laboratory protocol. Raises
-    :class:`ValueError` unless ``rate_Gy_per_h > 0``.
+    [`fig7_protocol`][] is the sec. 3.1.4 laboratory protocol. Raises
+    `ValueError` unless ``rate_Gy_per_h > 0``.
     """
     if not rate_Gy_per_h > 0.0:
         raise ValueError(f"fig. 7 dose rate must be > 0 Gy/h, got {rate_Gy_per_h!r}")
@@ -740,7 +750,7 @@ def fig7_protocol(rate_Gy_per_min: float) -> DoseSchedule:
 
     A sub-1 rate must split the 4 Gy into a whole number of fractions (to 1e-9
     relative), so the schedule really delivers 4 Gy: ``0.3`` (13.3 fractions) is
-    rejected rather than rounded to 3.9 Gy. Raises :class:`ValueError` for that
+    rejected rather than rounded to 3.9 Gy. Raises `ValueError` for that
     and for ``rate_Gy_per_min <= 0``.
     """
     if not rate_Gy_per_min > 0.0:
@@ -765,7 +775,7 @@ def fig7_protocol(rate_Gy_per_min: float) -> DoseSchedule:
 def relative_mn(model: IMKModel, rate_Gy_per_h: float, z_photon_Gy: float = 1.0) -> float:
     """Fig. 7's y: the MN frequency at this rate over the one at 60 Gy/h.
 
-    Eq. (1) + eq. (3) under :func:`fig7_schedule`, normalised as sec. 3.1.3
+    Eq. (1) + eq. (3) under [`fig7_schedule`][], normalised as sec. 3.1.3
     specifies. ``h`` cancels in the ratio, exactly as in eq. (6), and the photon
     ``z*_1D`` barely enters -- so this is essentially eq. (1)'s time factor and the
     printed ``alpha0``/``beta0``, with nothing fitted.

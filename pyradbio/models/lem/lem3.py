@@ -14,7 +14,7 @@ the same LET over a larger area, the local dose peak -- and hence the ion RBE --
 drops fastest for the fast, low-LET ions of the entrance channel, which is
 exactly where LEM I/II over-predicted the RBE (Elsasser 2008, Results/Fig. 1).
 
-Everything else is inherited from :class:`~pyradbio.models.lem.lem2.LEM2`: the
+Everything else is inherited from [`LEM2`][]: the
 high-dose cluster enhancement ``eta(D)`` on the photon tail and the mixed-field
 LQ mixing. Only the radial-dose model differs (``ScholzKraftRadialDose.lem3``),
 so this is a one-line override; the transition dose ``D_t`` is refit per cell
@@ -35,7 +35,7 @@ class LEM3(LEM2):
     """LEM III: LEM II plus the velocity-dependent track core ``r_min(beta)=beta*r_c``.
 
     Inherits LEM II's cluster-enhanced photon tail and its default
-    :class:`~pyradbio.models.lem.lem2.ClusterModel`; overrides only the radial
+    [`ClusterModel`][pyradbio.models.lem.lem2.ClusterModel]; overrides only the radial
     dose to use the velocity-dependent core (``r_c = 40 nm``, Elsasser 2008
     eq. 6). Supply the LEM III refit ``D_t`` on the photon parameters.
     """

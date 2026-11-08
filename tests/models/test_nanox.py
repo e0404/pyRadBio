@@ -387,7 +387,7 @@ class TestNanodosimetryBoundary:
         """A backend removes only the *data* obstacle.
 
         The configuration average (Alcocer-Avila et al. 2022 eqs. 36-43) is not
-        implemented either, so :meth:`alpha_beta` still raises with a backend
+        implemented either, so `alpha_beta` still raises with a backend
         supplied (see ``TestBackendSuppliedRoute``). The first message must say
         so, rather than telling the caller a backend "enables this route".
         """

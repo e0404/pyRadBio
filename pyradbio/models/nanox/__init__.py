@@ -14,9 +14,9 @@ decomposition, the Poisson impact statistics, the global-event branch, the
 photon calibration ``beta_G = beta_r/eta^2``, and the track-segment closed
 forms. The nanodosimetric spectrum those equations integrate is **not** shipped:
 it comes from the group's non-public LQD Monte Carlo and is figure-only in the
-published corpus, so :class:`NanOxModel.alpha_beta` raises
-:class:`NanOxNanodosimetryRequired` unless a
-:class:`NanOxNanodosimetry` backend is supplied. See
+published corpus, so [`NanOxModel.alpha_beta`][] raises
+[`NanOxNanodosimetryRequired`][] unless a
+[`NanOxNanodosimetry`][] backend is supplied. See
 ``docs/references/NanOx.md``.
 """
 

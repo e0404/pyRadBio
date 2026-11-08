@@ -6,7 +6,7 @@ Carlson et al. 2008 (doi:10.1667/RR1046.1) and Frese et al. 2012
 linked to DSB induction and pairwise (binary) misrepair rather than to a local
 dose or a specific energy.
 
-Its DSB yields come from :mod:`pyradbio.micro.mcds`, in closed form -- no Monte
+Its DSB yields come from [`pyradbio.micro.mcds`][], in closed form -- no Monte
 Carlo. Note the track-quality parameterisation underneath is Katz's
 ``Z_eff^2/beta^2``, so the independence is in the biology, not the track physics.
 """
