@@ -151,6 +151,8 @@ parameters. Options:
 | `--stopping-power` | LET source, see below |
 | `--engine {auto,numpy,numba}` | numerical backend for the LEM integrals (default `auto`: numba when installed) |
 
+A flag the chosen model does not read is an error, not ignored: `--model mkm` rejects the `lem*`
+flags (including `--engine` and the behaviour axes below), and a `lem*` model rejects the MKM ones.
 The LEM behaviour axes, which apply to the `lem*` models and are rejected by a LEM class that
 lacks them:
 

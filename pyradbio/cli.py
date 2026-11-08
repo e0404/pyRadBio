@@ -47,6 +47,20 @@ def _require_flags(args: argparse.Namespace, flags: Sequence[str], model: str) -
         raise SystemExit(f"pyradbio table --model {model}: missing {', '.join(missing)}")
 
 
+_LEM_PARAMETER_FLAGS = ("alpha_x", "beta_x", "dt", "effective_size_factor")
+"""Photon-reference and cell flags only the ``lem*`` builders read."""
+
+_MKM_PARAMETER_FLAGS = ("alpha0", "beta0", "rd")
+"""Flags only the ``mkm`` builder reads."""
+
+
+def _reject_flags(args: argparse.Namespace, flags: Sequence[str], model: str) -> None:
+    """Exit when a flag the chosen model never reads was given, instead of dropping it."""
+    given = [f"--{f.replace('_', '-')}" for f in flags if getattr(args, f) is not None]
+    if given:
+        raise SystemExit(f"pyradbio table --model {model}: {', '.join(given)} not used by {model}")
+
+
 _BEHAVIOUR_FLAGS: dict[str, str] = {
     "beta_model": "beta_model",
     "initial_slope_model": "initial_slope_model",
@@ -159,6 +173,7 @@ def _build_lem(model: str) -> Callable[[argparse.Namespace], BiophysicalModel]:
         from pyradbio.models.lem.lem4 import LEM4
 
         _require_flags(args, ["alpha_x", "beta_x", "dt", "rn"], model)
+        _reject_flags(args, _MKM_PARAMETER_FLAGS, model)
         photon = PhotonParameters(alpha_x=args.alpha_x, beta_x=args.beta_x, D_t=args.dt)
         cell = CellTarget(
             nucleus_radius_um=args.rn,
@@ -190,13 +205,15 @@ def _build_mkm(args: argparse.Namespace) -> BiophysicalModel:
     from pyradbio.models.mkm.native_backend import NativeMKMBackend
 
     _require_flags(args, ["alpha0", "beta0", "rd", "rn"], "mkm")
+    _reject_flags(args, _LEM_PARAMETER_FLAGS, "mkm")
+    overrides = _behaviour_overrides(args, MKMModel, "mkm")
     backend = NativeMKMBackend(
         domain_radius_um=args.rd, nucleus_radius_um=args.rn, beta0=args.beta0
     )
     stopping_power = _resolve_stopping_power(args.stopping_power)
     if stopping_power is not None:
         backend = replace(backend, stopping_power=stopping_power)
-    return MKMModel(alpha0=args.alpha0, backend=backend)
+    return MKMModel(alpha0=args.alpha0, backend=backend, **overrides)  # type: ignore[arg-type]
 
 
 _MODEL_BUILDERS: dict[str, Callable[[argparse.Namespace], BiophysicalModel]] = {
