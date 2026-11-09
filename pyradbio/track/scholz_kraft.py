@@ -28,7 +28,7 @@ from scipy.special import i0e
 
 from pyradbio.core.constants import KEVUM_PER_GY_UM2_GCM3, WATER_DENSITY_G_CM3
 from pyradbio.core.radiation import Ion, relativistic_beta
-from pyradbio.track.stopping_power import StoppingPower
+from pyradbio.track.stopping_power import StoppingPower, default_stopping_power
 
 # um * (MeV/u)^-delta. LEM I: gamma=0.05 (Scholz & Kraft 1996 eq. 10, "gamma=0.05;
 # delta=1.7"). LEM II onward: gamma=0.062 (Elsasser & Scholz 2007, after eq. 6).
@@ -49,6 +49,13 @@ _SUPPORT_SIGMA: float = 8.0
 
 @dataclass(frozen=True, slots=True)
 class ScholzKraftRadialDose:
+    """Scholz-Kraft radial dose ``D(r)`` for an ion track in water (see the module docstring).
+
+    The LET comes from ``stopping_power``, by default (``None``)
+    [`default_stopping_power`][pyradbio.track.stopping_power.default_stopping_power] at
+    ``density_g_cm3``.
+    """
+
     r_min_nm: float = 10.0  # LEM I default
     radical_diffusion: bool = False  # LEM II/III
     velocity_dependent_core: bool = False  # LEM III: r_min(beta)=beta*r_c
@@ -136,7 +143,7 @@ class ScholzKraftRadialDose:
 
     def _let(self, ion: Ion) -> float:
         if self.stopping_power is None:
-            raise ValueError("a StoppingPower must be provided to compute local dose")
+            return default_stopping_power(self.density_g_cm3).let_keV_um(ion)
         return self.stopping_power.let_keV_um(ion)
 
     # ---- local dose -----------------------------------------------------

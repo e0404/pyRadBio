@@ -141,6 +141,10 @@ constructors give the LEM-version variants:
 is the Kiefer-Chatterjee track underlying the MKM family: a velocity-dependent constant core
 plus a \( 1/r^2 \) penumbra.
 
+Both take an optional `stopping_power`; left out, the LET comes from
+[`default_stopping_power`][pyradbio.track.stopping_power.default_stopping_power] at the profile's
+`density_g_cm3`. Passing one explicitly, as below, keeps several track models on one LET source.
+
 ```python
 from pyradbio import Ion
 from pyradbio.track.kiefer_chatterjee import KieferChatterjeeRadialDose

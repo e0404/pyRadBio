@@ -178,10 +178,21 @@ def test_dose_zero_beyond_r_max() -> None:
     assert model.local_dose_Gy(model.r_max_um(ion) * 1.001, ion) == 0.0
 
 
-def test_local_dose_requires_stopping_power() -> None:
-    model = ScholzKraftRadialDose.lem1()  # no stopping power
-    with pytest.raises(ValueError):
-        model.local_dose_Gy(1.0, Ion(6, 12, 100.0))
+@pytest.mark.parametrize("density", [1.0, 1.1])
+def test_local_dose_defaults_to_the_library_stopping_power(density: float) -> None:
+    """No stopping power means ``default_stopping_power()`` at the model's density."""
+    from dataclasses import replace
+
+    from pyradbio.track.stopping_power import default_stopping_power
+
+    ion = Ion(6, 12, 100.0)
+    implicit = replace(ScholzKraftRadialDose.lem1(), density_g_cm3=density)
+    explicit = replace(implicit, stopping_power=default_stopping_power(density))
+    for r in (1.0e-3, 0.1, 1.0):
+        assert implicit.local_dose_Gy(r, ion) == explicit.local_dose_Gy(r, ion)
+    assert implicit.radial_integral_LET_keV_um(ion) == pytest.approx(
+        default_stopping_power(density).let_keV_um(ion), rel=1e-3
+    )
 
 
 def test_negative_radius_rejected() -> None:

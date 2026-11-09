@@ -47,7 +47,7 @@ from scipy.integrate import simpson
 
 from pyradbio.core.constants import KEVUM_PER_GY_UM2_GCM3, WATER_DENSITY_G_CM3
 from pyradbio.core.radiation import Ion
-from pyradbio.track.stopping_power import StoppingPower, effective_charge
+from pyradbio.track.stopping_power import StoppingPower, default_stopping_power, effective_charge
 
 # Core radius Rc = KC_RC0_NM * beta [nm] (pyMKM ParticleTrack: Rc0 = 11.6e-3 um).
 KC_RC0_NM: float = 11.6
@@ -66,7 +66,9 @@ class KieferChatterjeeRadialDose:
 
     Implements the [`RadialDoseModel`][pyradbio.track.base.RadialDoseModel] protocol.
     Parameters default to the pyMKM ``"Kiefer-Chatterjee"`` values; a
-    [`StoppingPower`][] supplies the LET.
+    [`StoppingPower`][] supplies the LET, by default (``stopping_power=None``)
+    [`default_stopping_power`][pyradbio.track.stopping_power.default_stopping_power] at
+    ``density_g_cm3``.
     """
 
     stopping_power: StoppingPower | None = None
@@ -111,7 +113,7 @@ class KieferChatterjeeRadialDose:
 
     def _let(self, ion: Ion) -> float:
         if self.stopping_power is None:
-            raise ValueError("a StoppingPower must be provided to compute local dose")
+            return default_stopping_power(self.density_g_cm3).let_keV_um(ion)
         return self.stopping_power.let_keV_um(ion)
 
     def _core_dose_Gy(self, ion: Ion, let_keV_um: float) -> float:
