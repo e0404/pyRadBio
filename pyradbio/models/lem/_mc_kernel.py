@@ -5,16 +5,16 @@ This module is an *optional acceleration* of the two stochastic-LEM estimators i
 per field integral disappear and the embarrassingly parallel work spreads across
 cores:
 
-* :func:`kellerer_accumulate` (with :func:`kellerer_ratio_sum`) -- the per-dose
+* `kellerer_accumulate` (with `kellerer_ratio_sum`) -- the per-dose
   path, Kellerer weighted sampling, fused all the way from the Poisson traversal
   draw to ``S = exp(-N_leth)``.
-* :func:`prefix_field_integrals` -- the traversal-conditioned path, which scores
+* `prefix_field_integrals` -- the traversal-conditioned path, which scores
   every traversal-count prefix from one sweep and therefore still uses the hybrid
   uniform/near-track mixture (its points are shared across prefixes, so they
   cannot be weighted by a prefix-dependent dose field).
 
 Numba is an optional (``fast`` extra) dependency. If it is not installed the
-``@njit`` decorators degrade to no-ops and :data:`HAVE_NUMBA` is ``False``; the
+``@njit`` decorators degrade to no-ops and `HAVE_NUMBA` is ``False``; the
 kernel functions are then never called (the pure-NumPy engine in ``lem1.py`` is
 used instead), so importing this module never requires numba.
 
@@ -119,7 +119,7 @@ def _analytic_dose(
 ) -> float:
     """Unconvolved core / ``1/r^2`` / cut-off, on the *squared* distance.
 
-    Kept separate from :func:`_profile_dose` rather than folded into it because
+    Kept separate from `_profile_dose` rather than folded into it because
     this body contains no call at all, which is what lets numba vectorise the
     track loop. Routing the unconvolved case through the banded helper -- whose
     rare ``_dose_at`` branch is never taken there -- measured **2.4x slower** on
@@ -159,9 +159,9 @@ def _profile_dose(
     (heat-kernel) expansion is elementary. In 2-D ``grad^2 r^-m = m^2 r^-m-2``, so
     ``grad^2n r^-2 = 4^n (n!)^2 r^-2-2n`` and
 
-    .. code-block:: text
-
-        D_conv(r) = (k/r^2) * sum_n n! x^n,     x = 2 sigma^2 / r^2
+    ```text
+    D_conv(r) = (k/r^2) * sum_n n! x^n,     x = 2 sigma^2 / r^2
+    ```
 
     which is asymptotic (the ``n!`` diverges) with optimal truncation at
     ``n ~ 1/x``. Two terms are kept. Measured against the actual convolution that
@@ -241,14 +241,14 @@ def kellerer_ratio_sum(
 ) -> float:
     r"""``sum_i h(d(x_i)) / d(x_i)`` over Kellerer-weighted sample points.
 
-    The whole inner loop of :meth:`LEM1.kellerer_field_integral`. Because the
+    The whole inner loop of `LEM1.kellerer_field_integral`. Because the
     sampling density is the local dose, the estimator only needs this ratio sum;
     the ``D_tot`` prefactor is exact and stays on the Python side.
 
     ``dose_bg`` is the uniform far-field background from the ``b_cut_um`` split,
     added to every point. With ``analytic`` the radial lookup needs no sqrt, log,
     binary search or exp -- only a compare and a divide on the *squared*
-    distance. See :func:`_profile_dose` for ``r_switch`` / ``two_sigma2``.
+    distance. See `_profile_dose` for ``r_switch`` / ``two_sigma2``.
     """
     total = 0.0
     n = cx.size
@@ -652,7 +652,7 @@ def kellerer_z_samples(
 ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """Per-realization ``(z, S)`` pairs, weighted sampler, in parallel.
 
-    The sample-returning twin of :func:`kellerer_accumulate`, for survival
+    The sample-returning twin of `kellerer_accumulate`, for survival
     conditioned on specific energy rather than on dose. Both come out of the same
     track configuration, which is the whole point -- ``S(z)`` is an average over
     configurations that produced a given ``z``, so the two must not be sampled

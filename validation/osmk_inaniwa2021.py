@@ -110,27 +110,27 @@ FIGURES = figures_dir(globals().get("__file__"))
 if quick_mode():
     print("QUICK MODE (PYRADBIO_QUICK=1): thinned LET sampling and scan -- numbers not quotable")
 
-#: The LET -> energy inversion keeps the analytic Bethe stopping power the
-#: reconstruction was scored with (the MKM-family models themselves use the
-#: library default; that mixed state is kept here).
+# The LET -> energy inversion keeps the analytic Bethe stopping power the
+# reconstruction was scored with (the MKM-family models themselves use the
+# library default; that mixed state is kept here).
 SP = SimpleBetheStoppingPower()
-#: LETs per series in the tables, panel 3 and the scan table. CHO carries 9
-#: species-pressure combinations, so it is sampled less densely.
+# LETs per series in the tables, panel 3 and the scan table. CHO carries 9
+# species-pressure combinations, so it is sampled less densely.
 SAMPLES = pick({"HSG": 18, "V79": 18, "CHO": 8}, {"HSG": 5, "V79": 5, "CHO": 3})
-#: LETs per series in panels 1, 2 and 4.
+# LETs per series in panels 1, 2 and 4.
 PANEL_SAMPLES = pick(18, 5)
-#: Panel 5: rescaling factors scanned, and LETs per series at each (13 factors x
-#: 3 cell lines, so each is kept cheap).
+# Panel 5: rescaling factors scanned, and LETs per series at each (13 factors x
+# 3 cell lines, so each is kept cheap).
 SCAN_FACTORS = np.linspace(0.95, 1.40, pick(13, 4))
 SCAN_SAMPLES = pick(5, 3)
 
 COLOURS = {"He": "C0", "C": "C3", "N": "C1", "O": "C4", "Ne": "C2", "Si": "C5"}
-#: Fig. 7 carries two categorical dimensions, so it needs two visual channels --
-#: and it is clearest to encode them the way the paper itself does: pO2 by
-#: colour, ion by line style.
+# Fig. 7 carries two categorical dimensions, so it needs two visual channels --
+# and it is clearest to encode them the way the paper itself does: pO2 by
+# colour, ion by line style.
 PO2_COLOURS = {0.0: "black", 1.14: "tab:green", 3.8: "tab:blue", 15.2: "tab:red"}
 ION_STYLES = {"C": "-", "N": "--", "O": ":", "Si": "-."}
-#: ...and the paper's own marker shapes, so the measured points carry the ion too
+# ...and the paper's own marker shapes, so the measured points carry the ion too
 ION_MARKERS = {"C": "o", "N": "D", "O": "^", "Si": "v"}
 
 
@@ -144,11 +144,11 @@ def tinted(colour: str, weight: float = 0.38, toward: str = "0.90") -> tuple[flo
     return tuple(weight * c + (1.0 - weight) * g)
 
 
-#: The microdosimetry (``z_d,D``, ``z*_d,D``, ``z_n,D``) depends only on the site
-#: geometry and the ion, never on the oxygen parameters scanned below, so the
-#: library's spectrum-MKM microdosimetry cache scores each (site, ion) once. The
-#: panel-5 scan asks for the same (site, ion) hundreds of times over; uncached,
-#: the original script took about twenty minutes.
+# The microdosimetry (``z_d,D``, ``z*_d,D``, ``z_n,D``) depends only on the site
+# geometry and the ion, never on the oxygen parameters scanned below, so the
+# library's spectrum-MKM microdosimetry cache scores each (site, ion) once. The
+# panel-5 scan asks for the same (site, ion) hundreds of times over; uncached,
+# the original script took about twenty minutes.
 CELLS: dict[str, tuple[OSMK2021, OSMK2023]] = {
     "HSG": (OSMK2021.hsg_inaniwa2021(), OSMK2023.hsg_inaniwa2023()),
     "V79": (OSMK2021.v79_inaniwa2021(), OSMK2023.v79_inaniwa2023()),

@@ -1,7 +1,7 @@
 """Inaniwa et al. 2021 figs. 5-7 -- the OSMK oxygen-enhancement-ratio benchmark.
 
 doi:10.1088/1361-6560/ac29cc. The digitization and its traps are documented in
-:mod:`pyradbio.benchmark.inaniwa2021`; the reconstruction result and the open
+`pyradbio.benchmark.inaniwa2021`; the reconstruction result and the open
 V79 discrepancy in ``docs/references/OSMK_Inaniwa2021_2023.md``.
 
 Two layers:
@@ -9,7 +9,7 @@ Two layers:
 * **digitization integrity** -- the thirty series load, cover the LET range the
   paper fitted, and satisfy properties the figures themselves assert (the OER
   falls from ~3 towards unity; the model curve passes through its own points);
-* **@golden reconstruction** -- our :class:`OSMK2021`, driven from nothing but
+* **@golden reconstruction** -- our `OSMK2021`, driven from nothing but
   the ion species, the quoted LET and the oxygen pressure, against the paper's
   own curves. CHO (fig. 7) lands at RMS 0.4% over four species and four
   pressures with the published parameters untouched, and HSG at 3.1%; V79 at
@@ -352,7 +352,7 @@ class TestReconstruction:
     """OSMK 2021 vs the paper's own curves, from the ion, its LET and the pO2.
 
     Ground truth is figs. 5-7, which predate the 2023 revision, so only
-    :class:`OSMK2021` is scored here.
+    `OSMK2021` is scored here.
     """
 
     def test_cho_reconstructs_the_paper_curves_at_every_oxygen_pressure(self) -> None:
@@ -428,7 +428,7 @@ class TestReconstruction:
         page); the eq.-(24) expansion ceiling (the anoxic ``D_10`` reaches at most
         45% of it); the digitization (re-traced by hand, agreeing with an
         independent automated trace); and -- see
-        :meth:`test_the_correction_v79_needs_is_not_a_domain_radius_effect` --
+        `test_the_correction_v79_needs_is_not_a_domain_radius_effect` --
         anything geometric in our own microdosimetry. The residual is a single
         constant: eq. (14) reads ``z_d,D`` only through ``(z_d,D/z_R)^g``, and V79
         needs that ratio moved 25% where HSG needs 6% and CHO none. Pinned so it

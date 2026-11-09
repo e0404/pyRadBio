@@ -1,6 +1,6 @@
 """SMK -- stochastic microdosimetric kinetic model (Inaniwa & Kanematsu 2018).
 
-Physics acceptance for :class:`~pyradbio.models.mkm.spectrum_models.StochasticMKM`
+Physics acceptance for `pyradbio.models.mkm.spectrum_models.StochasticMKM`
 (doi:10.1088/1361-6560/aabede; equations restated in
 ``docs/references/SMK_Inaniwa2018.md``):
 
@@ -405,7 +405,7 @@ def test_smk_deep_overkill_falls_outside_the_expansion_validity_range() -> None:
     ``z_n`` is large enough there that ``gamma D`` exceeds unity (a >100%
     correction) well before the iso-survival dose is reached, so the truncated
     second-order expansion is extrapolating. The model must *report* that via
-    :meth:`survival_valid_to_Gy` rather than return a confident number -- this
+    `survival_valid_to_Gy` rather than return a confident number -- this
     pins the guard, and documents why the trend test above stops at 10 MeV/u.
     """
     smk = StochasticMKM(nucleus_radius_um=4.3)

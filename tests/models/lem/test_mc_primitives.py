@@ -1,4 +1,4 @@
-"""Public Monte-Carlo primitives of :class:`~pyradbio.models.lem.base.LEMBase`.
+"""Public Monte-Carlo primitives of `pyradbio.models.lem.base.LEMBase`.
 
 ``mean_traversals`` / ``near_traversals`` reproduce the original Scholz 1997
 batch-script functions, and ``resolve_mc_engine`` replaces the scripts'

@@ -27,17 +27,19 @@ class LinearScaling(RBEMinMaxModel):
     (which it cites as ref. 8): ``alpha_p = alpha_0 + lambda*LET`` with
     ``beta_p = beta_x``, so ``RBE_min = 1`` here too. What Frese contributes is a
     **calibration** that removes ``alpha_0`` as a free parameter and ties it to
-    the tissue::
+    the tissue:
 
-        alpha_0 = alpha_x - 0.5 keV/um * lambda        (eq. 6)
+    ```text
+    alpha_0 = alpha_x - 0.5 keV/um * lambda        (eq. 6)
+    ```
 
     The argument is clinical, not biological: the RBE is taken to be 1.0 in the
     entrance channel, where the dose-averaged LET is about 0.5 keV/um. So unlike
-    :class:`.WilkensOelfke`, **this model does reduce to the photon reference** --
+    [`WilkensOelfke`][], **this model does reduce to the photon reference** --
     not at zero LET, but at the entrance LET, exactly by construction.
 
     ``lambda`` is then fixed by requiring the mean RBE over the target to come out
-    at the clinical 1.1 (eq. 8, exposed as :meth:`lambda_for_target_rbe`); the
+    at the clinical 1.1 (eq. 8, exposed as [`lambda_for_target_rbe`][]); the
     default 0.008 um/(keV Gy) is the four-patient average from the paper's table 4.
     One ``lambda`` is used for all tissues, the paper's own words being that
     "evidence for different lambda values in different tissues is scarce".

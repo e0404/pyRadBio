@@ -3,11 +3,11 @@
 The MKM *biophysics* -- ``alpha = alpha0 + beta * z*_1D`` (Inaniwa 2010) -- is
 deliberately separated from the *engine* that computes the saturation-corrected
 dose-mean specific energy ``z*_1D``. pyRadBio ships the pyMKM-free default
-engine (:class:`~pyradbio.models.mkm.native_backend.NativeMKMBackend`) and a
+engine ([`NativeMKMBackend`][]) and a
 pyMKM-backed one for validation
-(:class:`~pyradbio.models.mkm.pymkm_backend.PyMKMBackend`, optional ``mkm``
-extra), but **any** object satisfying :class:`MKMBackend` can be handed to
-:class:`~pyradbio.models.mkm.model.MKMModel` without changing the model or its
+([`PyMKMBackend`][pyradbio.models.mkm.pymkm_backend.PyMKMBackend], optional ``mkm``
+extra), but **any** object satisfying [`MKMBackend`][] can be handed to
+[`MKMModel`][] without changing the model or its
 callers.
 
 A backend owns the microdosimetry/track-structure computation and is configured
@@ -97,7 +97,7 @@ class MKMBackend(Protocol):
     def let_keV_um(self, ion: Ion) -> float:
         """Unrestricted LET [keV/um] the engine uses for this ion.
 
-        :class:`~pyradbio.models.mkm.model.MKMModel` needs it to turn
+        [`MKMModel`][] needs it to turn
         fluence-specified mixed-field components into dose weights, and it must be
         the engine's own LET so the dose weights and ``z*_1D`` agree.
         """

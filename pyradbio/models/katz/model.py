@@ -6,17 +6,19 @@ cell killing is attributed to the dose deposited by delta rays, and a cell is
 described by exactly **four fitted parameters** -- ``sigma_0``, ``E_0``,
 ``kappa`` and ``m``.
 
-Equations, numbered as in the paper::
+Equations, numbered as in the paper:
 
-    (3)   P     = (1 - e^{-E/E_0})^m                   m-target 1-hit site response
-    (4)   S     = integral 2 pi t (1 - e^{-E/E_0})^m dt   ion-kill cross section
-    (8)   P     = sigma/sigma_0 = (1 - e^{-z*^2/(kappa beta^2)})^m
-    (9)   N'    = N_0 e^{-sigma F}                     ion-kill survivors
-    (10)  N/N_0 = e^{-sigma F} (1 - [1 - e^{-(1-P)E/E_0}]^m)
-    (11)  E     = F L
-    (12)  z*    = Z [1 - e^{-125 Z^{-2/3} beta}]       Barkas effective charge
-    (14)  k     = sigma_0 P / L + (1-P) / E_0          extrapolated radiosensitivity
-    (15)  sigma_ext = k L
+```text
+(3)   P     = (1 - e^{-E/E_0})^m                   m-target 1-hit site response
+(4)   S     = integral 2 pi t (1 - e^{-E/E_0})^m dt   ion-kill cross section
+(8)   P     = sigma/sigma_0 = (1 - e^{-z*^2/(kappa beta^2)})^m
+(9)   N'    = N_0 e^{-sigma F}                     ion-kill survivors
+(10)  N/N_0 = e^{-sigma F} (1 - [1 - e^{-(1-P)E/E_0}]^m)
+(11)  E     = F L
+(12)  z*    = Z [1 - e^{-125 Z^{-2/3} beta}]       Barkas effective charge
+(14)  k     = sigma_0 P / L + (1-P) / E_0          extrapolated radiosensitivity
+(15)  sigma_ext = k L
+```
 
 **Two inactivation modes.** A cell traversed by a single ion may be killed
 outright (*ion-kill*, eq. 9), while the dose that does not act that way pools
@@ -68,35 +70,38 @@ from pyradbio.track.stopping_power import (
     effective_charge,
 )
 
-#: Absorbed dose unit conversion. 1 Gy = 1 J/kg = 1e7 erg / 1e3 g = 1e4 erg/g,
-#: and for water (rho = 1 g/cm^3) 1 erg/g = 1 erg/cm^3. Katz tabulates ``E_0``
-#: in erg/cm^3 throughout (e.g. Chinese hamster E_0 = 1.95e4 = 1.95 Gy).
 ERG_CM3_PER_GY: float = 1.0e4
+"""Absorbed dose unit conversion. 1 Gy = 1 J/kg = 1e7 erg / 1e3 g = 1e4 erg/g,
+and for water (rho = 1 g/cm^3) 1 erg/g = 1 erg/cm^3. Katz tabulates ``E_0``
+in erg/cm^3 throughout (e.g. Chinese hamster E_0 = 1.95e4 = 1.95 Gy).
+"""
 
-#: Above this log-kill ``S = exp(-log_kill)`` underflows double precision, and
-#: eq. (3)'s inverse is its exponential asymptote ``E_0 (log_kill + ln m)``.
 _KATZ_ASYMPTOTIC_LOG_KILL: float = 700.0
+"""Above this log-kill ``S = exp(-log_kill)`` underflows double precision, and
+eq. (3)'s inverse is its exponential asymptote ``E_0 (log_kill + ln m)``.
+"""
 
-#: 1 cm^2 = 1e8 um^2. Katz tabulates ``sigma_0`` in cm^2 (Chinese hamster
-#: 5.0e-7 cm^2 = 50 um^2, the classic nuclear cross-section).
 UM2_PER_CM2: float = 1.0e8
+"""1 cm^2 = 1e8 um^2. Katz tabulates ``sigma_0`` in cm^2 (Chinese hamster
+5.0e-7 cm^2 = 50 um^2, the classic nuclear cross-section).
+"""
 
 
 @dataclass(frozen=True, slots=True)
 class KatzKillTerms:
-    """Eq. (14) split into its two modes [Gy^-1]; :meth:`KatzCellularModel.kill_terms_per_Gy`.
+    """Eq. (14) split into its two modes [Gy^-1]; [`KatzCellularModel.kill_terms_per_Gy`][].
 
     ``ion_kill = sigma_0 P / L`` (per unit dose, via ``F = D/L``) and
     ``gamma_kill = (1-P)/E_0``. Their sum is the extrapolated radiosensitivity
-    ``k`` of :meth:`KatzCellularModel.radiosensitivity_per_Gy`, bit for bit.
+    ``k`` of [`KatzCellularModel.radiosensitivity_per_Gy`][], bit for bit.
     """
 
-    #: ``P = sigma/sigma_0`` (eq. 8): the fraction of the dose routed to ion-kill.
     ion_kill_probability: float
-    #: ``sigma_0 P / L`` [Gy^-1].
+    """``P = sigma/sigma_0`` (eq. 8): the fraction of the dose routed to ion-kill."""
     ion_kill: float
-    #: ``(1-P) / E_0`` [Gy^-1].
+    """``sigma_0 P / L`` [Gy^-1]."""
     gamma_kill: float
+    """``(1-P) / E_0`` [Gy^-1]."""
 
     @property
     def total(self) -> float:
@@ -110,39 +115,42 @@ class KatzCellularModel(BiophysicalModel):
 
     ``sigma0_cm2``, ``E0_erg_cm3``, ``kappa`` and ``m`` are stored in the paper's
     own cgs units so a preset can be checked against a printed figure panel
-    without arithmetic. Use :attr:`sigma0_um2` / :attr:`E0_Gy` for repo units.
+    without arithmetic. Use [`sigma0_um2`][] / [`E0_Gy`][] for repo units.
 
     Every equation can be called with an explicit ``let_keV_um``; the routes
-    that take a bare :class:`~pyradbio.core.radiation.Ion` fall back to
-    :attr:`stopping_power`.
+    that take a bare [`Ion`][] fall back to
+    [`stopping_power`][].
     """
 
-    #: Saturation ion-kill cross section [cm^2] (eq. 8).
     sigma0_cm2: float
-    #: Extrapolated gamma-ray D-37 dose [erg/cm^3] (eq. 3).
+    """Saturation ion-kill cross section [cm^2] (eq. 8)."""
     E0_erg_cm3: float
-    #: Dimensionless track-structure parameter, "related to the size of the
-    #: sensitive element" (eq. 8); larger kappa means a less sensitive cell.
+    """Extrapolated gamma-ray D-37 dose [erg/cm^3] (eq. 3)."""
     kappa: float
-    #: Gamma-ray extrapolation number (eq. 3). ``m = 1`` is a pure 1-hit system.
+    """Dimensionless track-structure parameter, "related to the size of the
+    sensitive element" (eq. 8); larger kappa means a less sensitive cell.
+    """
     m: float
-    #: Supplies LET for the ``Ion`` routes. Defaults to the library default
-    #: (:func:`~pyradbio.track.stopping_power.default_stopping_power`, analytic
-    #: Bethe), as for every other family. NB Katz's own fits were
-    #: made against the 1960s ``L`` tables in his Table I, not against this.
+    """Gamma-ray extrapolation number (eq. 3). ``m = 1`` is a pure 1-hit system."""
     stopping_power: StoppingPower = field(default_factory=default_stopping_power)
+    """Supplies LET for the ``Ion`` routes. Defaults to the library default
+    ([`default_stopping_power`][], analytic
+    Bethe), as for every other family. NB Katz's own fits were
+    made against the 1960s ``L`` tables in his Table I, not against this.
+    """
     density_g_cm3: float = WATER_DENSITY_G_CM3
-    #: Provenance: the Radiat. Res. figure whose panel prints these four values.
     reference_figure: str = ""
-    #: The survival data the fit was made against (a citation, not a dependency).
+    """Provenance: the Radiat. Res. figure whose panel prints these four values."""
     data_source: str = ""
+    """The survival data the fit was made against (a citation, not a dependency)."""
     reference_doi: str = "10.2307/3573247"
 
-    #: Not LQ (multi-target shoulder) and no mixed fields: eq. (10) is a product
-    #: of two non-LQ modes, not a dose average.
     capabilities: ClassVar[ModelCapabilities] = ModelCapabilities(mixed_field=False, lq_exact=False)
-    #: Eq. (4) and the track-width regime are not implemented -- see module docs.
+    """Not LQ (multi-target shoulder) and no mixed fields: eq. (10) is a product
+    of two non-LQ modes, not a dose average.
+    """
     track_width_regime_implemented: ClassVar[bool] = False
+    """Eq. (4) and the track-width regime are not implemented -- see module docs."""
 
     def __post_init__(self) -> None:
         if self.sigma0_cm2 <= 0.0:
@@ -170,7 +178,7 @@ class KatzCellularModel(BiophysicalModel):
     def effective_charge(z: int, beta: float) -> float:
         """Eq. (12) ``z* = Z[1 - exp(-125 Z^{-2/3} beta)]``.
 
-        Identical to :func:`pyradbio.track.stopping_power.effective_charge`, the
+        Identical to [`pyradbio.track.stopping_power.effective_charge`][], the
         Barkas form this package already ships -- Katz eq. (12) *is* that
         formula, so it is delegated rather than duplicated.
         """
@@ -193,7 +201,7 @@ class KatzCellularModel(BiophysicalModel):
         """Ion-kill cross section ``sigma = sigma_0 P`` [um^2] (eq. 8).
 
         Saturates at ``sigma_0`` by construction: this is the grain-count regime
-        only (see :attr:`track_width_regime_implemented`).
+        only (see [`track_width_regime_implemented`][]).
         """
         return self.sigma0_um2 * self.ion_kill_probability(z, beta)
 
@@ -294,7 +302,7 @@ class KatzCellularModel(BiophysicalModel):
 
         The product of the two modes, because the ion-kill survivors are taken as
         the initial population for gamma-kill. Accepts a scalar or an array of
-        doses; mixed fields are refused (see :attr:`capabilities`).
+        doses; mixed fields are refused (see [`capabilities`][]).
         """
         ion = self._require_ion(field)
         if np.ndim(dose_Gy) == 0:
@@ -370,8 +378,8 @@ class KatzCellularModel(BiophysicalModel):
         """Katz has no **LQ** photon reference: it raises.
 
         The model carries its own, multi-target, gamma-ray curve
-        (:meth:`photon_survival`, eq. 3 with ``E_0`` and ``m``), which RBE
-        uses directly -- see :meth:`_reference_dose_for_log_kill`. There is no
+        ([`photon_survival`][], eq. 3 with ``E_0`` and ``m``), which RBE
+        uses directly -- see `_reference_dose_for_log_kill`. There is no
         ``(alpha_x, beta_x)`` pair to return without inventing one.
         """
         raise PhotonReferenceError(
@@ -383,10 +391,10 @@ class KatzCellularModel(BiophysicalModel):
     def photon_dose_for_survival(self, survival_fraction: float) -> float:
         """Gamma-ray dose [Gy] at which eq. (3) reaches ``survival_fraction``.
 
-        The closed-form inverse of :meth:`photon_survival`,
+        The closed-form inverse of [`photon_survival`][],
         ``D = -E_0 ln(1 - (1 - S)^{1/m})`` -- the numerator (reference dose) of an
         RBE that stays inside the published four-parameter set (the photon dose of
-        :meth:`rbe_at_survival`).
+        [`rbe_at_survival`][]).
         """
         if not 0.0 < survival_fraction <= 1.0:
             raise ValueError(f"survival fraction must be in (0, 1], got {survival_fraction!r}")
@@ -425,7 +433,8 @@ class KatzCellularModel(BiophysicalModel):
         The *extrapolated* radiosensitivity: the reciprocal dose increment that
         reduces survival by ``1/e`` on the exponential (high-dose) part of the
         curve, obtained by expanding the binomial of eq. (10). It is **not** the
-        initial slope -- see :meth:`alpha_beta`.
+        initial slope -- see
+        [`alpha_beta`][pyradbio.models.katz.model.KatzCellularModel.alpha_beta].
 
         The first term is ion-kill (per unit dose, via ``F = D/L``), the second
         gamma-kill. They swap rank across the LET range, which is the model's
@@ -436,7 +445,7 @@ class KatzCellularModel(BiophysicalModel):
     def kill_terms_per_Gy(self, z: int, beta: float, *, let_keV_um: float) -> KatzKillTerms:
         """Eq. (14) term by term: ion-kill ``sigma_0 P / L`` and gamma-kill ``(1-P)/E_0``.
 
-        The split :meth:`radiosensitivity_per_Gy` sums. At low LET almost all of
+        The split [`radiosensitivity_per_Gy`][] sums. At low LET almost all of
         ``k`` is gamma-kill; once ``P -> 1`` the gamma-kill term vanishes and ``k``
         collapses to ``sigma_0 / L``, which falls with LET (overkill).
         """
@@ -470,7 +479,7 @@ class KatzCellularModel(BiophysicalModel):
         (``m = 2.5`` for most cell lines), not as ``D^2``. There is no quadratic
         coefficient to report. Consequently the true ``D -> 0`` slope is the
         ion-kill term alone, which at low LET is near zero -- use
-        :meth:`survival` for anything dose-resolved rather than reading a
+        [`survival`][] for anything dose-resolved rather than reading a
         survival curve back out of these parameters.
         """
         let = self._let(ion, None)
@@ -605,7 +614,7 @@ class KatzCellularModel(BiophysicalModel):
 
         ``sigma_0 = 5.0e-7 cm^2 = 50 um^2`` -- the same effective nuclear
         cross-section Scholz & Kraft later use for V79 (see
-        :meth:`pyradbio.core.cell.CellTarget.effective_nucleus_radius_um`).
+        [`pyradbio.core.cell.CellTarget.effective_nucleus_radius_um`][]).
         """
         return cls(
             sigma0_cm2=5.0e-7,

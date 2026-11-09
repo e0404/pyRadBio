@@ -7,17 +7,19 @@ from typing import ClassVar
 
 from pyradbio.models.phenomenological.base import RBEMinMax, RBEMinMaxModel
 
-#: Slope of ``alpha/alpha_x`` against ``LET_d/(alpha/beta)_x`` [Gy um / keV].
-#: Wedenberg et al. 2013 Results: the least-squares fit of eq. (2) to the
-#: experimental ``alpha/alpha_phot`` ratios gives **q = 0.434, 95% CI
-#: (0.366, 0.513)** -- verified against the primary paper.
 WEDENBERG_Q = 0.434
+"""Slope of ``alpha/alpha_x`` against ``LET_d/(alpha/beta)_x`` [Gy um / keV].
+Wedenberg et al. 2013 Results: the least-squares fit of eq. (2) to the
+experimental ``alpha/alpha_phot`` ratios gives **q = 0.434, 95% CI
+(0.366, 0.513)** -- verified against the primary paper.
+"""
 
-#: Rorvik et al. 2018 (doi:10.1088/1361-6560/aad9db) appendix reports a refit of
-#: the same model on a database restricted to <= 20 keV/um, giving a *reduced*
-#: slope of 0.378. Not the default -- the 0.434 above is Wedenberg's own value --
-#: but useful if comparing against work that used the restricted fit.
 WEDENBERG_Q_RESTRICTED_20_KEV = 0.378
+"""Rorvik et al. 2018 (doi:10.1088/1361-6560/aad9db) appendix reports a refit of
+the same model on a database restricted to <= 20 keV/um, giving a *reduced*
+slope of 0.378. Not the default -- the 0.434 above is Wedenberg's own value --
+but useful if comparing against work that used the restricted fit.
+"""
 
 
 @dataclass(frozen=True, slots=True)
@@ -25,10 +27,12 @@ class Wedenberg(RBEMinMaxModel):
     """Wedenberg et al. 2013, Acta Oncol. 52:580, doi:10.3109/0284186X.2012.705892.
 
     The model assumes ``alpha`` rises linearly with ``LET_d`` at a rate set by the
-    tissue, and that ``beta`` does not depend on LET at all::
+    tissue, and that ``beta`` does not depend on LET at all:
 
-        RBE_max = 1 + q * LET_d / (alpha/beta)_x        with q = 0.434
-        RBE_min = 1
+    ```text
+    RBE_max = 1 + q * LET_d / (alpha/beta)_x        with q = 0.434
+    RBE_min = 1
+    ```
 
     The paper's title states the claim the fit rests on: "the tissue specific
     parameter alpha/beta of photons is a predictor for the sensitivity to LET

@@ -25,33 +25,32 @@ Per-line nuclear areas (Suzuki 2000, Table 3)
 ---------------------------------------------
 Elsasser 2008 sets each cell's nuclear radius from Suzuki 2000's per-line nuclear
 *area* and takes 80% of it as the effective target radius (Table 1 caption; the
-factor is on the **radius**, :data:`EFFECTIVE_SIZE_FACTOR`, confirmed against the
+factor is on the **radius**, [`EFFECTIVE_SIZE_FACTOR`][], confirmed against the
 Methods: "the effective nuclear radius is approximately 80% of the average nuclear
 radius"). Those areas are **not** reprinted in the LEM III paper; they are
 transcribed here from Suzuki et al. 2000 (doi:10.1016/S0360-3016(00)00568-X,
-:data:`SUZUKI2000_DOI`, Table 3, "Area of cell nuclei"). Suzuki measured them as
+[`SUZUKI2000_DOI`][], Table 3, "Area of cell nuclei"). Suzuki measured them as
 an ellipse ``pi * a/2 * b/2`` from stained photographs, so the equivalent
-geometric radius is ``sqrt(area / pi)`` (:meth:`SuzukiCell.geometric_radius_um`);
-pass that to :class:`~pyradbio.core.cell.CellTarget` with
-``effective_size_factor=`` :data:`EFFECTIVE_SIZE_FACTOR`. (Suzuki lists 16 lines;
+geometric radius is ``sqrt(area / pi)`` ([`SuzukiCell.geometric_radius_um`][]);
+pass that to [`CellTarget`][] with
+``effective_size_factor=`` [`EFFECTIVE_SIZE_FACTOR`][]. (Suzuki lists 16 lines;
 Elsasser dropped U-251MG(KO), leaving the 15 here.)
 
-.. important::
+!!! important
+    **The 77 keV/um channel needs these per-line areas; a single representative
+    radius is not enough.** With the areas, LEM III reproduces the paper's
+    ``dRBE_alpha(77)`` to 0.004 RMS for 14 of the 15 lines (LEM II: 0.037),
+    versus a flat ``R_n = 5 um`` which mis-sizes the sensitive lines. The **13
+    keV/um channel is nearly radius-independent** and matches per cell either way.
 
-   **The 77 keV/um channel needs these per-line areas; a single representative
-   radius is not enough.** With the areas, LEM III reproduces the paper's
-   ``dRBE_alpha(77)`` to 0.004 RMS for 14 of the 15 lines (LEM II: 0.037),
-   versus a flat ``R_n = 5 um`` which mis-sizes the sensitive lines. The **13
-   keV/um channel is nearly radius-independent** and matches per cell either way.
-
-   **KS-1 is the one line the areas do not rescue.** It has the panel's highest
-   ``alpha_x`` (0.74 Gy^-1), and our LEM overkills its high-LET track centre:
-   ``dRBE_alpha(77)`` sits at about -0.50 (predicted RBE_alpha ~1.5 vs the
-   experimental 3.0) against the paper's 0.00, independent of the nuclear radius.
-   This is a genuine per-cell over-prediction of overkill for a high-``alpha_x``
-   line, not a nuclear-size effect (see docs/references/LEM_III_Elsasser2008.md).
-   It is excluded from the tight per-cell
-   77 keV/um check in the golden test and flagged in the example.
+    **KS-1 is the one line the areas do not rescue.** It has the panel's highest
+    ``alpha_x`` (0.74 Gy^-1), and our LEM overkills its high-LET track centre:
+    ``dRBE_alpha(77)`` sits at about -0.50 (predicted RBE_alpha ~1.5 vs the
+    experimental 3.0) against the paper's 0.00, independent of the nuclear radius.
+    This is a genuine per-cell over-prediction of overkill for a high-``alpha_x``
+    line, not a nuclear-size effect (see docs/references/LEM_III_Elsasser2008.md).
+    It is excluded from the tight per-cell
+    77 keV/um check in the golden test and flagged in the example.
 
 Photon LQ inputs (Suzuki 2000, Table 2)
 ---------------------------------------
@@ -65,12 +64,12 @@ reproduces to the printed digit from Suzuki's carbon and X-ray alphas (KNS-60:
 0.1805/0.03156 = 5.72 as printed, whereas the printed 0.03 would give 6.02),
 and switching to them roughly halves our per-cell dRBE(13) residuals for every
 version (LEM III 77 keV/um: 0.029 -> 0.004 RMS). Elsasser's printed values are
-kept in :data:`ELSASSER2008_PRINTED_PHOTON_LQ`; one of them, SK-MG-1
+kept in [`ELSASSER2008_PRINTED_PHOTON_LQ`][]; one of them, SK-MG-1
 ``beta_x`` = 0.054, is not a rounding of Suzuki's 0.05292 and is recorded as a
-misprint (:data:`ELSASSER2008_BETA_X_MISPRINTS`).
+misprint ([`ELSASSER2008_BETA_X_MISPRINTS`][]).
 
 Both table averages reproduce from the transcribed per-cell values to the paper's
-rounding (see :data:`PAPER_AVERAGE_DELTA` and the module test), which validates
+rounding (see [`PAPER_AVERAGE_DELTA`][] and the module test), which validates
 the transcription of the signs (the tumor-channel deviations are negative) and
 the interleaved D_t +-10% error columns.
 """
@@ -115,15 +114,15 @@ class SuzukiCell:
     """One Suzuki 2000 cell line as tabulated in Elsasser 2008 Tables 1 and 2.
 
     ``rbe_alpha_exp`` is the experimental initial-slope RBE at the two carbon
-    qualities :data:`CHANNEL_LET_keV_um`; ``D_t`` is the chi^2-fitted transition
+    qualities [`CHANNEL_LET_keV_um`][]; ``D_t`` is the chi^2-fitted transition
     dose for each model version; ``dRBE_13``/``dRBE_77`` are the paper's own
     signed deviations ``RBE_LEM/RBE_exp - 1`` at 13 / 77 keV/um, with
     ``dRBE_*_err`` the paper's error estimate from a +-10% variation of the most
-    sensitive parameter ``D_t``. Every 3-tuple is indexed by :data:`MODEL_NAMES`
+    sensitive parameter ``D_t``. Every 3-tuple is indexed by [`MODEL_NAMES`][]
     order (LEM I, II, III).
 
     ``nucleus_area_um2`` is Suzuki 2000's measured nuclear area (Table 3); the
-    *geometric* radius is :meth:`geometric_radius_um`. Build the panel's cell with
+    *geometric* radius is [`geometric_radius_um`][]. Build the panel's cell with
     ``CellTarget(nucleus_radius_um=cell.geometric_radius_um,
     effective_size_factor=EFFECTIVE_SIZE_FACTOR)``.
     """
@@ -154,9 +153,9 @@ class SuzukiCell:
         """Equivalent-circle geometric nuclear radius ``sqrt(area / pi)`` [um].
 
         Suzuki measured the area as an ellipse; this is its area-equivalent
-        radius. Multiply by :data:`EFFECTIVE_SIZE_FACTOR` for the LEM target
+        radius. Multiply by [`EFFECTIVE_SIZE_FACTOR`][] for the LEM target
         radius (or, equivalently, pass ``effective_size_factor`` to
-        :class:`~pyradbio.core.cell.CellTarget`).
+        [`CellTarget`][]).
         """
         return math.sqrt(self.nucleus_area_um2 / math.pi)
 
@@ -414,7 +413,7 @@ class InVivoInputs:
     """Rat spinal-cord in-vivo photon inputs (Elsasser 2008 Fig. 1 / Fig. 3).
 
     Used for the tolerance comparison of Karger et al. 2006; ``D_t`` is indexed by
-    :data:`MODEL_NAMES`. The RBE there is derived from a 1-cm spread-out Bragg peak
+    [`MODEL_NAMES`][]. The RBE there is derived from a 1-cm spread-out Bragg peak
     at 50% complication probability, which needs a depth-dose engine, so it is a
     documented input set rather than a reproduced curve.
     """
@@ -434,8 +433,8 @@ RAT_SPINAL_CORD = InVivoInputs(0.1, 0.05, 5.0, (30.0, 9.5, 60.0))
 def paper_mean_delta(version: int) -> tuple[float, float]:
     """Signed mean ``(dRBE_alpha(13), dRBE_alpha(77))`` over the panel for ``version``.
 
-    Computed from :data:`SUZUKI_PANEL`; rounds to the published
-    :data:`PAPER_AVERAGE_DELTA`.
+    Computed from [`SUZUKI_PANEL`][]; rounds to the published
+    [`PAPER_AVERAGE_DELTA`][].
     """
     n = len(SUZUKI_PANEL)
     m13 = sum(c.dRBE_13[version] for c in SUZUKI_PANEL) / n
@@ -445,10 +444,11 @@ def paper_mean_delta(version: int) -> tuple[float, float]:
 
 # --- reconstruction machinery ---------------------------------------------------
 
-#: One panel row per cell line: ``(RBE_alpha predicted at 13, predicted at 77,
-#: experimental at 13, experimental at 77)`` -- the column order of the Tables 1-2
-#: reconstruction (:func:`predict_panel`).
 PanelRow = tuple[float, float, float, float]
+"""One panel row per cell line: ``(RBE_alpha predicted at 13, predicted at 77,
+experimental at 13, experimental at 77)`` -- the column order of the Tables 1-2
+reconstruction ([`predict_panel`][]).
+"""
 
 
 def channel_ions(
@@ -459,11 +459,11 @@ def channel_ions(
     """Carbon-12 ions at the two Tables 1-2 qualities, 13 and 77 keV/um in water.
 
     Elsasser, Kraemer & Scholz 2008 (doi:10.1016/j.ijrobp.2008.02.037) degrade a
-    290 MeV/u carbon beam to the :data:`CHANNEL_LET_keV_um` of the entrance channel
+    290 MeV/u carbon beam to the [`CHANNEL_LET_keV_um`][] of the entrance channel
     and the Bragg-peak region; in water those are carbon at ~282-285 and ~25 MeV/u.
     Each energy is the root of ``LET(E) = LET`` bracketed on exactly
     ``energy_bounds_MeV_u`` with scipy's default tolerances
-    (:func:`~pyradbio.track.stopping_power.energy_for_let_MeV_u`,
+    ([`energy_for_let_MeV_u`][],
     ``branch="bracket"``) -- the inline ``brentq(..., 1.5, 500.0)`` of the
     reconstruction script and the LEM III golden tests, bit for bit.
     """
@@ -487,18 +487,18 @@ def build_panel_model(
     stopping_power: StoppingPower,
     cluster: ClusterResponse | None = None,
 ) -> LEM1 | LEM2 | LEM3:
-    """The LEM version ``name`` (one of :data:`MODEL_NAMES`) for one panel line.
+    """The LEM version ``name`` (one of [`MODEL_NAMES`][]) for one panel line.
 
     The photon reference is ``PhotonParameters(alpha_x, beta_x, D_t=d_t,
-    cluster=ClusterParameters())``. ``"LEM I"`` is a :class:`LEM1` (no cluster);
-    ``"LEM II"`` / ``"LEM III"`` are :class:`LEM2` / :class:`LEM3` with ``cluster``
+    cluster=ClusterParameters())``. ``"LEM I"`` is a [`LEM1`][] (no cluster);
+    ``"LEM II"`` / ``"LEM III"`` are [`LEM2`][] / [`LEM3`][] with ``cluster``
     (``None``: the model's own default). ``stopping_power`` is required, with no
     default, so the models cannot silently use a different stopping power from the
-    one that placed the ions (pass the same object to :func:`channel_ions`). Every
+    one that placed the ions (pass the same object to [`channel_ions`][]). Every
     model uses its version's default radial dose and initial-slope method.
 
     Raises:
-        ValueError: if ``name`` is not one of :data:`MODEL_NAMES`.
+        ValueError: if ``name`` is not one of [`MODEL_NAMES`][].
     """
     if name not in MODEL_NAMES:
         raise ValueError(f"name must be one of {MODEL_NAMES}, got {name!r}")
@@ -519,12 +519,12 @@ def predict_panel(
 ) -> tuple[PanelRow, ...]:
     """``RBE_alpha`` of LEM version ``name`` for every line of ``panel`` (Tables 1-2).
 
-    Per line: :func:`build_panel_model` with the line's photon LQ, its version's
-    ``D_t`` and :meth:`SuzukiCell.cell_target`; then
+    Per line: [`build_panel_model`][] with the line's photon LQ, its version's
+    ``D_t`` and [`SuzukiCell.cell_target`][]; then
     ``alpha_beta(ion).alpha / alpha_x`` at the two ``ions`` (13, 77 keV/um, see
-    :func:`channel_ions`, built with the same ``stopping_power``, which is required
+    [`channel_ions`][], built with the same ``stopping_power``, which is required
     so the ions and the models cannot mix stopping powers). Returns one
-    :data:`PanelRow` per line, in panel order:
+    [`PanelRow`][] per line, in panel order:
     ``(predicted 13, predicted 77, experimental 13, experimental 77)``.
     """
     version = MODEL_NAMES.index(name)
@@ -550,8 +550,8 @@ def predict_panel(
 def mean_delta(rows: Sequence[PanelRow]) -> tuple[float, float]:
     """Signed mean ``dRBE_alpha = RBE_pred/RBE_exp - 1`` at (13, 77) keV/um.
 
-    Our analogue of the Tables 1-2 "Average" rows (:data:`PAPER_AVERAGE_DELTA`) for
-    rows from :func:`predict_panel`.
+    Our analogue of the Tables 1-2 "Average" rows ([`PAPER_AVERAGE_DELTA`][]) for
+    rows from [`predict_panel`][].
     """
     arr = np.array(rows)
     d13 = arr[:, 0] / arr[:, 2] - 1.0
@@ -569,9 +569,9 @@ def per_cell_rms(
 ) -> float:
     """RMS over ``panel`` of (our ``dRBE_alpha`` - the paper's tabulated one).
 
-    ``rows`` come from :func:`predict_panel` for the same ``panel`` and model
+    ``rows`` come from [`predict_panel`][] for the same ``panel`` and model
     ``name``; ``channel`` is 0 for 13 keV/um and 1 for 77 keV/um; lines named in
-    ``exclude`` are dropped (e.g. :data:`OUTLIER_CELLS_77`). The paper's value is
+    ``exclude`` are dropped (e.g. [`OUTLIER_CELLS_77`][]). The paper's value is
     ``dRBE_13`` / ``dRBE_77`` of Elsasser 2008 Tables 1-2.
 
     Raises:

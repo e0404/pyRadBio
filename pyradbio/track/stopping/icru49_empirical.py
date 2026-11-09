@@ -3,15 +3,19 @@
 ICRU Report 49 (1993), sec. 3.3/3.4. Stopping cross section ``eps`` in
 ``1e-15 eV cm^2`` per molecule:
 
-* protons, ``T_s = T[keV] / (M_p/u)`` (eqs. 3.1, 3.2)::
+* protons, ``T_s = T[keV] / (M_p/u)`` (eqs. 3.1, 3.2):
 
-      eps = eps_low eps_high / (eps_low + eps_high)                    T_s >= 10 keV
-      eps_low = A2 T_s^0.45,  eps_high = (A3/T_s) ln(1 + A4/T_s + A5 T_s)
-      eps = A1 T_s^0.5                                                  1-10 keV
+```text
+eps = eps_low eps_high / (eps_low + eps_high)                    T_s >= 10 keV
+eps_low = A2 T_s^0.45,  eps_high = (A3/T_s) ln(1 + A4/T_s + A5 T_s)
+eps = A1 T_s^0.5                                                  1-10 keV
+```
 
-* alphas, ``T`` = alpha kinetic energy in MeV, 1 keV to 10 MeV (eq. 3.3)::
+* alphas, ``T`` = alpha kinetic energy in MeV, 1 keV to 10 MeV (eq. 3.3):
 
-      eps_low = a1 (1000 T)^a2,  eps_high = (a3/T) ln(1 + a4/T + a5 T)
+```text
+eps_low = a1 (1000 T)^a2,  eps_high = (a3/T) ln(1 + a4/T + a5 T)
+```
 
 ICRU 49 used these, with water's own refitted coefficients (ID 276, Tables 3.1 and 3.5),
 below its cut-off ``T1`` and joined them to Bethe above ``T2`` (Table 3.7) by a cubic
@@ -21,7 +25,7 @@ tables equal ICRU 49's below ``T1``, measured).
 This module holds only the formulae; the coefficients are raw data
 (``data/stopping/icru49/PROVENANCE.md``). ``scripts/stopping/build_tables.py`` evaluates
 them onto our grid and ships ``data/icru49_empirical_water.csv``, which
-:class:`~pyradbio.track.stopping.icru90_procedure.ICRU90Procedure` reads.
+[`ICRU90Procedure`][] reads.
 """
 
 from __future__ import annotations

@@ -10,7 +10,7 @@ import pytest
 PACKAGE = Path(__file__).resolve().parents[1] / "pyradbio"
 DATA_FILES = sorted(PACKAGE.glob("**/data/*.csv"))
 
-#: A DOI, a pointer to the source's PROVENANCE.md, or a table pyRadBio computed itself.
+# A DOI, a pointer to the source's PROVENANCE.md, or a table pyRadBio computed itself.
 _ATTRIBUTION = re.compile(r"doi[:./ ]|10\.\d{4,}/|PROVENANCE\.md|computed by pyRadBio", re.I)
 
 

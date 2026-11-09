@@ -15,11 +15,11 @@ panels), and the error bar is the plain scatter of the seed mean.
 
 Output: ``<out>/lem4_friedrich2012_mc.csv`` (default ``validation/data/``), one row
 per ``(let_keV_um, seed)``, written through
-:class:`pyradbio.benchmark.checkpoint.CsvCheckpoint` after every seed, so an
+`pyradbio.benchmark.checkpoint.CsvCheckpoint` after every seed, so an
 interrupted run resumes where it stopped. The header records the provenance
 (stopping power, engine, window, sample sizes, code version) and the numeric
 fingerprint: one small NumPy run at a fixed seed
-(:data:`pyradbio.benchmark.friedrich2012.FIG4_MC_FINGERPRINT_POINTS`), which
+(`pyradbio.benchmark.friedrich2012.FIG4_MC_FINGERPRINT_POINTS`), which
 ``tests/models/lem/test_lem4_mc_fingerprint.py`` recomputes. A resumed run
 recomputes it first and refuses to add rows if the code has changed since the
 banked ones. ``validation/lem4_elsasser2010_friedrich2012.py`` overlays the result.

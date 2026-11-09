@@ -22,8 +22,8 @@ require strictly positive inputs. Residual stratification (by ion species and by
 alpha/β) is done by the caller on the per-point residuals, not here.
 
 Two curve-level summaries, used by the reconstruction scripts, sit beside them:
-:func:`shape_residuals` (a model curve vs a digitized paper curve at the paper's
-x-values: point residuals plus the scale-vs-shape split) and :func:`ratio_summary`
+[`shape_residuals`][] (a model curve vs a digitized paper curve at the paper's
+x-values: point residuals plus the scale-vs-shape split) and [`ratio_summary`][]
 (the ``ours / reference`` ratio statistics the scripts print). Printing stays in
 the scripts.
 """
@@ -76,7 +76,7 @@ def mean_absolute_log_error(predicted: Sequence[float], measured: Sequence[float
 
     The headline goodness-of-fit number (lower is better); insensitive to the
     sign of the deviation. Same positivity/shape requirements as
-    :func:`mean_log_error`.
+    [`mean_log_error`][].
     """
     residuals = _log10_residuals(predicted, measured)
     return math.fsum(abs(r) for r in residuals) / len(residuals)

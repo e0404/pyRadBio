@@ -1,12 +1,12 @@
 """Numba-accelerated kernel for the local-dose box average.
 
-Optional acceleration of :func:`pyradbio.models.lem._localdose.box_averaged_profile`,
+Optional acceleration of `pyradbio.models.lem._localdose.box_averaged_profile`,
 which is ~94% of a ``LEM4.local_dose_beta`` call: a per-``rho`` loop of independent
 2-D numerical integrals (the direction-averaged circle-in-square overlap ``K(r, rho)``
 folded against the radial dose). The loop over ``rho`` is embarrassingly parallel and
 pure floating point, so it maps onto a ``prange`` kernel for a ~20-25x speedup.
 
-Unlike :mod:`._lem4_kernel`, this kernel is **numerically identical** to the NumPy
+Unlike `_lem4_kernel`, this kernel is **numerically identical** to the NumPy
 reference to machine precision (max relative error ~1e-13): it runs the *same*
 trapezoidal quadrature over the *same* log-``r`` / linear-``delta`` nodes, just as a
 compiled loop instead of vectorised NumPy. There is no polynomial-``i0e`` / Simpson
@@ -14,7 +14,7 @@ substitution to diverge, so the accelerated path needs no separate tolerance and
 dose-area conservation identity holds identically.
 
 Numba is an optional (``fast`` extra) dependency. Without it the ``@njit`` decorators
-degrade to no-ops, :data:`HAVE_NUMBA` is ``False``, and the kernel is never called
+degrade to no-ops, `HAVE_NUMBA` is ``False``, and the kernel is never called
 (``box_averaged_profile`` uses its NumPy path), so importing this module never requires
 numba.
 """

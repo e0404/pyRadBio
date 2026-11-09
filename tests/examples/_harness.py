@@ -17,7 +17,7 @@ import pytest
 
 from pyradbio.plotting import FIGURES_DIR_ENV
 
-#: Wall-time ceiling for one example (120 s).
+# Wall-time ceiling for one example (120 s).
 EXAMPLE_BUDGET_S = 120.0
 
 
@@ -105,15 +105,15 @@ def run_script(path: Path, monkeypatch: pytest.MonkeyPatch, figures: Path) -> Sc
     return ScriptRun(tuple(written), elapsed)
 
 
-#: The ``validation/_common.py`` exits that mean "not runnable here", by class
-#: name (robust to ``_common`` being imported under another module name).
+# The ``validation/_common.py`` exits that mean "not runnable here", by class
+# name (robust to ``_common`` being imported under another module name).
 _SKIP_EXITS = frozenset({"MissingDataExit", "MissingExtraExit"})
 
 
 def run_validation_script(
     path: Path, monkeypatch: pytest.MonkeyPatch, figures: Path, validation_dir: Path
 ) -> ScriptRun:
-    """:func:`run_script` in quick mode with ``validation_dir`` importable.
+    """`run_script` in quick mode with ``validation_dir`` importable.
 
     A ``MissingDataExit`` / ``MissingExtraExit`` becomes ``pytest.skip`` (this
     machine lacks the external data or the optional extra); any other

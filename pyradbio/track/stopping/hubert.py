@@ -5,9 +5,9 @@ F. Hubert, R. Bimbot and H. Gauvin, At. Data Nucl. Data Tables 46, 1 (1990), eq.
     S(Z, v) = (gamma Z / 2)^2 S_alpha(v)
 
 with their effective-charge fraction ``gamma`` (eqs. 2-9,
-:class:`~pyradbio.track.stopping.effective_charge.HubertEffectiveCharge`) and the alpha
+[`HubertEffectiveCharge`][]) and the alpha
 stopping power at the same velocity. Their alphas came from Ziegler's fits; ours from
-:class:`~pyradbio.track.stopping.icru90_procedure.ICRU90Procedure`, i.e. ICRU 90's alpha
+[`ICRU90Procedure`][], i.e. ICRU 90's alpha
 table (``alpha`` is an option). Hubert et al. fitted ``gamma`` to ~600 measurements, O to U
 in solids at 3-90 MeV/u, and tabulate 2.5-500 MeV/u; the lower limit 2.5 MeV/u (where the
 alpha reference is fully stripped) is this model's energy range start. Above 500 MeV/u
@@ -22,8 +22,8 @@ Ne -1.9/-2.0/-1.3%, Si +7.2/-1.4/-1.4%, Ar +6.6/-1.5/-1.5% vs MSTAR; within 4.7%
 73 at all of them; ICRU 90 carbon 1.2% over 2.5-300 MeV/u. For Z > 18 no water reference
 is held; Hubert et al. report ~5% agreement with Ar, Kr, Xe, Pb and U data in solids.
 
-It is the default stopping power's branch for Z > 18 (:func:`~pyradbio.track.stopping_power
-.default_stopping_power`).
+It is the default stopping power's branch for Z > 18
+([`default_stopping_power`][pyradbio.track.stopping_power.default_stopping_power]).
 """
 
 from __future__ import annotations
@@ -38,10 +38,10 @@ from pyradbio.track.stopping.base import IonSourceInfo, MassStoppingPowerModel, 
 from pyradbio.track.stopping.effective_charge import HUBERT_1990, HubertEffectiveCharge
 from pyradbio.track.stopping.masses import nuclear_mass_MeV
 
-#: Hubert et al.'s lower tabulation limit, where helium is fully stripped [MeV/u].
 HUBERT_MIN_ENERGY_MEV_U = 2.5
-#: Heaviest ion with shipped isotope masses.
+"""Hubert et al.'s lower tabulation limit, where helium is fully stripped [MeV/u]."""
 HUBERT_MAX_Z = 92
+"""Heaviest ion with shipped isotope masses."""
 
 
 class HubertAlphaScaling(MassStoppingPowerModel):

@@ -1,21 +1,21 @@
 """Native, pyMKM-free MKM engine (Kiefer-Chatterjee track structure).
 
-The default :class:`~pyradbio.models.mkm.base.MKMBackend` of
-:class:`~pyradbio.models.mkm.model.MKMModel`; it needs no optional extra.
-:class:`~pyradbio.models.mkm.pymkm_backend.PyMKMBackend` is its pyMKM-backed
+The default [`MKMBackend`][] of
+[`MKMModel`][]; it needs no optional extra.
+[`PyMKMBackend`][pyradbio.models.mkm.pymkm_backend.PyMKMBackend] is its pyMKM-backed
 cross-check. It reuses pyRadBio's own pieces:
 
 * the **analytic impact-parameter integral** of an amorphous
-  :class:`~pyradbio.track.base.RadialDoseModel` over the **MKM domain disk**
-  (:func:`~pyradbio.micro.impact_parameter.specific_energy_impact_profile`,
+  [`RadialDoseModel`][] over the **MKM domain disk**
+  ([`specific_energy_impact_profile`][pyradbio.micro.impact_parameter.specific_energy_impact_profile],
   ``geometry="cylinder"`` -- pyMKM's own cylinder-perpendicular-to-track
   geometry) -- by default the **Kiefer-Chatterjee** track, the same track
   structure pyMKM uses. This is deterministic (no delta-ray Monte Carlo, no
   straggling model) and robust across the whole energy range;
 * the Kase 2006 / Inaniwa 2010 saturation
-  (:func:`~pyradbio.models.mkm.spectrum_models.saturation_y0_keV_um` + the profile's
+  ([`saturation_y0_keV_um`][] + the profile's
   saturation-corrected dose-mean) -- the same ``y -> z*`` math as
-  :class:`~pyradbio.models.mkm.spectrum_models.ModifiedMKM`.
+  [`ModifiedMKM`][].
 
 Accuracy: with the (correct) domain-disk geometry ``z*_1D`` tracks pyMKM within
 ~1-6% across ions (H-O) and energies (1-400 MeV/u). The saturation parameter
@@ -24,7 +24,7 @@ match pyMKM's ``SpecificEnergy`` exactly, so the only residual is the amorphous
 Kiefer-Chatterjee track vs pyMKM's own. (A spherical domain instead overshoots
 ``z*_1D`` by +25-40% at high energy -- the geometry, not the track model, was the
 discrepancy.) The exact Inaniwa golden values remain a ``@requires_pymkm`` check on
-:class:`PyMKMBackend`.
+[`PyMKMBackend`][pyradbio.models.mkm.pymkm_backend.PyMKMBackend].
 
 Pass ``engine=<SpectrumEngine>`` to instead compute ``z*_1D`` from a single-event
 lineal-energy spectrum (analytic straggling or the amorphous + delta-ray Monte
@@ -53,9 +53,9 @@ from pyradbio.track.stopping_power import StoppingPower, default_stopping_power
 class NativeMKMBackend:
     """MKM engine computing ``z*_1D`` from Kiefer-Chatterjee track structure.
 
-    Satisfies :class:`~pyradbio.models.mkm.base.MKMBackend`. Geometry and the
+    Satisfies [`MKMBackend`][]. Geometry and the
     saturation parameter ``beta0`` are fixed at construction (as in
-    :class:`~pyradbio.models.mkm.pymkm_backend.PyMKMBackend`); the methods depend
+    [`PyMKMBackend`][pyradbio.models.mkm.pymkm_backend.PyMKMBackend]); the methods depend
     only on the ion. Defaults are Inaniwa 2010 HSG geometry with a
     Kiefer-Chatterjee radial dose evaluated by analytic impact-parameter integration.
     """
@@ -106,7 +106,7 @@ class NativeMKMBackend:
     def let_keV_um(self, ion: Ion) -> float:
         """Unrestricted LET [keV/um] from this engine's ``stopping_power``.
 
-        Part of the :class:`MKMBackend` protocol: the model uses it for the
+        Part of the [`MKMBackend`][] protocol: the model uses it for the
         fluence -> dose weights of mixed fields.
         """
         return self.stopping_power.let_keV_um(ion)

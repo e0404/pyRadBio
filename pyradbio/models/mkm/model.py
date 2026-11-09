@@ -1,10 +1,10 @@
 """Engine-agnostic MKM model.
 
-:class:`MKMModel` owns the MKM *biophysics* -- the LQ mapping
+[`MKMModel`][] owns the MKM *biophysics* -- the LQ mapping
 ``alpha = alpha0 + beta * z*_1D`` (Inaniwa 2010) -- and delegates the
-``z*_1D`` computation to a pluggable :class:`~pyradbio.models.mkm.base.MKMBackend`.
+``z*_1D`` computation to a pluggable [`MKMBackend`][].
 The default backend is the pyMKM-free
-:class:`~pyradbio.models.mkm.native_backend.NativeMKMBackend`; inject another to
+[`NativeMKMBackend`][]; inject another to
 swap engines without touching the model:
 
     MKMModel(...)                            # default: NativeMKMBackend built from params
@@ -30,12 +30,12 @@ from pyradbio.core.radiation import Ion
 from pyradbio.models.base import BiophysicalModel, ModelCapabilities, PhotonReferenceError
 from pyradbio.models.mkm.base import MKMAlphaBetaTable, MKMAlphaBetaTableRow, MKMBackend
 
-#: Inaniwa 2010 HSG defaults (doi:10.1088/0031-9155/55/22/008, Table 2).
 _DEFAULT_GEOMETRY: dict[str, float] = {
     "domain_radius_um": 0.32,
     "nucleus_radius_um": 3.9,
     "beta0": 0.0615,  # Gy^-2
 }
+"""Inaniwa 2010 HSG defaults (doi:10.1088/0031-9155/55/22/008, Table 2)."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -44,7 +44,7 @@ class MKMModel(BiophysicalModel):
 
     Parameters configure both the LQ mapping (``alpha0``, ``beta0``) and -- when
     no explicit ``backend`` is supplied -- the default
-    :class:`~pyradbio.models.mkm.native_backend.NativeMKMBackend` built from the
+    [`NativeMKMBackend`][] built from the
     geometry (``None`` = the Inaniwa 2010 HSG value). With an injected
     ``backend``, ``None`` geometry fields take the backend's values and an
     explicit value that disagrees with the backend raises ``ValueError``.
@@ -61,9 +61,10 @@ class MKMModel(BiophysicalModel):
     alpha0: float = 0.172  # Gy^-1
     beta0: float | None = None  # Gy^-2
     backend: MKMBackend | None = None
-    #: Photon reference for RBE (:meth:`reference`). Optional: the MKM's
-    #: ``alpha0``/``beta0`` do not need one, so ``None`` leaves RBE undefined.
     photon: PhotonParameters | None = None
+    """Photon reference for RBE ([`reference`][]). Optional: the MKM's
+    ``alpha0``/``beta0`` do not need one, so ``None`` leaves RBE undefined.
+    """
 
     def __post_init__(self) -> None:
         # Frozen: every resolved value is written once, here, via object.__setattr__.
@@ -93,7 +94,7 @@ class MKMModel(BiophysicalModel):
         object.__setattr__(self, "backend", backend)
 
     def reference(self) -> PhotonParameters:
-        """The photon reference :attr:`photon`; raises if none was supplied."""
+        """The photon reference [`photon`][]; raises if none was supplied."""
         if self.photon is None:
             raise PhotonReferenceError(
                 "MKMModel needs photon=PhotonParameters(...) for RBE: alpha0/beta0 "
@@ -122,8 +123,8 @@ class MKMModel(BiophysicalModel):
     def _mixing_quantities(self, ion: Ion) -> tuple[float, ...]:
         """MKM mixes on ``z*_1D`` (Inaniwa 2010, eq. 8 / appendix), not on alpha.
 
-        For a mixed :class:`RadiationField` the inherited
-        :meth:`BiophysicalModel.alpha_beta` template dose-averages this
+        For a mixed [`RadiationField`][] the inherited
+        [`BiophysicalModel.alpha_beta`][] template dose-averages this
         quantity, integrating binned components over their energy range.
         """
         return (self._resolve_backend().z_star_1D_Gy(ion),)
@@ -141,12 +142,12 @@ class MKMModel(BiophysicalModel):
     ) -> MKMAlphaBetaTable:
         """An (ion Z, energy) table of ``z*_1D`` *and* the LQ pair, from the backend.
 
-        Uses the backend's batched :meth:`~pyradbio.models.mkm.base.MKMBackend.z_star_1D_table_Gy`
-        and augments each row with ``alpha = alpha0 + beta0 * z*_1D`` and
-        ``beta = beta0``. Unlike the generic
-        :meth:`~pyradbio.models.base.BiophysicalModel.alpha_beta_table` (an
-        :class:`~pyradbio.tables.alpha_beta.AlphaBetaTable`, which every model
-        returns) the rows keep the MKM-specific ``z*_1D`` and LET columns.
+        Uses the backend's batched
+        [`z_star_1D_table_Gy`][pyradbio.models.mkm.base.MKMBackend.z_star_1D_table_Gy] and augments
+        each row with ``alpha = alpha0 + beta0 * z*_1D`` and ``beta = beta0``. Unlike the generic
+        [`alpha_beta_table`][pyradbio.models.base.BiophysicalModel.alpha_beta_table] (an
+        [`AlphaBetaTable`][pyradbio.tables.alpha_beta.AlphaBetaTable], which every model returns)
+        the rows keep the MKM-specific ``z*_1D`` and LET columns.
         """
         backend = self._resolve_backend()
         beta0 = self._geometry("beta0")
@@ -169,6 +170,6 @@ class MKMModel(BiophysicalModel):
         """LET [keV/um] lookup for fluence -> dose conversion in mixed fields.
 
         Only invoked when a component is specified by fluence rather than dose.
-        Every :class:`MKMBackend` provides ``let_keV_um`` (part of the protocol).
+        Every [`MKMBackend`][] provides ``let_keV_um`` (part of the protocol).
         """
         return backend.let_keV_um

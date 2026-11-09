@@ -32,7 +32,7 @@
 # systematic deviation from experiment shrinks from LEM I to LEM II to LEM III.
 # The panel (photon LQ, experimental RBE$_\alpha$, per-version $D_t$, each line's
 # Suzuki 2000 nuclear area, the paper's own $\Delta$RBE$_\alpha$ and "Average" rows)
-# and the reconstruction machinery live in :mod:`pyradbio.benchmark.elsasser2008`.
+# and the reconstruction machinery live in `pyradbio.benchmark.elsasser2008`.
 #
 # Quick mode (`PYRADBIO_QUICK=1`) scores every third panel line and a 5-point
 # LET curve; only the full run's numbers are the reference.

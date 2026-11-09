@@ -14,8 +14,8 @@ Quick mode
     knob is written ``pick(full, quick)``.
 
 Exits
-    :class:`MissingDataExit` and :class:`MissingExtraExit` subclass
-    :class:`SystemExit`, so a script run from the command line stops with the
+    `MissingDataExit` and `MissingExtraExit` subclass
+    `SystemExit`, so a script run from the command line stops with the
     message (exit status 1) and no traceback, while the smoke harness can tell
     "this machine lacks the data / extra" (a skip) from a real failure.
 
@@ -54,13 +54,13 @@ __all__ = [
 
 T = TypeVar("T")
 
-#: Environment variable that switches a validation script to its cheap settings.
+# Environment variable that switches a validation script to its cheap settings.
 QUICK_ENV = "PYRADBIO_QUICK"
 
 _FALSY = frozenset({"", "0", "false", "no", "off"})
 
-#: How the exit message names each dataset (``Dataset.key`` -> label). A dataset
-#: not listed here is called ``"<key> reference data"``.
+# How the exit message names each dataset (``Dataset.key`` -> label). A dataset
+# not listed here is called ``"<key> reference data"``.
 _DATA_LABELS: dict[str, str] = {
     "trip98": "TRiP98 reference data",
     "survival": "Survival reference data",
@@ -70,7 +70,7 @@ _DATA_LABELS: dict[str, str] = {
     "lineal_energy_decunha": "DeCunha 2025 lineal-energy library",
 }
 
-#: How the exit message names an optional module (import name -> display name).
+# How the exit message names an optional module (import name -> display name).
 _MODULE_LABELS: dict[str, str] = {"pymkm": "pyMKM", "dotenv": "python-dotenv"}
 
 
@@ -112,14 +112,14 @@ def require_data(loader: Callable[..., T], *args: Any, dataset: Dataset, **kw: A
     *args, **kw:
         Forwarded to ``loader``.
     dataset:
-        The :class:`~pyradbio.datasets.Dataset` the loader reads; it names the
+        The `pyradbio.datasets.Dataset` the loader reads; it names the
         environment variable in the message.
 
     Raises
     ------
     MissingDataExit
-        When the loader raises :class:`~pyradbio.datasets.MissingDatasetError`
-        or :class:`FileNotFoundError` (the directory is configured but the file
+        When the loader raises `pyradbio.datasets.MissingDatasetError`
+        or `FileNotFoundError` (the directory is configured but the file
         is missing). Other errors propagate unchanged.
     """
     try:

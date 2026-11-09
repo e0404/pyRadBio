@@ -100,7 +100,7 @@ def test_rbe_at_dose_agrees_with_the_core_lq_inversion() -> None:
     ``r = (alpha/beta)_x`` (doi:10.1088/0031-9155/60/21/8399), because that form
     survives to arbitrarily large dose where ``S = exp(-aD-bD^2)`` underflows.
     Here it is checked against the independent route -- build alpha/beta, then
-    invert through :mod:`pyradbio.core.lq` -- at a clinical dose where both work.
+    invert through `pyradbio.core.lq` -- at a clinical dose where both work.
 
     They agree by the identity ``D_ion(S(D)) = D``, so this also pins the two
     RBE definitions against each other at their one common point.
@@ -546,8 +546,8 @@ def test_wilkens_warns_outside_its_stated_let_range() -> None:
 
 # -- Frese et al. 2011 -------------------------------------------------------
 
-#: Frese et al. 2011 table 3, a subset: (tissue, alpha_x, beta_x, alpha_0).
-#: alpha_x/beta_x were derived from D50, gamma and (alpha/beta) via Lof et al.
+# Frese et al. 2011 table 3, a subset: (tissue, alpha_x, beta_x, alpha_0).
+# alpha_x/beta_x were derived from D50, gamma and (alpha/beta) via Lof et al.
 FRESE_TABLE3 = [
     ("nasopharyngeal_t1_t2", 0.1124, 0.0112, 0.1084),
     ("nasopharyngeal_t3_t4", 0.0854, 0.0085, 0.0814),
@@ -591,7 +591,7 @@ def test_frese_rbe_is_exactly_one_at_the_entrance_let() -> None:
         assert model.rbe_at_dose_from_let(0.5, 2.0) == pytest.approx(1.0)
 
 
-#: Frese et al. 2011 table 4: (patient, alpha_x, beta_x, mean LET, mean D, lambda_1.1).
+# Frese et al. 2011 table 4: (patient, alpha_x, beta_x, mean LET, mean D, lambda_1.1).
 FRESE_TABLE4 = [
     ("A", 0.0854, 0.0085, 2.13, 2.00, 0.0074),
     ("B", 0.0854, 0.0085, 2.22, 2.00, 0.0070),

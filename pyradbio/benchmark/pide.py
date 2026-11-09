@@ -6,17 +6,17 @@ distributed as an Excel workbook (``PIDE3.4.xlsx``) after registration with an
 institutional e-mail. It is NOT redistributable and NOT bundled here.
 
 By default the loader reads from the local, git-ignored ``data/pide/`` folder
-(see :func:`default_pide_dir`); drop your own PIDE export there. An explicit
+(see [`default_pide_dir`][]); drop your own PIDE export there. An explicit
 path always overrides this: ``--pide PATH`` / ``find_pide_file(path)``. The
 ``PYRADBIO_PIDE_DIR`` environment variable overrides the default folder.
 
 Tested against the schema documented in ``docs/references/pide_schema.md`` (LQ
 formalism ``-ln S = alpha*d + beta*d^2`` for both the ion exposure and its matched
 photon reference). The loader matches each logical field against a set of
-aliases (:data:`_ALIASES`) rather than a fixed name, so it also reads the synthetic
+aliases (`_ALIASES`) rather than a fixed name, so it also reads the synthetic
 CI fixture. Each PIDE row already pairs an ion exposure with its photon reference,
-so a row maps one-to-one onto a :class:`PideEntry`, which *is* the harness's
-:class:`~pyradbio.benchmark.dataset.ReferenceRecord`.
+so a row maps one-to-one onto a [`PideEntry`][], which *is* the harness's
+[`ReferenceRecord`][].
 """
 
 from __future__ import annotations
@@ -54,19 +54,21 @@ __all__ = [
     "parse_pide_rows",
 ]
 
-#: Which LQ-parameter flavour to read from PIDE. The workbook carries both the
-#: as-published values (``*_paper``) and PIDE's own consistent refits
-#: (``*_fit``); the refits cover more rows (~1010 vs ~545 in 3.4), so the default
-#: prefers them and falls back to paper per field. See ``pide_schema.md``.
 LQVariant = Literal["fit", "paper", "fit_then_paper", "paper_then_fit"]
+"""Which LQ-parameter flavour to read from PIDE. The workbook carries both the
+as-published values (``*_paper``) and PIDE's own consistent refits
+(``*_fit``); the refits cover more rows (~1010 vs ~545 in 3.4), so the default
+prefers them and falls back to paper per field. See ``pide_schema.md``.
+"""
 
-#: Default folder, relative to the working directory, searched for PIDE files.
-#: Git-ignored except for its README (see .gitignore). Override via the
-#: PYRADBIO_PIDE_DIR environment variable.
 DEFAULT_PIDE_DIRNAME = "data/pide"
+"""Default folder, relative to the working directory, searched for PIDE files.
+Git-ignored except for its README (see .gitignore). Override via the
+PYRADBIO_PIDE_DIR environment variable.
+"""
 
-#: Spreadsheet/data suffixes recognised as PIDE files, in preference order.
 _PIDE_SUFFIXES = (".xlsx", ".xls", ".dat", ".csv", ".ascii", ".txt")
+"""Spreadsheet/data suffixes recognised as PIDE files, in preference order."""
 
 PIDE_CITATION = (
     "Friedrich T, Scholz U, Elsasser T, Durante M, Scholz M. J Radiat Res 2013;54:494-514 "
@@ -74,8 +76,6 @@ PIDE_CITATION = (
     "(doi:10.1093/jrr/rrab034). PIDE 3.4."
 )
 
-#: What a reader must know before believing a score against PIDE (rendered into
-#: every report). Sources: the PIDE 3.4 information sheet, sections 1-2.
 PIDE_CAVEATS: tuple[str, ...] = (
     "PIDE pairs every ion exposure with its own photon reference from the same "
     "publication; alpha_x/beta_x are therefore the experiment's own, not a "
@@ -89,13 +89,16 @@ PIDE_CAVEATS: tuple[str, ...] = (
     "counterpart with a stopping-power code (ATIMA); for SOBP rows the energy is "
     "the monoenergetic beam that would give the same LET (section 1, note *).",
 )
+"""What a reader must know before believing a score against PIDE (rendered into
+every report). Sources: the PIDE 3.4 information sheet, sections 1-2.
+"""
 
 
 @dataclass(frozen=True, slots=True)
 class PideEntry(ReferenceRecord):
     """One PIDE ion-exposure record with its matched photon reference.
 
-    A :class:`~pyradbio.benchmark.dataset.ReferenceRecord` with PIDE's own
+    A [`ReferenceRecord`][] with PIDE's own
     provenance in ``source`` (``"pide:<PublicationName>"``, e.g.
     ``"pide:furusawa00"``). See ``docs/references/pide_schema.md``.
     """
@@ -107,8 +110,8 @@ class PideObservation:
 
     Missing LET or LQ quantities stay ``None`` so cross-checks can compare the
     available quantities without selecting only complete experiments. Units
-    and LQ convention follow :class:`ReferenceRecord` (doi:10.1093/jrr/rrs114).
-    Use :func:`load_pide` for the benchmark's complete :class:`PideEntry` records.
+    and LQ convention follow [`ReferenceRecord`][] (doi:10.1093/jrr/rrs114).
+    Use [`load_pide`][] for the benchmark's complete [`PideEntry`][] records.
     """
 
     cell_line: str
@@ -125,10 +128,6 @@ class PideObservation:
 
 
 # --- header matching -------------------------------------------------------
-#: Non-LQ logical field -> set of accepted *normalised* header aliases.
-#: Normalisation (see :func:`normalise_header`) lower-cases and strips
-#: non-alphanumerics, so ``alpha_X``/``Alpha X``/``alphaX`` all collapse to
-#: ``alphax`` and PIDE's ``Cells``/``Charge``/``Energy`` are matched too.
 _ALIASES: Mapping[str, tuple[str, ...]] = {
     "cell_line": ("cells", "cell", "cellline", "celltype", "name"),
     "Z": ("charge", "z", "atomicnumber"),
@@ -140,16 +139,22 @@ _ALIASES: Mapping[str, tuple[str, ...]] = {
     # and ``PublicationName`` (``furusawa00``); the name is the provenance key.
     "publication": ("publicationname", "publication", "source"),
 }
+"""Non-LQ logical field -> set of accepted *normalised* header aliases.
+Normalisation (see [`normalise_header`][]) lower-cases and strips
+non-alphanumerics, so ``alpha_X``/``Alpha X``/``alphaX`` all collapse to
+``alphax`` and PIDE's ``Cells``/``Charge``/``Energy`` are matched too.
+"""
 
-#: LQ field -> (PIDE stem, generic aliases). The stem yields the PIDE ``*_fit`` /
-#: ``*_paper`` pair (e.g. ``ai`` -> ``aifit``/``aipaper``); the generic aliases
-#: cover other exports and the synthetic fixture (``alpha_I`` -> ``alphai``).
 _LQ_FIELDS: Mapping[str, tuple[str, frozenset[str]]] = {
     "alpha_ion": ("ai", frozenset({"alphai", "alphal", "alphaion", "alpha"})),
     "beta_ion": ("bi", frozenset({"betai", "betal", "betaion", "beta"})),
     "alpha_x": ("ax", frozenset({"alphax", "alpharef", "alphaphoton"})),
     "beta_x": ("bx", frozenset({"betax", "betaref", "betaphoton"})),
 }
+"""LQ field -> (PIDE stem, generic aliases). The stem yields the PIDE ``*_fit`` /
+``*_paper`` pair (e.g. ``ai`` -> ``aifit``/``aipaper``); the generic aliases
+cover other exports and the synthetic fixture (``alpha_I`` -> ``alphai``).
+"""
 
 
 def _variant_order(variant: LQVariant) -> tuple[str, ...]:
@@ -259,7 +264,7 @@ def parse_pide_observations(
     """Parse PIDE rows while preserving missing LET/LQ quantities as ``None``.
 
     Header aliases and per-field fit/paper fallback are the same as in
-    :func:`parse_pide_rows`. Only unresolved ions are skipped, or raise with
+    [`parse_pide_rows`][]. Only unresolved ions are skipped, or raise with
     ``strict=True``. Missing measurements remain missing even in strict mode.
     """
     return _parse_pide_observations(headers, rows, strict=strict, variant=variant)
@@ -277,7 +282,7 @@ def parse_pide_rows(
     ``variant`` selects fit/paper LQ columns with per-field fallback for the
     ``*_then_*`` modes. Unresolved ions and rows missing LET or any LQ quantity
     are skipped, or raise with ``strict=True``. For comparisons of individual
-    quantities, use :func:`parse_pide_observations` to retain partial rows.
+    quantities, use [`parse_pide_observations`][] to retain partial rows.
     """
     observations = _parse_pide_observations(
         headers, rows, strict=strict, variant=variant, require_complete=True
@@ -320,7 +325,7 @@ def find_pide_file(path: str | Path | None = None) -> Path:
 
     Resolution order:
     1. ``path`` is a file -> use it.
-    2. ``path`` is a directory (or ``None`` -> :func:`default_pide_dir`) ->
+    2. ``path`` is a directory (or ``None`` -> [`default_pide_dir`][]) ->
        pick the highest-preference PIDE file in it (``.xlsx`` first).
 
     Raises ``FileNotFoundError`` with guidance if nothing usable is found.
@@ -354,10 +359,10 @@ def load_pide(
     strict: bool = False,
     variant: LQVariant = "fit_then_paper",
 ) -> list[PideEntry]:
-    """Parse a PIDE ``.xlsx``/``.csv`` export into typed :class:`PideEntry` records.
+    """Parse a PIDE ``.xlsx``/``.csv`` export into typed [`PideEntry`][] records.
 
     ``path`` may be a file, a directory, or ``None`` (use the default folder);
-    see :func:`find_pide_file`. ``variant`` selects PIDE's ``*_fit``/``*_paper``
+    see [`find_pide_file`][]. ``variant`` selects PIDE's ``*_fit``/``*_paper``
     LQ columns. Incomplete rows are skipped unless ``strict``. Never writes or
     commits the PIDE file itself.
     """
@@ -370,7 +375,7 @@ def load_pide_dataset(
     *,
     variant: LQVariant = "fit_then_paper",
 ) -> ReferenceDataset:
-    """:func:`load_pide` wrapped as a :class:`~pyradbio.benchmark.dataset.ReferenceDataset`."""
+    """[`load_pide`][] wrapped as a [`ReferenceDataset`][]."""
     return ReferenceDataset(
         name="PIDE",
         records=tuple(load_pide(path, variant=variant)),
@@ -388,7 +393,7 @@ def load_pide_observations(
     """Read a local PIDE export without discarding partially populated experiments.
 
     Use this loader with ``crosscheck.rows_from_pide``. File discovery and LQ
-    variants follow :func:`load_pide`; missing measurements remain ``None``.
+    variants follow [`load_pide`][]; missing measurements remain ``None``.
     Nothing is written. PIDE must remain in the user's untracked data folder.
     """
     headers, rows = read_table(find_pide_file(path))

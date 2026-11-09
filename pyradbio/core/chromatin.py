@@ -32,26 +32,29 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-#: Haploid genome size per set of chromosomes [Mbp] (McMahon et al 2017, via
-#: Parisi 2022 sec 2.5.4). Keys are normalised by :func:`_normalise_species`.
 HAPLOID_GENOME_MBP: Mapping[str, float] = {
     "human": 3050.0,
     "rat": 2750.0,
     "chinese_hamster": 2700.0,
     "mouse": 2650.0,
 }
+"""Haploid genome size per set of chromosomes [Mbp] (McMahon et al 2017, via
+Parisi 2022 sec 2.5.4). Keys are normalised by `_normalise_species`.
+"""
 
-#: DNA per radiation-sensitive chromatin substructure ("giant loop") [Mbp]
-#: (Rogakou et al 1998; Friedrich et al 2012; Parisi 2022 eq 15).
 CHROMATIN_LOOP_MBP: float = 2.0
+"""DNA per radiation-sensitive chromatin substructure ("giant loop") [Mbp]
+(Rogakou et al 1998; Friedrich et al 2012; Parisi 2022 eq 15).
+"""
 
-#: Cell-cycle DNA-content factor ``xi`` (Parisi 2022 eq 16 / McMahon et al 2017):
-#: G1 holds one genome copy, G2 two; an asynchronized 2:1 G1:G2 mix averages 4/3.
 CELL_CYCLE_DNA_FACTOR: Mapping[str, float] = {
     "g1": 1.0,
     "g2": 2.0,
     "asynchronized": 4.0 / 3.0,
 }
+"""Cell-cycle DNA-content factor ``xi`` (Parisi 2022 eq 16 / McMahon et al 2017):
+G1 holds one genome copy, G2 two; an asynchronized 2:1 G1:G2 mix averages 4/3.
+"""
 
 
 def _normalise_species(species: str) -> str:
@@ -81,7 +84,7 @@ def nuclear_dna_content_mbp(
 
     ``haploid_genome_mbp`` is the DNA in one chromosome set (``gamma``),
     ``ploidy`` is ``p`` (2 for a normal diploid cell), and ``cell_cycle_factor``
-    is ``xi`` (see :data:`CELL_CYCLE_DNA_FACTOR`; default = asynchronized, 4/3).
+    is ``xi`` (see [`CELL_CYCLE_DNA_FACTOR`][]; default = asynchronized, 4/3).
     All inputs must be positive.
     """
     if haploid_genome_mbp <= 0.0 or ploidy <= 0.0 or cell_cycle_factor <= 0.0:
@@ -97,8 +100,8 @@ def chromatin_domain_radius_um(
     """Subnuclear-domain radius ``r_d = R_n (lambda/Gamma)^(1/3)`` [um] (Parisi eq 15).
 
     ``nucleus_radius_um`` is ``R_n``, ``nuclear_dna_mbp`` the total nuclear DNA
-    content ``Gamma`` (from :func:`nuclear_dna_content_mbp`), and ``loop_mbp`` the
-    DNA per domain ``lambda`` (default :data:`CHROMATIN_LOOP_MBP`, 2 Mbp). Assumes
+    content ``Gamma`` (from [`nuclear_dna_content_mbp`][]), and ``loop_mbp`` the
+    DNA per domain ``lambda`` (default [`CHROMATIN_LOOP_MBP`][], 2 Mbp). Assumes
     a homogeneous DNA distribution, so the domain-to-nucleus *volume* ratio equals
     the DNA ratio. All inputs must be positive.
     """
@@ -119,11 +122,11 @@ def domain_radius_from_genome(
 ) -> float:
     """Domain radius ``r_d`` from nuclear radius + genome / ploidy / cell cycle.
 
-    Convenience wrapper chaining :func:`nuclear_dna_content_mbp` (eq 16) and
-    :func:`chromatin_domain_radius_um` (eq 15). Provide the haploid genome size
-    either by ``species`` (a key of :data:`HAPLOID_GENOME_MBP`, separator- and
+    Convenience wrapper chaining [`nuclear_dna_content_mbp`][] (eq 16) and
+    [`chromatin_domain_radius_um`][] (eq 15). Provide the haploid genome size
+    either by ``species`` (a key of [`HAPLOID_GENOME_MBP`][], separator- and
     case-insensitive) *or* explicitly via ``haploid_genome_mbp`` -- exactly one.
-    ``cell_cycle`` is a key of :data:`CELL_CYCLE_DNA_FACTOR` (default asynchronized).
+    ``cell_cycle`` is a key of [`CELL_CYCLE_DNA_FACTOR`][] (default asynchronized).
     """
     if (species is None) == (haploid_genome_mbp is None):
         raise ValueError("provide exactly one of species or haploid_genome_mbp")

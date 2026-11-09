@@ -42,9 +42,9 @@ def _relative(
     return out
 
 
-#: Twin of test_icru90_procedure.py::test_reproduces_the_icru90_carbon_table. Measured max
-#: per band [<0.01, 0.01-0.1, 0.1-1, 1-10, 10-100, >100 MeV/u]: 5.6e-3, 3.8e-4, 1.1e-3,
-#: 9.7e-4, 3.8e-4, 3.0e-4 (the first band is the alpha table's lower edge, as in the raw test).
+# Twin of test_icru90_procedure.py::test_reproduces_the_icru90_carbon_table. Measured max
+# per band [<0.01, 0.01-0.1, 0.1-1, 1-10, 10-100, >100 MeV/u]: 5.6e-3, 3.8e-4, 1.1e-3,
+# 9.7e-4, 3.8e-4, 3.0e-4 (the first band is the alpha table's lower edge, as in the raw test).
 PROCEDURE_CARBON_BANDS = (
     ((0.0, 0.01), 0.011),
     ((0.01, 0.1), 7.5e-4),
@@ -66,10 +66,10 @@ def test_procedure_reproduces_the_shipped_icru90_carbon_table() -> None:
         assert np.abs(rel[band]).max() < bound, (b_lo, b_hi)
 
 
-#: Twin of test_icru90_procedure.py::test_p_alpha_reproduce_icru49_at_75_ev_and_icru90_at_78_ev.
-#: Measured max below T1 / gap / above T2 (to 1000 MeV/u, ASTAR to its 250): PSTAR 1.3e-3 /
-#: 1.3e-3 / 1.3e-3; ICRU 90 p 2.5e-3 / 1.3e-3 / 1.5e-3; ASTAR 7.6e-4 / 2.6e-3 / 1.5e-3;
-#: ICRU 90 alpha 5.8e-4 / 3.3e-3 / 1.2e-3.
+# Twin of test_icru90_procedure.py::test_p_alpha_reproduce_icru49_at_75_ev_and_icru90_at_78_ev.
+# Measured max below T1 / gap / above T2 (to 1000 MeV/u, ASTAR to its 250): PSTAR 1.3e-3 /
+# 1.3e-3 / 1.3e-3; ICRU 90 p 2.5e-3 / 1.3e-3 / 1.5e-3; ASTAR 7.6e-4 / 2.6e-3 / 1.5e-3;
+# ICRU 90 alpha 5.8e-4 / 3.3e-3 / 1.2e-3.
 P_ALPHA_CASES = (
     ("pstar", 75.0, 1, 1, (2.5e-3, 2.5e-3, 2.5e-3)),
     ("icru90", 78.0, 1, 1, (4.5e-3, 2.5e-3, 3e-3)),

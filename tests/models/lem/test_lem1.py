@@ -290,7 +290,7 @@ def test_golden_lem1_scholz1997_stochastic_beta_matches_fig3_shape() -> None:
     ``beta_z * exp(-2 N_1)``, rising with energy and suppressed for dense
     low-energy carbon tracks. This is a fast/crude estimate -- a stochastic
     Monte-Carlo of the full spatial model confirms the deterministic
-    :meth:`LEM1.scholz1997_two_track_beta` is the quantitatively faithful path.
+    `LEM1.scholz1997_two_track_beta` is the quantitatively faithful path.
     """
     lem = LEM1(photon=CHO_1997, cell=CHO_1997_CELL, beta_model="scholz1997_stochastic")
 
@@ -795,7 +795,7 @@ def test_quadratic_branch_has_no_cluster_terms_beyond_second_order(n: int) -> No
 
     A degree-2 polynomial has an identically vanishing n-th inclusion-exclusion
     excess for n >= 3. If this ever fails the reasoning behind
-    :meth:`LEMBase.saturated_area_fraction` -- and the claim that the two-track
+    `LEMBase.saturated_area_fraction` -- and the claim that the two-track
     integral is geometrically complete in the unsaturated branch -- is void.
     """
     photon = SK1996_V79
@@ -1286,8 +1286,8 @@ def test_b_cut_split_does_not_shift_the_survival_curve() -> None:
     independent runs at ``N`` realizations differ by a binomial
     ``sqrt(2 S (1-S)/N)``, ~6% of ``S`` here. The estimator itself is pinned far
     more tightly against exact truth by
-    :func:`test_kellerer_field_integral_matches_the_exact_nuclear_integral` and
-    :func:`test_kellerer_accumulate_numba_reproduces_the_exact_initial_slope`.
+    `test_kellerer_field_integral_matches_the_exact_nuclear_integral` and
+    `test_kellerer_accumulate_numba_reproduces_the_exact_initial_slope`.
     """
     lem = _kellerer_model()
     ion = Ion(6, 12, 20.0)
@@ -1654,7 +1654,7 @@ def test_specific_energy_survival_numpy_and_numba_agree() -> None:
     ``_z_samples`` grew a NumPy branch alongside the kernel, and the two build
     the far-field background and the near-track z sum independently. Independent
     RNG streams, so this is a statistical check; the deterministic pin is
-    :func:`test_specific_energy_survival_recovers_the_z_domain_slope_at_low_energy`.
+    `test_specific_energy_survival_recovers_the_z_domain_slope_at_low_energy`.
     """
     pytest.importorskip("numba")
     lem = _kellerer_model()

@@ -10,9 +10,11 @@ the free parameters as options.
 Walske's quantities, in shell units (energy ``Z_eff^2 Ry``, ``Q = q^2`` in
 ``2 m Z_eff^2 Ry``), with ``phi_W(Q) = W |F_W(Q)|^2 / Q`` (1952, after eq. 6):
 
-* stopping number of the shell (1952 eq. 5)::
+* stopping number of the shell (1952 eq. 5):
 
-      B(theta, eta) = int_{W_min}^inf dW int_{W^2/4eta}^inf dQ/Q phi_W(Q),  W_min = theta/n^2
+```text
+B(theta, eta) = int_{W_min}^inf dW int_{W^2/4eta}^inf dQ/Q phi_W(Q),  W_min = theta/n^2
+```
 
 * ``B = S ln eta + T - C`` (1952 eq. 4): ``S`` and ``T`` are the large-``eta`` constants,
   ``C -> 0`` as ``eta -> inf``. ``S = n^2 + int_{W_min}^inf phi_W(0) dW`` (the Bethe
@@ -38,7 +40,7 @@ sit 4e-4 above Walske's, which ours equal. The hydrogen atom's ``1/eta^2`` coeff
 Walske's ``V_K`` (eq. 19) are 1.000 low; ``C`` itself is computed, not taken from either
 series.
 
-**Water** (:class:`WaterShellCorrection`): ``C = 2 C_H + C_K,O + (n_L/8) C_L,O`` per
+**Water** ([`WaterShellCorrection`][]): ``C = 2 C_H + C_K,O + (n_L/8) C_L,O`` per
 molecule, ``Z = 10``. Every choice below is an ASSUMPTION or a calibration, not a value
 from ICRU 49:
 
@@ -81,10 +83,10 @@ FloatArray = npt.NDArray[np.float64]
 WALSKE_1952 = "M.C. Walske, Phys. Rev. 88, 1283 (1952)"
 WALSKE_1956 = "M.C. Walske, Phys. Rev. 101, 940 (1956)"
 
-#: threshold ``a`` (``W = k^2 + a``), ``tan^-1`` factor ``s``, ``n^2``, electrons.
 _SHELL = {"K": (1.0, 2.0, 1.0, 2), "L": (0.25, 1.0, 4.0, 8)}
-#: Effective-charge screening (Walske 1956 sec. III and footnote 8).
+"""threshold ``a`` (``W = k^2 + a``), ``tan^-1`` factor ``s``, ``n^2``, electrons."""
 SCREENING = {"K": 0.3, "L": 4.15}
+"""Effective-charge screening (Walske 1956 sec. III and footnote 8)."""
 
 _GL_X, _GL_W = np.polynomial.legendre.leggauss(10)
 _ETA_SWITCH = 3.0
@@ -288,20 +290,20 @@ def _check_shell(shell: str) -> None:
 
 # --- water ---------------------------------------------------------------------------------
 
-#: Default (calibrated) oxygen thetas, see the module docstring.
 DEFAULT_THETA_K = 0.7
+"""Default (calibrated) oxygen thetas, see the module docstring."""
 DEFAULT_THETA_L = 0.5
-#: eta grid of the tabulated corrections: 20 nodes per decade over [0.02, 1e5].
 ETA_GRID: FloatArray = np.geomspace(
     0.02, 1e5, round(20 * math.log10(1e5 / 0.02)) + 1, dtype=np.float64
 )
+"""eta grid of the tabulated corrections: 20 nodes per decade over [0.02, 1e5]."""
 SHIPPED_TABLE = "shell_corrections_water.csv"
 _FINE_STRUCTURE = 1.0 / 137.035999084
 _Z_O = 8
 
 
 def shell_table(theta_K: float, theta_L: float) -> dict[str, FloatArray]:
-    """``C(eta)`` of the H atom, the O K shell and Walske's L shell on :data:`ETA_GRID`."""
+    """``C(eta)`` of the H atom, the O K shell and Walske's L shell on [`ETA_GRID`][]."""
     return {
         "eta": ETA_GRID.copy(),
         "C_H": hydrogen_shell_correction(ETA_GRID),

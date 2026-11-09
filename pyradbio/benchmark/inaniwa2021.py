@@ -29,7 +29,7 @@ They are the only published check on the whole oxygen chain end to end --
 ``z_d,D`` -> ``Rmax(z_d,D)`` (eq. 14) -> ``R(pO2)`` (eq. 13) -> the LQ pair
 (eqs. 17-18) -> eq.-(24) survival -> a dose ratio. Everything upstream is already
 pinned: the SMK microdosimetry against Inaniwa 2018 fig. 4
-(:mod:`pyradbio.benchmark.inaniwa2018`) and the table-1 parameters against the
+([`pyradbio.benchmark.inaniwa2018`][]) and the table-1 parameters against the
 paper itself. The OER is what nothing else tests.
 
 The LET axis: 15 in figs. 5-6, 10 in fig. 7
@@ -55,7 +55,7 @@ is 316 px; at a left edge of 10 it would sit 95 px in.
 Three independent confirmations, none used in the calibration:
 
 * figs. 5-6 then reproduce the endpoints of the LET range the paper *states* it
-  fitted (:data:`FITTED_LET_RANGE_KEV_UM`, sec 3.2) -- helium's lowest measured
+  fitted ([`FITTED_LET_RANGE_KEV_UM`][], sec 3.2) -- helium's lowest measured
   point lands at 18.53 keV/um against a quoted 18.5, and neon's highest at 654.8
   against a quoted 654;
 * fig. 7's measured LETs land on the values the paper quotes in *words*, in
@@ -77,8 +77,8 @@ stop early where curves overlap -- it carries the V79 helium model curve to 220
 keV/um where the trace gave up at 89.
 
 Fig. 7's measured series carry **two digitized points per datum**: the mean and
-the top of the 1-sigma error bar, at the same LET. :attr:`OERCurve.oer` holds the
-mean and :attr:`OERCurve.oer_upper` the bar, so :attr:`OERCurve.sigma` is their
+the top of the 1-sigma error bar, at the same LET. [`OERCurve.oer`][] holds the
+mean and [`OERCurve.oer_upper`][] the bar, so [`OERCurve.sigma`][] is their
 difference. Figs. 5-6 are drawn without error bars and have none.
 
 The automated pass had four traps worth recording, since anything re-tracing
@@ -105,26 +105,26 @@ near-degenerate over much of the range, its in-plot pO2 annotations are drawn in
 the same four data colours, and its markers carry error bars.
 
 Two limitations are inherent to the figures rather than to any method, and both
-are why :func:`reconstruction_lets` exists:
+are why [`reconstruction_lets`][] exists:
 
 * the model curves are drawn in the order He, C, Ne, so where they converge the
   **helium curve is overdrawn** and simply is not in the image. Figs. 5-6's
   helium curves stop near 220 keV/um where carbon and neon paint over them,
-  against 770 and 986 for those two. :attr:`OERCurve.let` reports what was
+  against 770 and 986 for those two. [`OERCurve.let`][] reports what was
   recovered.
 * the curves are drawn well past the LET their **ion can physically reach**:
   helium tops out near its Bragg peak, ~178 keV/um with
-  :class:`~pyradbio.track.stopping_power.SimpleBetheStoppingPower`, and neon
+  [`SimpleBetheStoppingPower`][pyradbio.track.stopping_power.SimpleBetheStoppingPower], and neon
   cannot get *below* ~22 keV/um at any energy. Outside that window ``LET ->
   energy`` inversion is undefined, in both directions.
 
 Reconstruction helpers
 ----------------------
-:func:`model_oer` drives a model from nothing but a series' ion species, a list
+[`model_oer`][] drives a model from nothing but a series' ion species, a list
 of LETs (inverted for energy with
-:func:`~pyradbio.track.stopping_power.energy_for_let_MeV_u`) and the series'
-hypoxic pO2; :func:`oer_ratios` pools ``ours / paper`` over every species and
-pressure of one figure; :func:`with_scaled_z_domain` is the ``z_d,D`` rescaling
+[`energy_for_let_MeV_u`][]) and the series'
+hypoxic pO2; [`oer_ratios`][] pools ``ours / paper`` over every species and
+pressure of one figure; [`with_scaled_z_domain`][] is the ``z_d,D`` rescaling
 diagnostic -- eq. (14) reads ``z_d,D`` only through ``(z_d,D/z_R)^gamma``, so
 scaling it is the whole of the "is our microdosimetry biased?" question. They
 are shared by ``validation/osmk_inaniwa2021.py`` and the golden tests.
@@ -149,14 +149,13 @@ INANIWA2021_DOI = "10.1088/1361-6560/ac29cc"
 _DATA_DIR = "data"
 _PREFIX = "inaniwa2021"
 
-#: Figure key -> (cell line, source page in the PDF).
 FIGURES: dict[str, tuple[str, int]] = {
     "fig5_hsg": ("HSG", 10),
     "fig6_v79": ("V79", 11),
     "fig7_cho": ("CHO", 11),
 }
+"""Figure key -> (cell line, source page in the PDF)."""
 
-#: Species label -> (Z, A) across all three figures.
 SPECIES: dict[str, tuple[int, int]] = {
     "He": (2, 4),
     "C": (6, 12),
@@ -165,9 +164,8 @@ SPECIES: dict[str, tuple[int, int]] = {
     "Ne": (10, 20),
     "Si": (14, 28),
 }
+"""Species label -> (Z, A) across all three figures."""
 
-#: Figure -> hypoxic pO2 [mmHg] -> the species drawn at that pressure. Figs. 5-6
-#: are anoxic only; fig. 7 is the one that varies pO2.
 CONTENTS: dict[str, dict[float, tuple[str, ...]]] = {
     "fig5_hsg": {0.0: ("He", "C", "Ne")},
     "fig6_v79": {0.0: ("He", "C", "Ne")},
@@ -178,25 +176,30 @@ CONTENTS: dict[str, dict[float, tuple[str, ...]]] = {
         15.2: ("C", "Si"),
     },
 }
+"""Figure -> hypoxic pO2 [mmHg] -> the species drawn at that pressure. Figs. 5-6
+are anoxic only; fig. 7 is the one that varies pO2.
+"""
 
-#: The reference arm every OER in these figures is formed against [mmHg]
-#: (paper sec 4.2). The hypoxic arm is :attr:`OERCurve.pO2_mmHg`.
 OER_REFERENCE_PO2_MMHG = 160.0
+"""The reference arm every OER in these figures is formed against [mmHg]
+(paper sec 4.2). The hypoxic arm is [`OERCurve.pO2_mmHg`][].
+"""
 
-#: Survival level the OER is defined at (the ratio of 10%-survival doses).
 OER_SURVIVAL_FRACTION = 0.1
+"""Survival level the OER is defined at (the ratio of 10%-survival doses)."""
 
-#: Cell line -> LET range [keV/um] its underlying data, and hence the fit, spans.
-#: Outside it both OSMK formulations extrapolate, and they diverge sharply below
-#: it; see the reference summary. HSG/V79 are Furusawa et al. 2000 / 2012 and the
-#: paper states the range in sec 3.2. CHO is Tinganelli et al. 2015, whose LET
-#: range the paper does *not* state, so this one is read off fig. 7's own
-#: measured points rather than quoted.
 FITTED_LET_RANGE_KEV_UM: dict[str, tuple[float, float]] = {
     "HSG": (18.5, 654.0),
     "V79": (18.5, 654.0),
     "CHO": (29.8, 316.9),
 }
+"""Cell line -> LET range [keV/um] its underlying data, and hence the fit, spans.
+Outside it both OSMK formulations extrapolate, and they diverge sharply below
+it; see the reference summary. HSG/V79 are Furusawa et al. 2000 / 2012 and the
+paper states the range in sec 3.2. CHO is Tinganelli et al. 2015, whose LET
+range the paper does *not* state, so this one is read off fig. 7's own
+measured points rather than quoted.
+"""
 
 
 def _data_lines(text: str) -> list[str]:
@@ -220,10 +223,10 @@ class OERCurve:
     let_keV_um: tuple[float, ...]
     oer: tuple[float, ...]
     source_page: int
-    #: The *hypoxic* arm of the ratio [mmHg]; the reference arm is always 160.
     pO2_mmHg: float = 0.0
-    #: Top of the 1-sigma error bar, where the figure draws one (fig. 7 only).
+    """The *hypoxic* arm of the ratio [mmHg]; the reference arm is always 160."""
     oer_upper: tuple[float, ...] = ()
+    """Top of the 1-sigma error bar, where the figure draws one (fig. 7 only)."""
     doi: str = INANIWA2021_DOI
 
     @property
@@ -349,21 +352,21 @@ def reconstruction_lets(
     The intersection of three separate limits, all of which matter:
 
     * the **fitted** LET range for this cell line,
-      :data:`FITTED_LET_RANGE_KEV_UM` -- outside it the model extrapolates and
+      [`FITTED_LET_RANGE_KEV_UM`][] -- outside it the model extrapolates and
       the two OSMK formulations diverge sharply;
     * the LET span actually **digitized** for this series, which for helium stops
       early because its curve is overdrawn (see the module docstring);
     * the LET this ion can physically **attain**, which bounds it from *both*
       sides. The figures draw every species' curve clear across the panel, but a
       helium ion tops out near its Bragg peak -- ~178 keV/um with
-      :class:`~pyradbio.track.stopping_power.SimpleBetheStoppingPower` -- so the
+      [`SimpleBetheStoppingPower`][pyradbio.track.stopping_power.SimpleBetheStoppingPower] -- so the
       right-hand end of the drawn helium curve corresponds to no helium beam at
       all; and symmetrically a neon ion cannot get below ~22 keV/um however fast
       it is made to go. ``LET -> energy`` inversion is undefined outside that
       window in either direction.
 
     Uses the same ``stopping_power`` the caller will invert with, so the cut is
-    consistent with what :func:`~pyradbio.track.stopping_power.energy_for_let_MeV_u`
+    consistent with what [`energy_for_let_MeV_u`][]
     will accept.
     """
     lo_e, hi_e = energy_bounds_MeV_u
@@ -393,7 +396,7 @@ def model_curves(cell_line: str, pO2_mmHg: float = 0.0) -> dict[str, OERCurve]:
     """``{species: the paper's own OSMK curve}`` for one cell line and ``pO2``.
 
     These are **OSMK 2021** curves: figs. 5-7 predate the 2023 revision, so they
-    are ground truth for :class:`~pyradbio.models.mkm.osmk.OSMK2021` only. The
+    are ground truth for [`OSMK2021`][] only. The
     2023 formulation is a separate refit and is not expected to lie on them.
     """
     return {c.species: c for c in oer_curves_for(cell_line, "osmk", pO2_mmHg)}
@@ -413,9 +416,9 @@ def model_oer(
     """``model``'s OER at each of ``lets`` [keV/um], for ``curve``'s ion and pO2.
 
     Each LET is inverted for a kinetic energy with
-    :func:`~pyradbio.track.stopping_power.energy_for_let_MeV_u` (its default
+    [`energy_for_let_MeV_u`][] (its default
     high-energy branch) on ``stopping_power``, and the OER is
-    :meth:`~pyradbio.models.mkm.osmk.OSMK2021.oer_at_survival` at
+    [`oer_at_survival`][pyradbio.models.mkm.osmk.OSMK2021.oer_at_survival] at
     ``curve.pO2_mmHg`` against the 160 mmHg default reference, at 10% survival.
 
     Parameters
@@ -425,7 +428,7 @@ def model_oer(
     curve:
         The series whose ion (``Z``, ``A``) and hypoxic ``pO2_mmHg`` to use.
     lets:
-        Dose-averaged LETs [keV/um]; :func:`reconstruction_lets` gives the range
+        Dose-averaged LETs [keV/um]; [`reconstruction_lets`][] gives the range
         that can fairly be compared.
     stopping_power:
         The LET source the inversion uses -- the caller's choice, *not* the
@@ -463,10 +466,10 @@ def oer_ratios(
 ) -> npt.NDArray[np.float64]:
     """``ours / paper`` OER ratios pooled over one figure.
 
-    Every hypoxic pressure of ``cell_line``'s figure (:func:`pressures`), every
-    species drawn there (:func:`model_curves`, the paper's own OSMK-2021 curves),
-    each sampled at ``n`` LETs from :func:`reconstruction_lets`, in that order.
-    ``unreachable`` is passed to :func:`model_oer`. Under ``"nan"`` every NaN
+    Every hypoxic pressure of ``cell_line``'s figure ([`pressures`][]), every
+    species drawn there ([`model_curves`][], the paper's own OSMK-2021 curves),
+    each sampled at ``n`` LETs from [`reconstruction_lets`][], in that order.
+    ``unreachable`` is passed to [`model_oer`][]. Under ``"nan"`` every NaN
     ratio is dropped from the pool; under ``"raise"`` nothing is dropped, so a
     NaN from anywhere else (the model, the paper curve) stays in the pool and
     turns its median/RMS into NaN instead of vanishing silently.
@@ -485,8 +488,8 @@ def oer_ratios(
 class _ZDomainScaledOSMK2021(OSMK2021):
     """OSMK 2021 whose *uncorrected* ``z_d,D`` is multiplied by ``z_domain_scale``.
 
-    Built only through :func:`with_scaled_z_domain`. ``z*_d,D`` and ``z_n,D`` are
-    untouched, and so is :meth:`specific_energies` itself -- only the
+    Built only through [`with_scaled_z_domain`][]. ``z*_d,D`` and ``z_n,D`` are
+    untouched, and so is `specific_energies` itself -- only the
     ``specific_energies_at`` seam the OSMK algebra reads is rescaled -- so the
     microdosimetry cache serves it the same entries as the unscaled model.
     """
@@ -513,7 +516,7 @@ def with_scaled_z_domain(model: OSMK2021, factor: float) -> OSMK2021:
     in our microdosimetry would move. ``z*_d,D`` (which drives ``alpha``) and
     ``z_n,D`` are left alone, and the optional ``z_F`` moments are not carried.
 
-    Every ``init`` field of :class:`~pyradbio.models.mkm.osmk.OSMK2021` is copied
+    Every ``init`` field of [`OSMK2021`][] is copied
     from ``model`` onto a private subclass, so the override of a user subclass of
     ``model`` is not kept. Scaling an already scaled model composes (the factors
     multiply), and ``factor = 1`` reproduces ``model``'s results exactly. The
@@ -523,7 +526,7 @@ def with_scaled_z_domain(model: OSMK2021, factor: float) -> OSMK2021:
     Raises
     ------
     TypeError
-        If ``model`` is not an :class:`~pyradbio.models.mkm.osmk.OSMK2021` (the
+        If ``model`` is not an [`OSMK2021`][] (the
         2023 formulation rescores ``z_d,D`` at a pO2-dependent site, so a single
         scale has no meaning there).
     """

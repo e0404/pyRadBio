@@ -55,7 +55,7 @@ def _script(name: str) -> dict[str, Any]:
     """The script's namespace, executed with its ``__main__`` guard closed.
 
     The three LEM I batch scripts no longer exist as files; their frozen
-    readers/writers (:data:`_FROZEN_LEM1_BATCHES`) stand in for them.
+    readers/writers (`_FROZEN_LEM1_BATCHES`) stand in for them.
     """
     return _FROZEN_LEM1_BATCHES[name]
 

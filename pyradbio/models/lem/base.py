@@ -24,7 +24,7 @@ This base owns the parts every LEM version shares:
 * mixed-field LQ mixing (dose-average ``alpha``, dose-average ``sqrt(beta)``).
 
 Versions differ only in the radial-dose model they supply via
-:meth:`LEMBase._radial_dose_model` (and, from LEM II on, the photon high-dose
+`LEMBase._radial_dose_model` (and, from LEM II on, the photon high-dose
 extrapolation), so they subclass this with a one-line override.
 """
 
@@ -82,7 +82,7 @@ def _angular_fraction_inside(
     while ``s <= r_eff``.
 
     Both degenerate radii need their own branch, because ``2 s b`` vanishes. The
-    ``s = 0`` case is reachable: :meth:`LEMBase._impact_log_kill` starts its shell
+    ``s = 0`` case is reachable: `LEMBase._impact_log_kill` starts its shell
     at ``b - r_eff``, which is exactly ``0`` for a track grazing the nuclear edge,
     and whether the impact grid lands on ``b = r_eff`` is an accident of the node
     count. The circle is then the single point at distance ``b``, so it is inside
@@ -140,18 +140,18 @@ def _is_flat(values: npt.NDArray[np.float64]) -> bool:
 class AnalyticRadialProfile:
     r"""A radial dose model of the form constant core / ``1/r^2`` / cut-off.
 
-    .. code-block:: text
-
-        D(r) = core_dose_Gy          r < r_min
-             = k_Gy_um2 / r^2        r_min <= r < r_max
-             = 0                     r >= r_max
+    ```text
+    D(r) = core_dose_Gy          r < r_min
+         = k_Gy_um2 / r^2        r_min <= r < r_max
+         = 0                     r >= r_max
+    ```
 
     Both amorphous track models in the package land here, with *different* cores:
     Scholz & Kraft continue the ``1/r^2`` law into the core
     (``core = k / r_min^2``), while Kiefer-Chatterjee sets an independent core
     level, so the profile is discontinuous at ``r_min``. Keeping the core as a
     free parameter covers both -- and the constructor is never called by name,
-    only by :meth:`LEMBase._analytic_profile` measuring an actual sampled profile.
+    only by `LEMBase._analytic_profile` measuring an actual sampled profile.
 
     **Radical-diffusion (LEM II/III) profiles are covered too, outside a radius.**
     Convolving ``k/r^2`` with a 2-D Gaussian has no elementary closed form -- it
@@ -161,9 +161,9 @@ class AnalyticRadialProfile:
     ``r ~ 150 nm``. The *small-sigma* expansion is elementary instead: in 2-D
     ``grad^2 r^-m = m^2 r^-m-2``, hence ``grad^2n r^-2 = 4^n (n!)^2 r^-2-2n`` and
 
-    .. code-block:: text
-
-        D_conv(r) = (k/r^2) * sum_n n! x^n,     x = 2 sigma^2 / r^2
+    ```text
+    D_conv(r) = (k/r^2) * sum_n n! x^n,     x = 2 sigma^2 / r^2
+    ```
 
     an asymptotic series with optimal truncation at ``n ~ 1/x``; two terms are
     kept. It is valid on ``r_switch_um <= r <= r_edge_um`` only -- outside that
@@ -211,7 +211,7 @@ class AnalyticRadialProfile:
         return np.asarray(np.where(r > self.r_max_um, 0.0, value), dtype=np.float64)
 
     def valid(self, r_um: npt.NDArray[np.float64] | float) -> npt.NDArray[np.bool_]:
-        """Where :meth:`dose_Gy` may be trusted: ``r_switch <= r <= r_edge``."""
+        """Where [`dose_Gy`][] may be trusted: ``r_switch <= r <= r_edge``."""
         r = np.asarray(r_um, dtype=np.float64)
         return np.asarray((r >= self.r_switch_um) & (r <= self.kernel_r_edge_um))
 
@@ -253,7 +253,7 @@ InitialSlopeModel = Literal[
 
 # The ``beta_I`` models every *local-dose* LEM version shares, i.e. every version
 # whose lethal-event density is a pointwise function of the local dose. All three
-# live on :class:`LEMBase` so LEM I/II/III get them from one implementation:
+# live on `LEMBase` so LEM I/II/III get them from one implementation:
 #   "slope_matching"        -- beta = (s_max - alpha_I)/(2 D_t), applied to the
 #                          *saturated* alpha_I (Kraemer & Scholz 2006). Cheap, and
 #                          the default -- but because it is
@@ -268,7 +268,7 @@ InitialSlopeModel = Literal[
 # LEM IV is deliberately NOT in this family: its effect is a function of a *global*
 # DSB-pattern statistic, not of the local dose pointwise, so neither the pair
 # expansion nor the central-traversal N_1 these assume is defined for it. See
-# :meth:`LEM4._beta_for_ion`.
+# `LEM4._beta_for_ion`.
 SharedBetaModel = Literal["slope_matching", "rapid_lem", "scholz1997_two_track"]
 SHARED_BETA_MODELS: tuple[SharedBetaModel, ...] = get_args(SharedBetaModel)
 
@@ -310,9 +310,9 @@ def _delete_one_jackknife(
     deleting a batch can legitimately put a root-find out of range; below two
     survivors the error is ``nan`` rather than a fabricated number.
 
-    Shared by :meth:`TraversalConditionedSurvival.jackknife` (LEM I-III
+    Shared by [`TraversalConditionedSurvival.jackknife`][] (LEM I-III
     traversal-conditioned curves) and the LEM IV intertrack Monte-Carlo
-    (:class:`~pyradbio.models.lem.lem4.IntertrackSurvival`).
+    ([`IntertrackSurvival`][pyradbio.models.lem.lem4.IntertrackSurvival]).
     """
     n_batches = int(batches.shape[0])
     if n_batches < 2:
@@ -496,7 +496,7 @@ class TraversalConditionedSurvival:
     ) -> tuple[float, float]:
         """Return ``(value, standard_error)`` for any functional of ``g``.
 
-        Delete-one jackknife over batches (:func:`_delete_one_jackknife`). Each
+        Delete-one jackknife over batches (`_delete_one_jackknife`). Each
         replicate still uses all but one batch, so nonlinear observables stay
         well-conditioned where a two-sample range would be dominated by its own
         sampling noise.
@@ -528,18 +528,19 @@ _KELLERER_R_NODES: int = 1024
 _KELLERER_U_NODES: int = 2048
 _KELLERER_CHUNK_ELEMENTS: int = 4_000_000
 
-#: Default number of Kellerer weighted-sampling field points per cell, i.e. the
-#: ``n_field_points`` default of :meth:`LEMBase.scholz1997_montecarlo_survival`.
-#: The public name of ``_MC_KELLERER_FIELD_POINTS`` -- the *same* object, so a
-#: script that records it records exactly what the library ran.
 MC_KELLERER_FIELD_POINTS: int = _MC_KELLERER_FIELD_POINTS
+"""Default number of Kellerer weighted-sampling field points per cell, i.e. the
+``n_field_points`` default of [`LEMBase.scholz1997_montecarlo_survival`][].
+The public name of ``_MC_KELLERER_FIELD_POINTS`` -- the *same* object, so a
+script that records it records exactly what the library ran.
+"""
 
 
 def _auto_engine() -> Literal["numba", "numpy"]:
     """What ``engine="auto"`` means: ``"numba"`` when numba is importable, else ``"numpy"``.
 
-    The one definition of the rule, shared by :func:`resolve_mc_engine` and the
-    private Monte-Carlo helpers of :class:`LEMBase`. Those helpers resolve only
+    The one definition of the rule, shared by [`resolve_mc_engine`][] and the
+    private Monte-Carlo helpers of [`LEMBase`][]. Those helpers resolve only
     ``"auto"`` here and keep their own handling of an explicit ``"numba"``
     without numba (they fall through to the un-jitted Python path rather than
     raise); their public callers validate first.
@@ -548,17 +549,17 @@ def _auto_engine() -> Literal["numba", "numpy"]:
 
 
 def resolve_mc_engine(engine: Engine) -> Literal["numba", "numpy"]:
-    """Resolve an :data:`~pyradbio.models.lem.engine.Engine` for the local-dose Monte Carlo.
+    """Resolve an [`Engine`][] for the local-dose Monte Carlo.
 
     ``"auto"`` becomes ``"numba"`` when the compiled kernel
-    (:mod:`pyradbio.models.lem._mc_kernel`, the ``fast`` extra) is importable and
+    (`pyradbio.models.lem._mc_kernel`, the ``fast`` extra) is importable and
     ``"numpy"`` otherwise; ``"numba"`` without numba raises. This is the
-    resolution :meth:`LEMBase.scholz1997_montecarlo_survival` applies,
+    resolution [`LEMBase.scholz1997_montecarlo_survival`][] applies,
     exposed so the Monte-Carlo batch scripts need not reach into
     ``_mc_kernel.HAVE_NUMBA`` themselves.
 
     Raises:
-        ValueError: ``engine`` is not one of :data:`~pyradbio.models.lem.engine.ENGINES`,
+        ValueError: ``engine`` is not one of [`ENGINES`][],
             or is ``"numba"`` while numba is not importable.
     """
     if engine not in ENGINES:
@@ -609,23 +610,24 @@ class NuclearDoseTable:
 @dataclass(frozen=True, slots=True)
 class LEMBase(BiophysicalModel):
     capabilities: ClassVar[ModelCapabilities] = ModelCapabilities()
-    #: The ``initial_slope_model`` values this version implements; checked at
-    #: construction. ``"full_simulation"`` needs LEM IV's simulated survival curve.
     initial_slope_models: ClassVar[tuple[InitialSlopeModel, ...]] = (
         "cross_section",
         "lethal_central",
         "lethal_central_saturating",
         "lethal_full",
     )
+    """The ``initial_slope_model`` values this version implements; checked at
+    construction. ``"full_simulation"`` needs LEM IV's simulated survival curve.
+    """
 
     photon: PhotonParameters
     cell: CellTarget
     stopping_power: StoppingPower = field(default_factory=default_stopping_power)
-    #: Optional injection; None selects the version default at the current stopping power.
     radial_dose: RadialDoseModel | None = None
+    """Optional injection; None selects the version default at the current stopping power."""
     initial_slope_model: InitialSlopeModel = "cross_section"
-    #: The active track model. Rebuilt on replace; never copied as a constructor input.
     resolved_radial_dose: RadialDoseModel = field(init=False, repr=False, compare=False)
+    """The active track model. Rebuilt on replace; never copied as a constructor input."""
 
     def __post_init__(self) -> None:
         if self.photon.D_t is None:
@@ -665,8 +667,8 @@ class LEMBase(BiophysicalModel):
 
         Overriding this is what makes the Monte Carlo correct for a new version;
         forgetting to override it yields a *LEM I* answer under that version's
-        name, so :meth:`_check_mc_response` cross-checks the table against
-        :meth:`_photon_log_kill_array` before any run.
+        name, so `_check_mc_response` cross-checks the table against
+        `_photon_log_kill_array` before any run.
         """
         return _NO_ETA, _NO_ETA
 
@@ -677,7 +679,7 @@ class LEMBase(BiophysicalModel):
         response is not captured by ``(LQ below D_t, s_max (eta D - D_t) above)``
         would be silently simulated as LEM I. Rather than trust that every
         subclass remembers, verify it: compare the kernel's reconstruction
-        against :meth:`_photon_log_kill_array` on a dose grid spanning the range
+        against `_photon_log_kill_array` on a dose grid spanning the range
         a track can reach.
         """
         d_t = self.photon.D_t
@@ -726,10 +728,10 @@ class LEMBase(BiophysicalModel):
 
         Counts the tracks whose impact parameter lies inside
         ``b_max = R_eff + r_max``: the fluence ``phi = D / (A_eff D_1)`` (Scholz &
-        Kraft 1996; ``D_1`` from :meth:`mean_traversal_dose_Gy`, Elsasser &
+        Kraft 1996; ``D_1`` from [`mean_traversal_dose_Gy`][], Elsasser &
         Scholz 2007 eq. 8, doi:10.1667/RR0467.1) times the disc area ``pi b_max^2``.
         It is the Poisson mean of the track count per cell in
-        :meth:`scholz1997_montecarlo_survival` and so the driver of its cost.
+        [`scholz1997_montecarlo_survival`][] and so the driver of its cost.
 
         The expression order is kept fixed (the Monte Carlo evaluates its own
         ``n_bar`` inline, in a different order) so cost estimates and stored rows
@@ -743,9 +745,9 @@ class LEMBase(BiophysicalModel):
     def near_traversals(self, ion: Ion, n_bar: float, b_cut_um: float | None) -> float:
         """Upper-bound cost estimate of the tracks resolved after the near/far split.
 
-        With a cut set, :meth:`scholz1997_montecarlo_survival` replaces the
+        With a cut set, [`scholz1997_montecarlo_survival`][] replaces the
         distant tracks by one compound-Poisson background draw, so they cost
-        nothing per track. Since ``n_bar`` (:meth:`mean_traversals`) counts tracks
+        nothing per track. Since ``n_bar`` ([`mean_traversals`][]) counts tracks
         in a disc of radius ``b_max = R_eff + r_max``, the near count is an area
         ratio, taken here out to ``min(R_eff + b_cut_um, b_max)``.
 
@@ -761,10 +763,10 @@ class LEMBase(BiophysicalModel):
 
         Args:
             ion: The ion whose ``r_max`` sets ``b_max``.
-            n_bar: Mean track count in the ``b_max`` disc (:meth:`mean_traversals`).
+            n_bar: Mean track count in the ``b_max`` disc ([`mean_traversals`][]).
             b_cut_um: Near/far cut in um, measured from the nucleus **edge**
                 (``R_eff + b_cut_um``) -- unlike the ``b_cut_um`` of
-                :meth:`scholz1997_montecarlo_survival`, which is measured from
+                [`scholz1997_montecarlo_survival`][], which is measured from
                 the nucleus centre. ``None`` means no split and returns ``n_bar``
                 unchanged.
 
@@ -865,7 +867,7 @@ class LEMBase(BiophysicalModel):
         """Expected fraction of the nucleus driven past ``D_t`` by single tracks.
 
         Track centres are Poisson at fluence ``Phi = D / (A_eff D_1)``, and each
-        carries a saturated disc of radius :meth:`saturation_radius_um`, so a
+        carries a saturated disc of radius [`saturation_radius_um`][], so a
         point escapes saturation with probability ``exp(-Phi pi r_sat^2)``.
 
         This counts **only** single-track saturation, so it is a *lower* bound:
@@ -894,7 +896,7 @@ class LEMBase(BiophysicalModel):
         cluster-extended LEM II/III override this with the enhanced ``s_max *
         eta_max`` (the local tail slope is ``s_max * eta(D)``, Elsasser 2007
         eq. 10). It is the saturation cap of the rapidLEM (``lethal_central``)
-        initial slope -- see :meth:`lethal_central_initial_slope`.
+        initial slope -- see [`lethal_central_initial_slope`][].
         """
         return self.photon.max_slope()
 
@@ -954,11 +956,13 @@ class LEMBase(BiophysicalModel):
 
         The 2-D integral of ``-ln S_x(D)`` over the nuclear disk (offset by ``b``
         from the track) reduces by the chord-angle weighting to a 1-D radial
-        quadrature::
+        quadrature:
 
-            nu(b) = (1/(pi R^2)) integral logkill(s) * phi_in(s,b) * s ds,
+        ```text
+        nu(b) = (1/(pi R^2)) integral logkill(s) * phi_in(s,b) * s ds,
+        ```
 
-        with ``phi_in`` from :func:`_angular_fraction_inside`. The integration
+        with ``phi_in`` from `_angular_fraction_inside`. The integration
         spans only the shell ``s in [max(s0, b-R), min(r_max, b+R)]`` the nucleus
         actually overlaps, refined linearly so distant (large-``b``) shells stay
         resolved; for ``b < R`` it reaches the core to capture the high central
@@ -982,7 +986,7 @@ class LEMBase(BiophysicalModel):
     def _impact_profile(self, ion: Ion) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
         """``(b, nu(b))`` on the impact-parameter grid out to ``b = R + r_max``.
 
-        The single-track nuclear log-kill ``nu(b)`` (:meth:`_impact_log_kill`)
+        The single-track nuclear log-kill ``nu(b)`` (`_impact_log_kill`)
         sampled linearly through the nucleus and logarithmically over the indirect
         (penumbra) tail. Shared by the inactivation cross-section and the full-LEM
         initial slope, which differ only in how they weight ``nu(b)``.
@@ -1011,7 +1015,7 @@ class LEMBase(BiophysicalModel):
         This is the exact zero-dose/single-track quantity ``sigma_0``. It must not
         be identified with Scholz & Kraft 1996 Figs. 2-3, whose ``sigma_inact`` is
         evaluated from the final survival-curve slope at 1% survival. Use
-        :meth:`approximate_inactivation_cross_section_um2` for an LQ approximation
+        [`approximate_inactivation_cross_section_um2`][] for an LQ approximation
         to that finite-survival observable, or a full stochastic survival curve
         for the paper calculation. The impact parameter is sampled linearly
         through the nucleus and logarithmically over the indirect tail out to
@@ -1060,7 +1064,7 @@ class LEMBase(BiophysicalModel):
             alpha_I = (1 / (A_eff D_1)) * integral_0^{R+r_max} nu(b) 2 pi b db.
 
         This is **not** the exact LEM slope. The exact population-survival slope
-        (:meth:`inactivation_cross_section_um2`, the ``"cross_section"`` model) keeps the
+        ([`inactivation_cross_section_um2`][], the ``"cross_section"`` model) keeps the
         single-track overkill term: ``-ln<S> = Phi * integral (1-exp(-nu(b)))
         2 pi b db`` (Campbell/Jensen). Integrating ``nu(b)`` directly drops that
         ``1-exp(-nu)`` factor, so at high LET this does **not** thin down --
@@ -1086,14 +1090,14 @@ class LEMBase(BiophysicalModel):
         """Ion initial slope ``alpha_I`` from the inactivation cross-section.
 
         At low dose ``-ln S(D) = (sigma / (A_eff * D_1)) * D`` (one-track limit of
-        :meth:`inactivation_cross_section_um2`), so ``alpha_I = sigma/(A_eff*D_1)``
+        [`inactivation_cross_section_um2`][]), so ``alpha_I = sigma/(A_eff*D_1)``
         with ``D_1`` the mean single-traversal dose. This reproduces the photon
         limit ``alpha_I -> alpha_x`` at low LET (indirect traversals included) and
         the overkill cap ``alpha_I -> 1/D_1`` (``sigma -> A_eff``) at high LET.
 
         With ``initial_slope_model="lethal_central"`` the TRiP98 / rapidLEM formula is
-        used instead (see :meth:`lethal_central_initial_slope`); with ``"lethal_full"``
-        the LEM low-dose lethal-events slope (see :meth:`lethal_full_initial_slope`).
+        used instead (see [`lethal_central_initial_slope`][]); with ``"lethal_full"``
+        the LEM low-dose lethal-events slope (see [`lethal_full_initial_slope`][]).
         """
         if self.initial_slope_model == "lethal_central":
             return self.lethal_central_initial_slope(ion)
@@ -1110,8 +1114,8 @@ class LEMBase(BiophysicalModel):
         """TRiP-plateau initial slope ``alpha_I = min(N_1/D_1, s_max_local)``.
 
         A central-traversal shortcut: the mean lethal events of one central
-        traversal ``N_1`` (:meth:`single_traversal_log_kill`) over its mean nuclear
-        dose ``D_1`` (:meth:`mean_traversal_dose_Gy`), capped at the maximum *local*
+        traversal ``N_1`` ([`single_traversal_log_kill`][]) over its mean nuclear
+        dose ``D_1`` ([`mean_traversal_dose_Gy`][]), capped at the maximum *local*
         log-kill slope ``s_max_local = _max_local_slope()``. Since
         ``N_1/D_1 ~ alpha_z`` (the intrinsic ion slope), the cap makes this
         **saturate** at ``s_max`` toward high LET (TRiP's ``RBE_alpha`` plateau).
@@ -1128,7 +1132,7 @@ class LEMBase(BiophysicalModel):
         The cap uses the **enhanced** maximum slope for the cluster-extended LEM
         II/III: the local tail slope there is ``s_max * eta(D)`` (Elsasser 2007
         eq. 10), so ``N_1 <= s_max * eta_max * D_1`` and the correct cap is
-        ``s_max * eta_max`` (:meth:`_max_local_slope`), not the un-enhanced
+        ``s_max * eta_max`` (`_max_local_slope`), not the un-enhanced
         ``s_max``. Capping at the un-enhanced ``s_max`` would silently discard the
         cluster enhancement that the ``"cross_section"`` default and
         ``"lethal_full"`` both keep; the enhanced cap makes all three modes
@@ -1144,7 +1148,7 @@ class LEMBase(BiophysicalModel):
         The Krämer & Scholz 2006 low-dose approximation eq (9), identical to
         Scholz 1997 eqs 5-6: the single-traversal inactivation probability
         ``1 - S_1 = 1 - exp(-N_1)`` per unit mean nuclear dose ``D_1``. Unlike
-        :meth:`lethal_central_initial_slope` (which plateaus at ``s_max``) this is a
+        [`lethal_central_initial_slope`][] (which plateaus at ``s_max``) this is a
         smooth ``1 - exp`` saturation with **no** cap that **thins down** as
         ``1/D_1`` (~ ``1/LET``) at high LET (overkill). It uses only the *central*
         traversal, so -- like the Scholz-1997 fast path -- it **under-shoots** the
@@ -1184,13 +1188,12 @@ class LEMBase(BiophysicalModel):
         ``alpha_D`` the saturating initial slope, KS2006 eq 9, and ``alpha_z =
         N_1/D_1`` the central-traversal z-domain slope) squared, times the z-domain
         ``beta_z = (s_max - alpha_z)/(2 D_t)`` (Scholz 1997 eq 11,
-        :meth:`scholz1997_specific_energy_lq`). It is the ``f^2`` suppression of
-        ``beta_z`` (``f -> 1`` low LET, ``f -> 0`` high LET). Like its central
-        ``alpha_z`` it uses only the central traversal, so it does not reproduce the
-        photon ``beta_x`` limit as cleanly as the impact-parameter path at low LET.
-        Pairs with ``initial_slope_model="lethal_central_saturating"`` for the
-        central-traversal KS2006 rapidLEM; see
-        docs/references/rapidLEM_KraemerScholz2006.md.
+        [`scholz1997_specific_energy_lq`][pyradbio.models.lem.lem1.LEM1.scholz1997_specific_energy_lq]).
+        It is the ``f^2`` suppression of ``beta_z`` (``f -> 1`` low LET, ``f -> 0`` high LET). Like
+        its central ``alpha_z`` it uses only the central traversal, so it does not reproduce the
+        photon ``beta_x`` limit as cleanly as the impact-parameter path at low LET. Pairs with
+        ``initial_slope_model="lethal_central_saturating"`` for the central-traversal KS2006
+        rapidLEM; see docs/references/rapidLEM_KraemerScholz2006.md.
         """
         n_1 = self.single_traversal_log_kill(ion)
         delta_z = self.mean_traversal_dose_Gy(ion)
@@ -1213,8 +1216,8 @@ class LEMBase(BiophysicalModel):
     def _photon_log_kill_array(self, dose_Gy: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
         """Vectorised photon ``-ln S_x(D)`` (LQ below ``D_t``, linear above).
 
-        The array twin of :meth:`_photon_log_kill`, and it **must stay in step
-        with it**: the pair-overlap integrals (:meth:`scholz1997_two_track_beta`)
+        The array twin of `_photon_log_kill`, and it **must stay in step
+        with it**: the pair-overlap integrals ([`scholz1997_two_track_beta`][])
         evaluate the response on ~1e5-element grids and go through this one.
         This base implementation is the plain shouldered->exponential reference;
         LEM II/III override *both* to add the cluster enhancement. A version that
@@ -1236,7 +1239,7 @@ class LEMBase(BiophysicalModel):
 
         Returns ``(r, dose, r_lo, r_max)``. The top node sits just inside ``r_max``
         so ``D(r)`` stays positive there (``local_dose_Gy`` is exactly 0 at/beyond
-        ``r_max``); the ``r > r_max`` cut-off is applied by :meth:`_two_track_dose_at`.
+        ``r_max``); the ``r > r_max`` cut-off is applied by `_two_track_dose_at`.
         """
         radial = self._radial()
         r_min = radial.r_min_um(ion)
@@ -1290,7 +1293,7 @@ class LEMBase(BiophysicalModel):
         r"""The radical-diffusion closed form, or ``None`` if the profile is not one.
 
         ``sigma`` is *measured*, never read off a track model, so this keeps
-        :meth:`_analytic_profile`'s contract: a model whose ``D(r)`` happens to be
+        `_analytic_profile`'s contract: a model whose ``D(r)`` happens to be
         a Gaussian-convolved ``1/r^2`` picks the fast path up without being told,
         and one that is anything else falls back.
 
@@ -1527,7 +1530,7 @@ class LEMBase(BiophysicalModel):
         return max(raw, 0.0)
 
     def _beta_from_shared_model(self, model: str, ion: Ion, alpha_ion: float) -> float:
-        """Dispatch the :data:`SHARED_BETA_MODELS`, in one place for every version.
+        """Dispatch the [`SHARED_BETA_MODELS`][], in one place for every version.
 
         Subclasses with a superset of models (LEM I) call this for the shared
         three and handle their own extras; subclasses whose effect model makes
@@ -1555,7 +1558,7 @@ class LEMBase(BiophysicalModel):
     def _alpha_beta_ion(self, ion: Ion) -> LQParameters:
         """Single ion: ``alpha = initial_slope``, ``beta`` from the version's beta model.
 
-        Mixed fields use the inherited :meth:`BiophysicalModel.alpha_beta`
+        Mixed fields use the inherited [`BiophysicalModel.alpha_beta`][]
         template: dose-average ``alpha`` and ``sqrt(beta)`` (Zaider-Rossi /
         Kanai; AGENTS.md numerics), with binned components integrated over a
         log sub-grid of their energy range.
@@ -1564,20 +1567,21 @@ class LEMBase(BiophysicalModel):
         return LQParameters(alpha=alpha, beta=self._beta_for_ion(ion, alpha))
 
     def _dose_weight_stopping_power(self, ion: Ion) -> float:
-        """Fluence -> dose weights use this model's own :attr:`stopping_power`."""
+        """Fluence -> dose weights use this model's own [`stopping_power`][]."""
         return self.stopping_power.let_keV_um(ion)
 
     def reference(self) -> PhotonParameters:
-        """The photon reference :attr:`photon`, shouldered above ``D_t`` (Scholz 1997 eq. 1).
+        """The photon reference [`photon`][], shouldered above ``D_t`` (Scholz 1997 eq. 1).
 
-        RBE from the inherited :meth:`~BiophysicalModel.rbe_at_survival` /
-        :meth:`~BiophysicalModel.rbe_at_dose` therefore inverts the same
-        shouldered-exponential photon curve the LEM is built on.
+        RBE from the inherited
+        [`rbe_at_survival`][pyradbio.models.base.BiophysicalModel.rbe_at_survival] /
+        [`rbe_at_dose`][pyradbio.models.base.BiophysicalModel.rbe_at_dose] therefore inverts the
+        same shouldered-exponential photon curve the LEM is built on.
         """
         return self.photon
 
     def nuclear_dose_table(self, ion: Ion) -> NuclearDoseTable:
-        r"""Build the :class:`NuclearDoseTable` for Kellerer weighted sampling.
+        r"""Build the [`NuclearDoseTable`][] for Kellerer weighted sampling.
 
         ``d_bar(b) = (1/A) int_A D(|x - c|) dx`` is evaluated by integrating the
         radial profile against the arc of each radius that falls inside the
@@ -1827,10 +1831,10 @@ class LEMBase(BiophysicalModel):
         r"""Build the traversal-conditioned survival curve out to ``max_dose_Gy``.
 
         Runs the full stochastic LEM once and returns
-        :class:`TraversalConditionedSurvival`, from which ``S(D)``, the exact
+        [`TraversalConditionedSurvival`][], from which ``S(D)``, the exact
         ``d[-ln S]/dD`` and any iso-survival dose follow for *every* dose without
         further simulation. Prefer this over
-        :meth:`scholz1997_montecarlo_survival` whenever a whole curve -- and
+        [`scholz1997_montecarlo_survival`][] whenever a whole curve -- and
         especially a slope or a crossing dose -- is wanted: that method resamples
         independently per dose, so its curve is neither monotone nor
         differentiable, and its deep-survival points are carried by a handful of
@@ -1839,7 +1843,7 @@ class LEMBase(BiophysicalModel):
         ``max_dose_Gy`` fixes the traversal grid ``k = 0..k_max``; the grid is
         padded well past ``lambda(max_dose_Gy)`` so the Poisson tail is
         negligible (check with
-        :meth:`TraversalConditionedSurvival.poisson_tail_mass`).
+        [`TraversalConditionedSurvival.poisson_tail_mass`][]).
 
         Reference: Scholz & Kraft 1994/1996 explicit calculation.
         """
@@ -2071,7 +2075,7 @@ class LEMBase(BiophysicalModel):
         their population average.
 
         The field integral uses **Kellerer weighted sampling**
-        (:meth:`kellerer_field_integral`), which is the method Scholz et al. 1997
+        ([`kellerer_field_integral`][]), which is the method Scholz et al. 1997
         cite for their own simulations -- sample points are drawn with spatial
         density proportional to the local dose. There is no choice of
         sampler: a uniform one would be the very scheme
@@ -2082,14 +2086,14 @@ class LEMBase(BiophysicalModel):
 
         ``engine`` selects the execution backend (statistically equivalent):
 
-        * ``"numba"`` -- the compiled kernel (:mod:`._mc_kernel`), which runs the
+        * ``"numba"`` -- the compiled kernel (`_mc_kernel`), which runs the
           whole realization; uses numba's per-thread RNG, so it is *not*
           bit-reproducible. Requires the ``fast`` extra.
         * ``"numpy"`` -- the vectorised reference loop; deterministic for a fixed
           ``seed``. Pin this for assertions that need an exact number.
         * ``"auto"`` -- ``"numba"`` if numba is importable, else ``"numpy"``.
 
-        The choice is resolved by :func:`resolve_mc_engine`.
+        The choice is resolved by [`resolve_mc_engine`][].
 
         This is a *reference* path, slower than
         ``beta_model="scholz1997_two_track"``, but it carries no ``n_bar`` ceiling:
@@ -2098,11 +2102,11 @@ class LEMBase(BiophysicalModel):
         Note the returned curve is resampled independently per dose, so it is
         neither monotone nor differentiable; for a whole curve, a slope, or an
         iso-survival dose prefer
-        :meth:`scholz1997_traversal_conditioned_survival`.
+        [`scholz1997_traversal_conditioned_survival`][].
 
         Raises:
             ValueError: ``engine`` is not one of
-                :data:`~pyradbio.models.lem.engine.ENGINES`, or is ``"numba"``
+                [`ENGINES`][], or is ``"numba"``
                 while numba is not importable.
         """
         engine = resolve_mc_engine(engine)
@@ -2162,7 +2166,7 @@ class LEMBase(BiophysicalModel):
     ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
         """Pooled ``(z, S)`` samples over a set of Poisson means.
 
-        Shares the near/far split of :meth:`_mc_accumulate_kellerer`: only tracks
+        Shares the near/far split of `_mc_accumulate_kellerer`: only tracks
         inside ``b_cut_um`` are generated, and the far field enters as one
         Gaussian draw with closed-form compound-Poisson moments. For ``z`` that
         split is what makes high energies reachable at all -- proton 200 MeV/u
@@ -2284,15 +2288,15 @@ class LEMBase(BiophysicalModel):
     ) -> float:
         """Dose-domain ``beta`` from the stochastic LEM MC (Douglas-Fowler fit).
 
-        Runs :meth:`scholz1997_montecarlo_survival` on ``doses_Gy`` and fits
+        Runs [`scholz1997_montecarlo_survival`][] on ``doses_Gy`` and fits
         ``-ln S(D)/D = alpha + beta D`` (Scholz 1997 eq. 8), returning ``beta``.
         Because ``beta`` is a small curvature on a dominant linear term the MC
         value carries statistical noise (~1e-3) and mild fit-range dependence;
         raise ``n_realizations`` or average over seeds for a tighter estimate.
-        ``engine`` selects the backend (see :meth:`scholz1997_montecarlo_survival`).
+        ``engine`` selects the backend (see [`scholz1997_montecarlo_survival`][]).
 
         The fit-range dependence is not merely "mild" when comparing against
-        :meth:`scholz1997_two_track_beta`: that method returns the exact
+        [`scholz1997_two_track_beta`][]: that method returns the exact
         ``O(phi^2)`` cluster coefficient, while this one returns a fitted
         effective coefficient over ``doses_Gy``. See its docstring -- the ratio
         runs 0.995 / 0.986 / 0.971 for windows 0.25-1.5 / 0.5-3.0 / 1.0-6.0 Gy at

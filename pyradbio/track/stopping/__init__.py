@@ -1,11 +1,11 @@
 """Water stopping-power sources with a common interface and cited provenance.
 
 Every class returns the mass stopping power of liquid water [MeV cm^2/g] versus
-kinetic energy per nucleon [MeV/u] (see :mod:`pyradbio.track.stopping.base` for the
-conventions), raises :class:`OutOfRangeError` instead of extrapolating, and records
+kinetic energy per nucleon [MeV/u] (see [`pyradbio.track.stopping.base`][] for the
+conventions), raises [`OutOfRangeError`][] instead of extrapolating, and records
 its source per ion. The library default,
-:func:`pyradbio.track.stopping_power.default_stopping_power`, combines
-:class:`ICRU90Procedure` (Z 1-18), Hubert's alpha scaling (Z 19-92 from 2.5 MeV/u)
+[`pyradbio.track.stopping_power.default_stopping_power`][], combines
+[`ICRU90Procedure`][] (Z 1-18), Hubert's alpha scaling (Z 19-92 from 2.5 MeV/u)
 and analytic Bethe elsewhere.
 """
 

@@ -26,11 +26,13 @@ class MairaniHelium(RBEMinMaxModel):
     The only non-proton member of the family, and the only one whose ``RBE_max``
     is non-monotone in LET. The paper's general form is
     ``RBE_alpha = 1 + [k0 + (alpha/beta)_ph^-1] f(L)``; we use its selected
-    ``f_QE(L) = (k1 L^2) exp(-k2 L)``::
+    ``f_QE(L) = (k1 L^2) exp(-k2 L)``:
 
-        f_QE    = p1 * LET**2 * exp(-p2 * LET)
-        RBE_max = 1 + (p0 + 1/(alpha/beta)_x) * f_QE
-        RBE_min = 1
+    ```text
+    f_QE    = p1 * LET**2 * exp(-p2 * LET)
+    RBE_max = 1 + (p0 + 1/(alpha/beta)_x) * f_QE
+    RBE_min = 1
+    ```
 
     ``f_QE`` peaks at ``LET = 2/p2`` ~ 132 keV/um and decays beyond it, which is
     the model's built-in overkill roll-over -- the qualitative feature the linear

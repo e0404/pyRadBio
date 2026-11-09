@@ -302,7 +302,7 @@ def _open_checkpoint(
     The fingerprint is compared only when it was recorded at ``active_stopping``: at
     another LET the stored rows are other physical points, which each subcommand
     already handles per row, and refusing would block runs that are valid.
-    ``header["stopping_power"]`` describes this run's LET; :class:`_Provenance`
+    ``header["stopping_power"]`` describes this run's LET; `_Provenance`
     writes the file's own line from it and the rows.
     """
     checkpoint = CsvCheckpoint(

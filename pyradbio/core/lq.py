@@ -6,15 +6,15 @@ beta [Gy^-2], dose D [Gy] and ``G`` the Lea-Catcheside dose-protraction factor.
 ``G = 1`` is an acute dose and is the default everywhere, so callers that do not
 care about time see the plain LQ model. Anything protracted -- fractionated,
 continuous, split-course -- supplies ``G`` from
-:mod:`pyradbio.core.protraction`, which owns the temporal side and computes
-``G`` from a :class:`~pyradbio.core.protraction.DoseSchedule`. The split is
+[`pyradbio.core.protraction`][], which owns the temporal side and computes
+``G`` from a [`DoseSchedule`][]. The split is
 deliberate: ``G`` depends only on the timing of the irradiation, never on the
 cell or the radiation quality, so it is an argument here rather than a field on
-:class:`LQParameters`.
+[`LQParameters`][].
 
 Two least-squares estimators read ``(alpha, beta)`` back off a dose response:
-:func:`fit_lq_linearised` (``-ln S / D = alpha + beta D``, unweighted) and
-:func:`fit_lq_weighted` (``-ln S = alpha D + beta D^2``, inverse-sigma weighted,
+[`fit_lq_linearised`][] (``-ln S / D = alpha + beta D``, unweighted) and
+[`fit_lq_weighted`][] (``-ln S = alpha D + beta D^2``, inverse-sigma weighted,
 optional intercept). They are different estimators and give different numbers
 on noisy data; pick the one the reference you compare with used.
 """
@@ -28,11 +28,12 @@ from typing import Literal, overload
 import numpy as np
 import numpy.typing as npt
 
-#: ``G`` is mathematically in ``[0, 1]``, but
-#: :func:`~pyradbio.core.protraction.lea_catcheside_g` can return the last bit
-#: above 1.0 through floating-point round-off in its final sum. Accept that
-#: instead of raising on a value that is 1.0 to within a part in 1e9.
 _G_ROUNDOFF_TOLERANCE: float = 1e-9
+"""``G`` is mathematically in ``[0, 1]``, but
+[`lea_catcheside_g`][] can return the last bit
+above 1.0 through floating-point round-off in its final sum. Accept that
+instead of raising on a value that is 1.0 to within a part in 1e9.
+"""
 
 
 def _validate_g(g: float) -> None:
@@ -63,7 +64,7 @@ def log_kill(dose_Gy: float, alpha: float, beta: float, *, g: float = 1.0) -> fl
     """Return ``-ln S(D) = alpha*D + g*beta*D**2``.
 
     ``g`` is the Lea-Catcheside protraction factor (default ``1.0``, acute);
-    see :func:`pyradbio.core.protraction.lea_catcheside_g`.
+    see [`pyradbio.core.protraction.lea_catcheside_g`][].
     """
     if dose_Gy < 0.0:
         raise ValueError(f"dose must be >= 0, got {dose_Gy!r}")
@@ -143,7 +144,7 @@ def bed(dose_Gy: float, *, alpha_beta_ratio_Gy: float, g: float = 1.0) -> float:
         every tissue.
     g
         Lea-Catcheside protraction factor of the schedule; see
-        :func:`pyradbio.core.protraction.lea_catcheside_g`.
+        [`pyradbio.core.protraction.lea_catcheside_g`][].
     """
     if dose_Gy < 0.0:
         raise ValueError(f"dose must be >= 0, got {dose_Gy!r}")
@@ -186,12 +187,13 @@ def eqd2(
 # Least-squares LQ fits
 # ---------------------------------------------------------------------------
 
-#: Floor on ``sigma`` in :func:`fit_lq_weighted`: a zero spread (every repeat
-#: identical, e.g. no kill at all at the lowest dose) becomes a weight of 1e12
-#: rather than a division by zero. Same floor as ``_lq_fit`` in
-#: ``examples/survival_code_lem_comparison.py`` and the cubic fit in
-#: :meth:`pyradbio.models.lem.lem1.SpecificEnergySurvival.straightness`.
 _SIGMA_FLOOR: float = 1e-12
+"""Floor on ``sigma`` in [`fit_lq_weighted`][]: a zero spread (every repeat
+identical, e.g. no kill at all at the lowest dose) becomes a weight of 1e12
+rather than a division by zero. Same floor as ``_lq_fit`` in
+``examples/survival_code_lem_comparison.py`` and the cubic fit in
+[`pyradbio.models.lem.lem1.SpecificEnergySurvival.straightness`][].
+"""
 
 
 def _as_1d_pair(

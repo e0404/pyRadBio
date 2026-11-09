@@ -5,14 +5,14 @@ dose-weighted form ``d1(y) = y f1(y) / y_F`` for an ion crossing a small site,
 together with the microdosimetric moments ``y_F``, ``y_D`` and the
 saturation-corrected ``y*``.
 
-Two engines share the :class:`SpectrumEngine` contract:
+Two engines share the [`SpectrumEngine`][] contract:
 
-* :class:`AnalyticSpectrumEngine` -- the *analytic / statistical* (Xapsos-
+* [`AnalyticSpectrumEngine`][] -- the *analytic / statistical* (Xapsos-
   Kellerer) route: needs only a stopping-power lookup plus an energy-loss
   straggling model and a site geometry, **no radial-dose model**. Fast and
   self-contained; captures crosser straggling but not the delta-ray tail.
-* :class:`AmorphousTrackEngine` -- the *amorphous track-structure* route: takes
-  any :class:`~pyradbio.track.base.RadialDoseModel` ``D(r)`` and builds the
+* [`AmorphousTrackEngine`][] -- the *amorphous track-structure* route: takes
+  any [`RadialDoseModel`][] ``D(r)`` and builds the
   spectrum by the impact-parameter method. Resolves the spatial track structure
   (delta-ray tail, restricted-LET behaviour) but is deterministic (no
   straggling). The two engines cross-check in the crosser-dominated regime.
@@ -50,7 +50,7 @@ Assumptions / limitations (honest, documented, and revisited in future work)
   sites smaller than the delta-ray range, driven by a single cut ``T_cut`` with
   range ``R(T_cut) = site diameter`` (the delta-ray range power law
   ``R(T) = r_max (T/T_max)^delta``, delta = 1.7, shared with
-  :class:`DeltaRayMonteCarlo` and the Scholz-Kraft track):
+  [`DeltaRayMonteCarlo`][] and the Scholz-Kraft track):
 
   - *mean*: the restricted LET ``L_Delta = LET - Delta_L``, where ``Delta_L`` is
     the standard Berger-Seltzer restricted-stopping-power offset -- the energy
@@ -72,8 +72,8 @@ Assumptions / limitations (honest, documented, and revisited in future work)
   ``include_delta_tail=True`` (spherical sites only) folds in an analytic
   delta-ray "toucher" tail -- the low-``y`` events from tracks whose core passes
   *outside* the site but whose delta-rays deposit energy inside it (see
-  :meth:`AnalyticSpectrumEngine._delta_tail_component`). For a fully stochastic
-  treatment use :class:`AmorphousTrackEngine` with a :class:`DeltaRayMonteCarlo`
+  `AnalyticSpectrumEngine._delta_tail_component`). For a fully stochastic
+  treatment use [`AmorphousTrackEngine`][] with a [`DeltaRayMonteCarlo`][]
   instead.
 * Bohr straggling is used in its non-relativistic form; the mild relativistic
   growth of the variance is neglected (sub-percent at therapy energies).
@@ -240,7 +240,7 @@ class SphericalSite:
 
         ``eps(b) = C * integral_V D(r_perp) dV`` with ``C = KEVUM_PER_GY_UM2_GCM3
         * rho`` (Kellerer impact-parameter method) -- a thin wrapper over
-        :meth:`volume_integral_over_site` with ``f = D``. ``dose_s_Gy`` is the
+        [`volume_integral_over_site`][] with ``f = D``. ``dose_s_Gy`` is the
         radial dose sampled once on ``s_grid_um`` and reused across all impact
         parameters; ``impact_um`` may be an array.
         """
@@ -407,14 +407,14 @@ class Spectrum:
     """A single-event lineal-energy spectrum and its moments.
 
     ``f`` is ``f1(y)`` normalised so ``integral f(y) dy = 1`` on ``y``. The
-    dose-weighted spectrum ``d1(y) = y f(y) / y_F`` is exposed as :attr:`d`.
+    dose-weighted spectrum ``d1(y) = y f(y) / y_F`` is exposed as [`d`][].
     ``meta`` records the ion, LET, site and model so a spectrum is
     self-describing.
 
     ``y_F_override`` / ``y_D_override`` let a caller supply pre-computed moments
     instead of the Simpson quadrature on ``(y, f)``. This is used when the
     spectrum comes from a coarse, non-uniformly binned histogram (see
-    :meth:`TabulatedLinealEnergySpectrum.to_spectrum`): Simpson's non-uniform
+    [`TabulatedLinealEnergySpectrum.to_spectrum`][]): Simpson's non-uniform
     weights are not positive there and can drive ``integral f dy`` -- and hence
     ``y_F`` -- negative, which would flip the whole dose-weighted spectrum below
     zero. The exact count-weighted moments are supplied instead.
@@ -456,11 +456,11 @@ class Spectrum:
 
     @property
     def yd(self) -> npt.NDArray[np.float64]:
-        """``y d1(y)`` on :attr:`y_keV_um` -- the microdosimetry plotting convention.
+        """``y d1(y)`` on [`y_keV_um`][] -- the microdosimetry plotting convention.
 
         Against ``log y`` equal areas carry equal dose, so this is the curve
         spectra are drawn and compared as (e.g. the digitized
-        :attr:`pyradbio.micro.hartzell2025.Hartzell2025Curve.yd`).
+        [`pyradbio.micro.hartzell2025.Hartzell2025Curve.yd`][]).
         Dimensionless; ``integral yd d(ln y) = 1`` for a normalised spectrum.
         """
         result: npt.NDArray[np.float64] = self.y_keV_um * self.d
@@ -468,11 +468,11 @@ class Spectrum:
 
     @property
     def peak_y_keV_um(self) -> float:
-        """Lineal energy [keV/um] at the maximum of :attr:`yd` (the primary peak).
+        """Lineal energy [keV/um] at the maximum of [`yd`][] (the primary peak).
 
         A grid value, not an interpolated maximum: the first ``y`` where ``yd`` is
         largest (the same rule as
-        :attr:`pyradbio.micro.hartzell2025.Hartzell2025Curve.peak_y_keV_um`).
+        [`pyradbio.micro.hartzell2025.Hartzell2025Curve.peak_y_keV_um`][]).
         """
         return float(self.y_keV_um[np.argmax(self.yd)])
 
@@ -497,8 +497,8 @@ class TabulatedLinealEnergySpectrum:
     Carlo codes: bin *edges* ``y_edges_keV_um`` (length ``n + 1``) and the
     unnormalised count spectrum ``counts`` (length ``n``, ``N(y)``). Bins are
     represented by their geometric centre ``sqrt(lo * hi)`` (the natural choice
-    for logarithmically spaced bins). :meth:`to_spectrum` converts to a
-    normalised :class:`Spectrum` so the moment machinery (``y_F``, ``y_D``,
+    for logarithmically spaced bins). [`to_spectrum`][] converts to a
+    normalised [`Spectrum`][] so the moment machinery (``y_F``, ``y_D``,
     ``y*``, dose-weighting) is shared with the analytic engine.
     """
 
@@ -547,13 +547,13 @@ class TabulatedLinealEnergySpectrum:
         return density
 
     def to_spectrum(self) -> Spectrum:
-        """Convert to a normalised :class:`Spectrum` on the geometric bin centres.
+        """Convert to a normalised [`Spectrum`][] on the geometric bin centres.
 
         Handy for plotting/dose-weighting and interoperability with the analytic
-        engine. The moments (:attr:`y_F`, :attr:`y_D`) are computed directly from
+        engine. The moments ([`y_F`][], [`y_D`][]) are computed directly from
         the count histogram, not by quadrature on this density -- the exact
         estimator, and robust for coarse binning -- and passed through as the
-        :class:`Spectrum` moment overrides so the dose-weighted ``d`` normalises
+        [`Spectrum`][] moment overrides so the dose-weighted ``d`` normalises
         by the same (positive) ``y_F``. Quadrature on a coarse, non-uniform grid
         can otherwise return a negative ``y_F`` and flip ``d`` below zero.
         """
@@ -579,7 +579,7 @@ class TabulatedLinealEnergySpectrum:
 
 
 class SpectrumEngine(Protocol):
-    """Produces a single-event :class:`Spectrum` for an ion (engine facade)."""
+    """Produces a single-event [`Spectrum`][] for an ion (engine facade)."""
 
     def single_event_spectrum(
         self, ion: Ion, y_grid_keV_um: npt.NDArray[np.float64] | None = None
@@ -591,8 +591,8 @@ class AnalyticSpectrumEngine:
     """Analytic-statistical single-event spectrum (Xapsos-Kellerer route).
 
     Folds the site chord-length distribution with an energy-loss straggling
-    kernel (see the module docstring). Requires only a :class:`StoppingPower`
-    and a :class:`SiteGeometry`.
+    kernel (see the module docstring). Requires only a [`StoppingPower`][]
+    and a [`SiteGeometry`][].
 
     Set ``restricted=True`` to switch the mean deposit and the straggling
     variance to their restricted (delta-ray-escape) values for sites smaller than
@@ -602,15 +602,15 @@ class AnalyticSpectrumEngine:
 
     Set ``include_delta_tail=True`` (spherical sites only) to fold an analytic
     delta-ray "toucher" tail into ``f(y)`` alongside the crosser term, with the
-    correct relative event frequency (see :meth:`_delta_tail_component`). This
+    correct relative event frequency (see `_delta_tail_component`). This
     adds the low-``y`` density the crosser-only engine lacks, pulling ``y_F`` and
     ``y_D`` down toward the track-structure / Sato-AMF values at small sites; it
     combines naturally with ``restricted`` (the energy leaving a restricted
     crosser via delta-rays is exactly what the touchers deposit in neighbours).
     The tail is a deterministic-mean approximation tuned for the MKM regime
     (sub-um domains, high-LET heavy ions); for low-LET ions in larger sites use
-    :class:`AmorphousTrackEngine` with a :class:`DeltaRayMonteCarlo` instead (see
-    :meth:`_delta_tail_component` for the regime caveat).
+    [`AmorphousTrackEngine`][] with a [`DeltaRayMonteCarlo`][] instead (see
+    `_delta_tail_component` for the regime caveat).
     """
 
     stopping_power: StoppingPower
@@ -636,9 +636,9 @@ class AnalyticSpectrumEngine:
         the single-collision spectrum at ``T_cut`` with range
         ``R(T_cut) = site diameter`` gives ``T_cut/T_max = (d/r_max)^(1/delta)``
         -- the delta-ray range power law ``R(T) = r_max (T/T_max)^delta``
-        (delta = 1.7) shared with :class:`DeltaRayMonteCarlo` and the
+        (delta = 1.7) shared with [`DeltaRayMonteCarlo`][] and the
         Scholz-Kraft track, with ``r_max = gamma_LEM1 * E^delta``. This single
-        ratio drives both the restricted LET (:meth:`restricted_let_keV_um`) and
+        ratio drives both the restricted LET ([`restricted_let_keV_um`][]) and
         the restricted variance. For a large site (``r_max <= d``) it is 1, so
         both restrictions are inactive.
         """
@@ -653,7 +653,7 @@ class AnalyticSpectrumEngine:
 
         Subtracts the Berger-Seltzer restricted-stopping-power offset -- the mean
         energy carried out of the site by delta-rays with ``T`` in
-        ``[T_cut, T_max]`` (``T_cut`` from :meth:`_restricted_fraction`):
+        ``[T_cut, T_max]`` (``T_cut`` from `_restricted_fraction`):
 
             Delta_L = (K/2)(Z/A) rho (z_eff^2/beta^2)
                       [ln(T_max/T_cut) - beta^2 (1 - T_cut/T_max)]
@@ -688,7 +688,7 @@ class AnalyticSpectrumEngine:
         """Energy-loss variance ``Omega^2(l)`` [keV^2] for path ``l`` [um].
 
         The full Bohr variance ``c*l``, scaled by ``T_cut/T_max`` (see
-        :meth:`_restricted_fraction`) when ``restricted`` is set. The scaling is a
+        `_restricted_fraction`) when ``restricted`` is set. The scaling is a
         constant per unit length, so the variance stays linear in ``l`` and the
         log-normal remains mean-preserving about the (restricted) mean.
         """
@@ -831,14 +831,14 @@ class AnalyticSpectrumEngine:
         ``r_max = gamma_LEM1 * E^delta`` the maximum delta-ray range (the same
         power law the restricted-LET path uses). The mean toucher deposit
         ``eps(b)`` is that dose integrated over the site by the impact-parameter
-        method (:meth:`SphericalSite.mean_energy_deposited_keV`).
+        method ([`SphericalSite.mean_energy_deposited_keV`][]).
 
         Each impact annulus is weighted by its area (impact pdf ``2 b / b_max^2``)
         *and* by the Poisson probability that a delta-ray event actually occurs
         there, ``1 - exp(-lambda(b))`` with ``lambda(b) = eps(b) / <w>`` the mean
         number of delta-ray collisions (``<w>`` the mean single-collision energy of
         the ``1/T^2`` spectrum on ``[T_min, T_max]``). This is the same
-        importance weight :class:`DeltaRayMonteCarlo` samples from: without it the
+        importance weight [`DeltaRayMonteCarlo`][] samples from: without it the
         deterministic mean assigns a non-zero ``eps`` to *every* far track, wildly
         over-counting toucher events for low-LET ions (where ``lambda << 1`` and
         most far tracks in fact deposit nothing). Touchers whose mean deposit is
@@ -850,7 +850,7 @@ class AnalyticSpectrumEngine:
         reproduces the Hartzell 2025 AMF ``y_D`` to a few percent. For low-LET ions
         in larger sites (e.g. protons in a 1 um sphere) it is coarse -- delta-ray
         events are then rare and discrete, not a smooth mean, and the faithful tool
-        is :class:`AmorphousTrackEngine` with a :class:`DeltaRayMonteCarlo`.
+        is [`AmorphousTrackEngine`][] with a [`DeltaRayMonteCarlo`][].
 
         Returns ``(f_touch, w_cross, w_touch)`` with ``f_touch`` normalised on
         ``y`` and the crosser / toucher event-frequency weights (summing to 1), or
@@ -999,7 +999,7 @@ class DeltaRayMonteCarlo:
         w_i ~ single-collision spectrum  p(T) proportional to 1/T^2  on
               [T_min, T_max(ion)] (Rutherford / first-Born delta-ray spectrum).
 
-    ``T_max`` is the kinematic maximum (:func:`max_delta_ray_energy_keV`) and
+    ``T_max`` is the kinematic maximum ([`max_delta_ray_energy_keV`][]) and
     ``T_min`` defaults to the water mean excitation energy ``I = 78 eV`` (the
     natural lower edge of the ionisation spectrum). The mean is preserved
     (``E[energy] = eps``), so:
@@ -1024,7 +1024,7 @@ class DeltaRayMonteCarlo:
     Delta-ray transport is handled one of two ways:
 
     * default (``partial_deposition=False``): the collision spectrum is *cut* at
-      ``T_cut`` with ``R(T_cut) = site diameter`` (:meth:`_restricted_t_max_keV`),
+      ``T_cut`` with ``R(T_cut) = site diameter`` (`_restricted_t_max_keV`),
       and each surviving collision deposits its full ``T`` locally. Simple, but a
       sharp cut whose surviving quanta (up to ``T_cut``) still deposit their whole
       energy in one point, which slightly over-populates the high-``y`` tail.
@@ -1032,7 +1032,7 @@ class DeltaRayMonteCarlo:
       is kept, but each collision deposits only the energy its delta-ray loses
       while crossing the site -- ``w(T) = T * phi(T)`` with ``phi`` the fraction of
       the delta's range contained in a representative in-site path ``l_bar``
-      (:meth:`_deposit_fraction`). A short-range delta (``R(T) <= l_bar``) still
+      (`_deposit_fraction`). A short-range delta (``R(T) <= l_bar``) still
       deposits its full ``T``; a long-range one deposits only the ``LET_e * path``
       it drops before exiting. The compound-Poisson mean is renormalised to the
       amorphous ``eps(b)`` via the deposit mean ``<w>``, so the local dose is
@@ -1048,7 +1048,7 @@ class DeltaRayMonteCarlo:
     ---------------------------------------------
     With ``soft_core=True`` (**default**) the deposit is split into a **soft core**
     and a **hard delta-ray tail** at a boundary ``T_0`` (equivalently a radius
-    ``r_0 = R(T_0)``), which the :class:`AmorphousTrackEngine` uses to split the
+    ``r_0 = R(T_0)``), which the [`AmorphousTrackEngine`][] uses to split the
     radial-dose integral so the split is impact-parameter dependent (far touchers
     get no soft core):
 
@@ -1060,17 +1060,17 @@ class DeltaRayMonteCarlo:
     * hard tail (``T > T_0``): the compound-Poisson ``1/T^2`` deltas as above,
       always with partial deposition (they are long-range by construction).
 
-    ``T_0`` is set by :attr:`soft_cut_keV` (a fixed cut, default 1 keV) or, when
-    :attr:`soft_cut_from_core_radius` is set (**default**) and the radial-dose model
+    ``T_0`` is set by [`soft_cut_keV`][] (a fixed cut, default 1 keV) or, when
+    [`soft_cut_from_core_radius`][] is set (**default**) and the radial-dose model
     exposes a core radius ``r_min_um``, from that core radius via the range law.
 
-    :attr:`soft_variance` picks ``kappa_soft`` (variance per unit soft energy):
+    [`soft_variance`][] picks ``kappa_soft`` (variance per unit soft energy):
 
     * ``"collision"`` (**default**): the soft ``1/T^2`` moments ``<T^2>/<T>``.
       Broader; empirically matches the DeCunha proton peaks best (their peaks carry
       real width the sharper core lacks).
     * ``"bohr"``: the Bohr energy-loss variance restricted to ``T_0``, divided by
-      the soft stopping power (:meth:`AmorphousTrackEngine._soft_variance_coeff_keV`).
+      the soft stopping power (`AmorphousTrackEngine._soft_variance_coeff_keV`).
       More rigorous -- it includes the many sub-``I`` soft collisions the ``1/T^2``
       form omits -- and so is narrower; it tends to *over*-sharpen the peak.
 
@@ -1082,7 +1082,7 @@ class DeltaRayMonteCarlo:
     soft/hard seam ``~T_0/l_bar``. Prefer a dense-core radial model with soft_core.
 
     The hard-tail extent in ``y d(y)`` is governed by the delta-ray energy-deposition
-    range in partial deposition (:meth:`_deposition_range_um`): the electron CSDA
+    range in partial deposition (`_deposition_range_um`): the electron CSDA
     range scaled by the detour factor for scattering, sampled against a per-delta
     in-site chord. A *contained* delta deposits its full energy (the library's
     high-``y`` shoulder); a longer-range one deposits only the ``LET_e * chord`` it
@@ -1135,7 +1135,7 @@ class DeltaRayMonteCarlo:
         """Fraction ``phi(T)`` of a delta-ray's energy deposited within ``s_eff`` [um].
 
         With the scattering-aware energy-deposition range ``R_dep(T)``
-        (:meth:`_deposition_range_um`) and the residual-range relation
+        (`_deposition_range_um`) and the residual-range relation
         ``T(r) = (r/A_dep)^(1/EXP)``,
 
             phi(T) = 1                                   if R_dep(T) <= s_eff
@@ -1235,7 +1235,7 @@ class DeltaRayMonteCarlo:
 
         ``eps_soft_keV`` (the near-track / soft part of ``eps(b)``) and
         ``soft_cut_keV`` (``T_0``) enable the two-component soft-core model; the
-        :class:`AmorphousTrackEngine` supplies them by splitting the radial-dose
+        [`AmorphousTrackEngine`][] supplies them by splitting the radial-dose
         integral at ``r_0 = R(T_0)``. ``soft_var_coeff_keV`` is the Bohr soft-core
         variance-per-mean ``kappa_soft`` (``soft_variance="bohr"``); when absent
         the ``1/T^2`` moments are used.
@@ -1509,18 +1509,18 @@ class AmorphousTrackEngine:
     """Single-event spectrum from an amorphous radial-dose (track-structure) model.
 
     Engine A of the lineal-energy design: it takes any
-    :class:`~pyradbio.track.base.RadialDoseModel` ``D(r)`` (Scholz-Kraft LEM I/II/
+    [`RadialDoseModel`][] ``D(r)`` (Scholz-Kraft LEM I/II/
     III, or a future Kiefer-Chatterjee / Waligorski-Katz model) and a spherical
     site, and builds the spectrum by the impact-parameter method. For a track at
     perpendicular distance ``b`` the mean deposited energy ``eps(b)`` is ``D(r)``
-    integrated over the site (see :meth:`SphericalSite.mean_energy_deposited_keV`);
+    integrated over the site (see [`SphericalSite.mean_energy_deposited_keV`][]);
     since impact points are uniform in the plane, ``b`` has pdf ``2 b / b_max^2``
     out to ``b_max = R_s + r_max`` and ``eps(b)`` is monotone decreasing, so
 
         F(y) = P(Y <= y) = 1 - (b(y) / b_max)^2 ,   f1(y) = dF/dy
              = (2 b / b_max^2) / |dy/db| ,           y = eps(b) / l_bar .
 
-    Complementary to :class:`AnalyticSpectrumEngine`: it resolves the spatial
+    Complementary to [`AnalyticSpectrumEngine`][]: it resolves the spatial
     track structure explicitly, so it *includes* the low-``y`` delta-ray tail from
     "toucher" tracks (``b > R_s``) and automatically uses only the energy deposited
     inside the site (restricted-LET behaviour for sites smaller than ``r_max``).
@@ -1536,7 +1536,7 @@ class AmorphousTrackEngine:
       deposit, distant toucher tracks (``b`` up to ``b_max``) all register a tiny
       non-zero ``eps`` -- so the deterministic low-``y`` tail is **over-populated**
       and ``y_F`` (frequency-weighted) is biased low for sites much smaller than
-      ``r_max``. Passing a :class:`DeltaRayMonteCarlo` as ``stochastic`` resamples
+      ``r_max``. Passing a [`DeltaRayMonteCarlo`][] as ``stochastic`` resamples
       ``eps(b)`` with collision statistics, which both adds straggling to the
       crosser peak and cures the over-populated tail (see that class). Without it
       the dose-mean ``y_D`` is the robust moment.
@@ -1800,9 +1800,9 @@ class AmorphousTrackEngine:
 class LinealEnergyCalculator:
     """Facade: assemble an ion + stopping power + site + engine, get spectra.
 
-    By default it uses the :class:`AnalyticSpectrumEngine` with log-normal
+    By default it uses the [`AnalyticSpectrumEngine`][] with log-normal
     straggling. Swap ``straggling`` or inject a different ``engine`` (any
-    :class:`SpectrumEngine`) to change the physics without touching callers.
+    [`SpectrumEngine`][]) to change the physics without touching callers.
     """
 
     stopping_power: StoppingPower

@@ -1,6 +1,6 @@
 """Manganaro et al. 2018: the inputs of the pyRadBio-vs-Survival LEM I-III comparison.
 
-`batuff/Survival <https://github.com/batuff/Survival>`_ (Manganaro, Russo, Bourhaleb,
+[batuff/Survival](https://github.com/batuff/Survival) (Manganaro, Russo, Bourhaleb,
 Fausti, Giordanengo, Monaco, Sacchi, Vignati, Cirio & Attili, Phys. Med. Biol. 63
 (2018) 08NT01, doi:10.1088/1361-6560/aab697) is the only other open-source LEM I-III
 implementation. pyRadBio is compared with it on the **HSG LEM row of the paper's
@@ -9,11 +9,11 @@ table 1** (``alpha_x = 0.313 Gy^-1``, ``beta_x = 0.0615 Gy^-2``, ``R_N = 5 um``;
 their inputs from here so that they cannot drift apart:
 
 * ``scripts/survival_paired_mc.py`` drives a locally built ``survival.exe`` over the
-  paired grid :data:`PAIRED_IONS` x :data:`PAIRED_ENERGIES_MEV_U` and writes the
-  ``*_MonteCarloPaired_*`` exports named by :func:`survival_table_filename`;
+  paired grid [`PAIRED_IONS`][] x [`PAIRED_ENERGIES_MEV_U`][] and writes the
+  ``*_MonteCarloPaired_*`` exports named by [`survival_table_filename`][];
 * ``scripts/lem_mc_vs_survival.py`` runs pyRadBio's own Monte Carlo
-  (:func:`adaptive_montecarlo_point`) on the same cell and writes the hash-keyed
-  cache ``validation/data/survival_our_mc.json`` (:func:`mc_cache_key`);
+  ([`adaptive_montecarlo_point`][]) on the same cell and writes the hash-keyed
+  cache ``validation/data/survival_our_mc.json`` ([`mc_cache_key`][]);
 * ``validation/survival_code_lem.py`` draws the comparison and reads that cache.
 
 Survival's data (its SRIM tables, eta table and JSON exports) is GPL-2 output of a
@@ -21,7 +21,7 @@ local build and is never redistributed; see ``docs/references/survival_repo_note
 for the build and run recipe. Nothing here reads a dataset: callers pass the
 stopping power (``pyradbio.track.srim.srim_stopping_power`` for the comparison).
 
-The Survival-style LQ fit is :func:`pyradbio.core.lq.fit_lq_weighted`.
+The Survival-style LQ fit is [`pyradbio.core.lq.fit_lq_weighted`][].
 """
 
 from __future__ import annotations
@@ -68,19 +68,20 @@ __all__ = [
 LemVersion = Literal["LEMI", "LEMII", "LEMIII"]
 """Survival's names for the three LEM versions (its ``-model`` argument)."""
 
-#: pyRadBio's model class for each Survival LEM version.
 LEM_MODELS: Mapping[str, type[LEM1] | type[LEM2] | type[LEM3]] = MappingProxyType(
     {"LEMI": LEM1, "LEMII": LEM2, "LEMIII": LEM3}
 )
+"""pyRadBio's model class for each Survival LEM version."""
 
-#: The paired grid's ions, Survival's ``-ion`` symbol -> ``(Z, A)``.
 PAIRED_IONS: Mapping[str, tuple[int, int]] = MappingProxyType(
     {"H": (1, 1), "He": (2, 4), "C": (6, 12), "O": (8, 16)}
 )
+"""The paired grid's ions, Survival's ``-ion`` symbol -> ``(Z, A)``."""
 
-#: The paired grid's energies [MeV/u]: Survival's own MC grid (carbon 3-300, protons
-#: 3-100) extended to every ion of :data:`PAIRED_IONS`.
 PAIRED_ENERGIES_MEV_U: tuple[float, ...] = (3.0, 10.0, 30.0, 100.0, 300.0)
+"""The paired grid's energies [MeV/u]: Survival's own MC grid (carbon 3-300, protons
+3-100) extended to every ion of [`PAIRED_IONS`][].
+"""
 
 
 @dataclass(frozen=True, slots=True)
@@ -101,13 +102,13 @@ class HsgLemCell:
         return CellTarget(nucleus_radius_um=self.nucleus_radius_um, effective_size_factor=1.0)
 
 
-#: Manganaro et al. 2018 table 1, HSG LEM row (doi:10.1088/1361-6560/aab697).
 HSG_LEM = HsgLemCell(
     alpha_x=0.313,
     beta_x=0.0615,
     nucleus_radius_um=5.0,
     D_t=MappingProxyType({"LEMI": 30.0, "LEMII": 6.0, "LEMIII": 19.0}),
 )
+"""Manganaro et al. 2018 table 1, HSG LEM row (doi:10.1088/1361-6560/aab697)."""
 
 
 def survival_table_filename(model: str, calculus: str) -> str:
@@ -117,7 +118,7 @@ def survival_table_filename(model: str, calculus: str) -> str:
     ``"Russo2011"``), a Monte-Carlo pass (``"MonteCarlo"``, ``"MonteCarloHiP"``,
     ``"MonteCarloPaired"``) or a patched-build variant (``"Russo2011Patched"``);
     the files live in ``$PYRADBIO_SURVIVAL_DIR`` and are read with
-    :func:`pyradbio.benchmark.reference_tables.load_survival_table`.
+    [`pyradbio.benchmark.reference_tables.load_survival_table`][].
     """
     return f"{model}_{calculus}_HSG_Manganaro2018.json"
 
@@ -129,7 +130,7 @@ def survival_matched_lem(
     match_r_max: bool = True,
     **kwargs: Any,
 ) -> LEM1 | LEM2 | LEM3:
-    """A pyRadBio LEM on :data:`HSG_LEM`, driven by ``stopping_power`` (Survival's LET).
+    """A pyRadBio LEM on [`HSG_LEM`][], driven by ``stopping_power`` (Survival's LET).
 
     ``r_max = gamma E^1.7``: Survival hard-codes ``gamma = 0.062`` (Elsasser &
     Scholz 2007) for every LEM version, while pyRadBio's LEM I uses the
@@ -157,7 +158,7 @@ class OurMcSettings:
     """pyRadBio's Monte-Carlo settings for the Survival comparison (cache contract).
 
     Every field that can change a cached number is part of the cache key
-    (:func:`mc_cache_payload`); the grids decide *which* points exist.
+    ([`mc_cache_payload`][]); the grids decide *which* points exist.
 
     Attributes:
         cache_version: Bumped by hand when the estimator changes in a way the key
@@ -224,8 +225,8 @@ class OurMcSettings:
         return tuple(sorted(set(grid)))
 
 
-#: The settings the committed cache was generated with.
 OUR_MC = OurMcSettings()
+"""The settings the committed cache was generated with."""
 
 
 def mc_cache_payload(
@@ -242,7 +243,7 @@ def mc_cache_payload(
     Any of these moving must invalidate the point, so they are hashed rather than
     trusted to a version bump; the LEM version string alone is not enough (the same
     ``LEMII`` at another ``D_t`` or ``r_max`` is another calculation). ``lem`` is
-    :func:`survival_matched_lem` ``(model, stopping_power)``. This is the
+    [`survival_matched_lem`][] ``(model, stopping_power)``. This is the
     payload of the cache key.
     """
     radial = lem.resolved_radial_dose
@@ -282,7 +283,7 @@ def mc_cache_key(
     stopping_power: StoppingPower,
     settings: OurMcSettings = OUR_MC,
 ) -> str:
-    """:func:`~pyradbio.benchmark.checkpoint.config_key` of :func:`mc_cache_payload`."""
+    """[`config_key`][] of [`mc_cache_payload`][]."""
     return config_key(mc_cache_payload(model, Z, A, energy_MeV_u, lem, stopping_power, settings))
 
 
@@ -299,7 +300,7 @@ def montecarlo_lq_repeats(
 
     Each run is ``lem.scholz1997_montecarlo_survival(ion, doses, n_realizations=...,
     seed=s, **mc_kw)``; every run's ``-ln S`` is fitted with Survival's own LQ fit
-    (:func:`~pyradbio.core.lq.fit_lq_weighted`: no intercept, weighted by the
+    ([`fit_lq_weighted`][]: no intercept, weighted by the
     inverse spread of ``-ln S`` over the repeats). The spread of the returned
     coefficients is therefore the sigma of a *single* ``n_realizations`` run -- the
     quantity Survival reports from its covariance matrix, so directly comparable.
@@ -379,18 +380,6 @@ def adaptive_montecarlo_point(
     }
 
 
-#: The numeric fingerprint of the committed cache: small,
-#: data-free, deterministic points through the generator's own code path (numpy
-#: engine, seeds ``0..n_repeat-1``) on the analytic Bethe stopping power, since
-#: Survival's SRIM tables are not redistributed and the fingerprint must run in CI
-#: (an SRIM change still shows: the LET is part of every cache key). The first point
-#: runs the whole :func:`adaptive_montecarlo_point` (pilot, sizing, re-run) on
-#: shrunken :class:`OurMcSettings` -- ``b_cut_min_nbar = 0`` and ``b_cut_um = 6``
-#: put tracks beyond the cut at carbon 10 MeV/u (``b_max ~ 8 um``), so the near/far
-#: split's background draw is pinned too; the other two run
-#: :func:`montecarlo_lq_repeats` on LEM II and LEM III at the same ion, energy and
-#: seeds -- the shared cluster/eta machinery, once on LEM II's own radial dose and
-#: once on LEM III's velocity-dependent core (``LEM3`` overrides only the radial dose).
 FINGERPRINT_POINTS: tuple[Mapping[str, Any], ...] = (
     MappingProxyType(
         {
@@ -417,6 +406,19 @@ FINGERPRINT_POINTS: tuple[Mapping[str, Any], ...] = (
         {"model": "LEMIII", "Z": 8, "A": 16, "energy_MeV_u": 1.0, "n_realizations": 20}
     ),
 )
+"""The numeric fingerprint of the committed cache: small,
+data-free, deterministic points through the generator's own code path (numpy
+engine, seeds ``0..n_repeat-1``) on the analytic Bethe stopping power, since
+Survival's SRIM tables are not redistributed and the fingerprint must run in CI
+(an SRIM change still shows: the LET is part of every cache key). The first point
+runs the whole [`adaptive_montecarlo_point`][] (pilot, sizing, re-run) on
+shrunken [`OurMcSettings`][] -- ``b_cut_min_nbar = 0`` and ``b_cut_um = 6``
+put tracks beyond the cut at carbon 10 MeV/u (``b_max ~ 8 um``), so the near/far
+split's background draw is pinned too; the other two run
+[`montecarlo_lq_repeats`][] on LEM II and LEM III at the same ion, energy and
+seeds -- the shared cluster/eta machinery, once on LEM II's own radial dose and
+once on LEM III's velocity-dependent core (``LEM3`` overrides only the radial dose).
+"""
 _FINGERPRINT_REPEATS = 3
 
 
@@ -426,13 +428,13 @@ def mc_fingerprint(
     """Recompute the cache fingerprint: one record per point of ``points``.
 
     Each record holds the point's inputs (``model``, ``Z``, ``A``, ``energy_MeV_u``
-    and either ``adaptive`` -- the :class:`OurMcSettings` fields replaced on
-    :data:`OUR_MC` -- or ``n_realizations`` + ``n_repeat``), ``engine="numpy"``,
+    and either ``adaptive`` -- the [`OurMcSettings`][] fields replaced on
+    [`OUR_MC`][] -- or ``n_realizations`` + ``n_repeat``), ``engine="numpy"``,
     ``stopping_power="simple_bethe"`` and the results ``alpha``, ``alpha_sigma``,
     ``beta``, ``beta_sigma`` (means and spreads over seeds ``0..n_repeat-1``; an
     adaptive point adds ``let`` and the sized ``n_real``). A plain record without
     ``n_repeat`` gets ``3``. The test compares the stored records with
-    :func:`~pyradbio.benchmark.checkpoint.assert_fingerprint`.
+    [`assert_fingerprint`][pyradbio.benchmark.checkpoint.assert_fingerprint].
     """
     from pyradbio.track.stopping_power import SimpleBetheStoppingPower
 

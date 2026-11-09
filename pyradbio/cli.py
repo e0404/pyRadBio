@@ -47,9 +47,20 @@ def _require_flags(args: argparse.Namespace, flags: Sequence[str], model: str) -
         raise SystemExit(f"pyradbio table --model {model}: missing {', '.join(missing)}")
 
 
-#: ``--flag`` -> model dataclass field, for the optional model-behaviour flags.
-#: Applied only when the chosen model actually has the field; passing one to a
-#: model that does not is an error rather than a silent no-op.
+_LEM_PARAMETER_FLAGS = ("alpha_x", "beta_x", "dt", "effective_size_factor")
+"""Photon-reference and cell flags only the ``lem*`` builders read."""
+
+_MKM_PARAMETER_FLAGS = ("alpha0", "beta0", "rd")
+"""Flags only the ``mkm`` builder reads."""
+
+
+def _reject_flags(args: argparse.Namespace, flags: Sequence[str], model: str) -> None:
+    """Exit when a flag the chosen model never reads was given, instead of dropping it."""
+    given = [f"--{f.replace('_', '-')}" for f in flags if getattr(args, f) is not None]
+    if given:
+        raise SystemExit(f"pyradbio table --model {model}: {', '.join(given)} not used by {model}")
+
+
 _BEHAVIOUR_FLAGS: dict[str, str] = {
     "beta_model": "beta_model",
     "initial_slope_model": "initial_slope_model",
@@ -59,6 +70,10 @@ _BEHAVIOUR_FLAGS: dict[str, str] = {
     "local_dose_overkill": "local_dose_overkill",
     "engine": "engine",
 }
+"""``--flag`` -> model dataclass field, for the optional model-behaviour flags.
+Applied only when the chosen model actually has the field; passing one to a
+model that does not is an error rather than a silent no-op.
+"""
 
 
 def _behaviour_overrides(args: argparse.Namespace, cls: type, model: str) -> dict[str, object]:
@@ -84,13 +99,6 @@ def _behaviour_overrides(args: argparse.Namespace, cls: type, model: str) -> dic
     return overrides
 
 
-#: ``--stopping-power`` choices. ``default`` is the library default
-#: (:func:`~pyradbio.track.stopping_power.default_stopping_power`: ICRU 90's procedure
-#: for Z 1-18, Hubert alpha scaling for Z 19-92 from 2.5 MeV/u, anchored analytic Bethe
-#: elsewhere); ``bethe`` is the analytic
-#: :class:`~pyradbio.track.stopping_power.SimpleBetheStoppingPower` alone; the
-#: ``icru*`` / ``xstar`` choices are the :mod:`pyradbio.track.stopping` tables (Z 1-18,
-#: no extrapolation); ``libdedx`` is GPL and only works when the user installed it.
 STOPPING_POWER_CHOICES = (
     "default",
     "bethe",
@@ -102,13 +110,21 @@ STOPPING_POWER_CHOICES = (
     "ns1970",
     "libdedx",
 )
+"""``--stopping-power`` choices. ``default`` is the library default
+([`default_stopping_power`][pyradbio.track.stopping_power.default_stopping_power]: ICRU 90's
+procedure for Z 1-18, Hubert alpha scaling for Z 19-92 from 2.5 MeV/u, anchored analytic Bethe
+elsewhere); ``bethe`` is the analytic
+[`SimpleBetheStoppingPower`][pyradbio.track.stopping_power.SimpleBetheStoppingPower] alone; the
+``icru*`` / ``xstar`` choices are the [`pyradbio.track.stopping`][] tables (Z 1-18, no
+extrapolation); ``libdedx`` is GPL and only works when the user installed it.
+"""
 
 
 def _resolve_stopping_power(name: str | None) -> StoppingPower | None:
     """``--stopping-power`` -> a stopping-power instance, or None for the model default.
 
     Omitting the flag leaves each model on its own default, which is
-    :func:`~pyradbio.track.stopping_power.default_stopping_power`.
+    [`default_stopping_power`][pyradbio.track.stopping_power.default_stopping_power].
     """
     if name is None:
         return None
@@ -157,6 +173,7 @@ def _build_lem(model: str) -> Callable[[argparse.Namespace], BiophysicalModel]:
         from pyradbio.models.lem.lem4 import LEM4
 
         _require_flags(args, ["alpha_x", "beta_x", "dt", "rn"], model)
+        _reject_flags(args, _MKM_PARAMETER_FLAGS, model)
         photon = PhotonParameters(alpha_x=args.alpha_x, beta_x=args.beta_x, D_t=args.dt)
         cell = CellTarget(
             nucleus_radius_um=args.rn,
@@ -183,21 +200,22 @@ def _build_lem(model: str) -> Callable[[argparse.Namespace], BiophysicalModel]:
 
 
 def _build_mkm(args: argparse.Namespace) -> BiophysicalModel:
-    """MKM on the pyMKM-free :class:`NativeMKMBackend` (the library default)."""
+    """MKM on the pyMKM-free ``NativeMKMBackend`` (the library default)."""
     from pyradbio.models.mkm.model import MKMModel
     from pyradbio.models.mkm.native_backend import NativeMKMBackend
 
     _require_flags(args, ["alpha0", "beta0", "rd", "rn"], "mkm")
+    _reject_flags(args, _LEM_PARAMETER_FLAGS, "mkm")
+    overrides = _behaviour_overrides(args, MKMModel, "mkm")
     backend = NativeMKMBackend(
         domain_radius_um=args.rd, nucleus_radius_um=args.rn, beta0=args.beta0
     )
     stopping_power = _resolve_stopping_power(args.stopping_power)
     if stopping_power is not None:
         backend = replace(backend, stopping_power=stopping_power)
-    return MKMModel(alpha0=args.alpha0, backend=backend)
+    return MKMModel(alpha0=args.alpha0, backend=backend, **overrides)  # type: ignore[arg-type]
 
 
-#: model name -> builder. LEM I-IV share the photon+cell flags; MKM uses its own.
 _MODEL_BUILDERS: dict[str, Callable[[argparse.Namespace], BiophysicalModel]] = {
     "lem1": _build_lem("lem1"),
     "lem2": _build_lem("lem2"),
@@ -205,6 +223,7 @@ _MODEL_BUILDERS: dict[str, Callable[[argparse.Namespace], BiophysicalModel]] = {
     "lem4": _build_lem("lem4"),
     "mkm": _build_mkm,
 }
+"""model name -> builder. LEM I-IV share the photon+cell flags; MKM uses its own."""
 
 
 def _cmd_survival(args: argparse.Namespace) -> int:

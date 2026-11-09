@@ -23,7 +23,7 @@ class RadialDoseModel(Protocol):
     def r_support_um(self, ion: Ion) -> float:
         """Radius past which ``local_dose_Gy`` is zero -- the integration domain.
 
-        Distinct from :meth:`r_max_um`: a model that transports dose outward
+        Distinct from [`r_max_um`][]: a model that transports dose outward
         after depositing it (LEM II/III/IV radical diffusion) has dose beyond the
         delta-electron range, and integrating only to ``r_max_um`` silently
         discards it. Models with a hard cut-off return ``r_max_um``. Consumers

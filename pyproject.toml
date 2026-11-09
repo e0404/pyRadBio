@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyradbio"
-version = "0.1.0"
+version = "0.1.1"
 description = "Radiobiological modelling for ion-beam therapy: LQ-centred MKM/LEM implementations, alpha-beta and z* tables, survival and RBE."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -68,6 +68,12 @@ dev = [
     # never imported by the pyradbio package.
     "pypdf>=4.0",
 ]
+# The documentation site (zensical.toml, .readthedocs.yaml); Zensical needs Python >= 3.11.
+# Minor-pinned like ruff: both are 0.x/fast-moving and a new minor can change the build.
+docs = [
+    "zensical>=0.1,<0.2; python_version >= '3.11'",
+    "mkdocstrings-python>=2.0,<3; python_version >= '3.11'",
+]
 all = ["pyradbio[tables,benchmark,fast,plot,dev]"]
 
 [project.scripts]
@@ -75,6 +81,7 @@ pyradbio = "pyradbio.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/e0404/pyRadBio"
+Documentation = "https://pyradbio.readthedocs.io/"
 Issues = "https://github.com/e0404/pyRadBio/issues"
 
 [tool.hatch.build.targets.wheel]

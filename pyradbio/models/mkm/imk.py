@@ -6,22 +6,24 @@ sourcing caveats: ``docs/references/IMK_Matsuya2025.md``.
 
 The acronym is **integrated** MK -- coined in Matsuya et al. 2018, *Sci. Rep.*
 **8**:4849 -- and the lineage is Matsuya & Date's, unrelated to the Sato-NIRS
-line that produced the SMK in :mod:`~pyradbio.models.mkm.spectrum_models`.
+line that produced the SMK in [`spectrum_models`][].
 
 The idea in one paragraph
 -------------------------
 IMK is the MK model with an explicit **repair channel**. Potentially lethal
 lesions (PLLs, read as DSBs) either become lethal lesions (LLs) at rates ``a``
 (singly) and ``b_d`` (pairwise) or are repaired at rate ``c``; solving those
-rate equations gives eq. (1)::
+rate equations gives eq. (1):
 
-    -ln S = <w> = (alpha0 + z*_1D beta0) D + F beta0 D^2,  z*_1D = y*/(rho pi r_d^2)
+```text
+-ln S = <w> = (alpha0 + z*_1D beta0) D + F beta0 D^2,  z*_1D = y*/(rho pi r_d^2)
+```
 
 The linear term is the **modified MKM verbatim**, so this class subclasses
-:class:`~pyradbio.models.mkm.spectrum_models.ModifiedMKM` and overrides only
+[`ModifiedMKM`][] and overrides only
 ``beta``. The factor ``F`` is the Lea-Catcheside time factor, which the paper
 writes in terms of the summed rate constant ``(a+c)`` rather than the repair
-half-time :mod:`~pyradbio.core.protraction` uses; ``F`` for a single continuous
+half-time [`protraction`][pyradbio.core.protraction] uses; ``F`` for a single continuous
 block is the paper's printed ``2[x + e^-x - 1]/x^2`` with ``x = (a+c) T``.
 
 This paper's own new content is the **micronucleus** channel: an LL forms an MN
@@ -32,7 +34,7 @@ by ``h`` -- and consequently ``RBE_MN = alpha*/alpha(photon)`` (eq. 6) with
 Timing is an argument, not a field
 ----------------------------------
 ``schedule`` is passed per call, exactly as ``pO2_mmHg`` is in
-:mod:`~pyradbio.models.mkm.osmk` and ``g`` is in :mod:`~pyradbio.core.lq`: the
+[`osmk`][] and ``g`` is in [`lq`][pyradbio.core.lq]: the
 irradiation is *environment*, not a property of the cell. The cell property is
 the repair rate ``(a+c)``, which **is** a field here.
 
@@ -42,8 +44,8 @@ The photon reference
 it needs ``z*_1D`` of the reference radiation -- which the paper obtains from
 PHITS and never prints. It is, however, *recoverable*: its fig. 2 X-ray curve is
 plain LQ, so inverting eq. (1) on it returns the value that drew it. The
-:data:`RECOVERED_PHOTON_Z_STAR_1D_GY` values come from that inversion
-(:mod:`pyradbio.benchmark.matsuya2025`), and **the HSG and SCC published sets
+[`RECOVERED_PHOTON_Z_STAR_1D_GY`][] values come from that inversion
+([`pyradbio.benchmark.matsuya2025`][]), and **the HSG and SCC published sets
 carry them**, so those two are ready for RBE as constructed.
 
 A model built by hand still **requires** ``reference_z_star_1D_Gy`` and raises
@@ -54,7 +56,7 @@ the obvious candidate is out by a factor 1.6 (this paper's X-ray line gives
 ``alpha = 0.199``; Furusawa's published HSG 200 kVp is 0.313). It is the mixing
 trap already recorded for this family in ``OSMK_Inaniwa2021_2023.md``. A photon
 ``d(y)`` can also be scored directly through
-:meth:`IMKModel.reference_from_dose_spectrum`.
+[`IMKModel.reference_from_dose_spectrum`][].
 """
 
 from __future__ import annotations
@@ -79,15 +81,12 @@ from pyradbio.core.radiation import Ion, RadiationField
 from pyradbio.models.base import PhotonReferenceError, apply_preset, lq_survival_curve
 from pyradbio.models.mkm.spectrum_models import ModifiedMKM
 
-#: Saturation parameter of the domain, sec. 4.1 prose ("*The rd and y0 values
-#: for the HSG cells were 0.42 um and 150 keV/um*"). Fixed, not fitted, and the
-#: same for every cell line in the paper.
 Y0_KEV_UM: float = 150.0
+"""Saturation parameter of the domain, sec. 4.1 prose ("*The rd and y0 values
+for the HSG cells were 0.42 um and 150 keV/um*"). Fixed, not fitted, and the
+same for every cell line in the paper.
+"""
 
-#: Table 2 -- ``h`` fitted per cell line, with the radiation qualities behind
-#: each fit. The paper's *predictions* use the cell-line-independent table-1
-#: value (0.275) instead; these are offered as evidence that ``h`` *can* be
-#: cell-line dependent. Do not mix a table-2 ``h`` into a table-1 parameter set.
 _H_MATSUYA2025_TABLE2: dict[str, float] = {
     "CHO": 0.365,
     "HSG": 0.245,
@@ -97,15 +96,21 @@ _H_MATSUYA2025_TABLE2: dict[str, float] = {
     "V79": 0.197,
     "SCC VII": 0.281,
 }
+"""Table 2 -- ``h`` fitted per cell line, with the radiation qualities behind
+each fit. The paper's *predictions* use the cell-line-independent table-1
+value (0.275) instead; these are offered as evidence that ``h`` *can* be
+cell-line dependent. Do not mix a table-2 ``h`` into a table-1 parameter set.
+"""
 
 
-#: Photon ``z*_1D`` [Gy] recovered from the fig. 2 X-ray curves by inverting
-#: eq. (1) -- see :mod:`pyradbio.benchmark.matsuya2025`, which owns the
-#: digitization and the checks that make these trustworthy. **Not printed in the
-#: paper**; recovered, and equal to ``y* = 3.62`` (HSG) / ``3.41`` (SCC) keV/um.
-#: Duplicated here rather than imported so that ``models`` keeps no dependency on
-#: ``benchmark``; a test pins the two against each other.
 RECOVERED_PHOTON_Z_STAR_1D_GY: dict[str, float] = {"HSG": 1.045, "SCC": 0.987}
+"""Photon ``z*_1D`` [Gy] recovered from the fig. 2 X-ray curves by inverting
+eq. (1) -- see [`pyradbio.benchmark.matsuya2025`][], which owns the
+digitization and the checks that make these trustworthy. **Not printed in the
+paper**; recovered, and equal to ``y* = 3.62`` (HSG) / ``3.41`` (SCC) keV/um.
+Duplicated here rather than imported so that ``models`` keeps no dependency on
+``benchmark``; a test pins the two against each other.
+"""
 
 
 def matsuya2025_h_values() -> dict[str, float]:
@@ -116,7 +121,7 @@ def matsuya2025_h_values() -> dict[str, float]:
 def _z0_Gy_for_y0(y0_keV_um: float, *, domain_radius_um: float, density_g_cm3: float) -> float:
     """Convert a fixed ``y0`` [keV/um] into the ``z0_Gy`` field the family takes.
 
-    :attr:`~pyradbio.models.mkm.spectrum_models._SpectrumMKModel.y0_keV_um`
+    `y0_keV_um`
     returns ``z0_Gy * rho pi r_d^2``; this is that relation inverted, so the
     published constructors can state the paper's ``y0`` directly instead of the
     geometric default derived from ``R_n`` and ``beta``.
@@ -155,7 +160,7 @@ def _table1(
 class IMKModel(ModifiedMKM):
     """Integrated MK model -- mMKM's ``alpha`` plus a repair-driven ``beta``.
 
-    Parameters beyond :class:`~pyradbio.models.mkm.spectrum_models.ModifiedMKM`:
+    Parameters beyond [`ModifiedMKM`][]:
 
     ``repair_rate_per_h``
         ``(a+c)`` [h^-1], the summed PLL->LL and PLL-repair rate constants of
@@ -223,7 +228,7 @@ class IMKModel(ModifiedMKM):
 
         For one continuous block of duration ``T`` this is the paper's printed
         ``F = 2[x + e^-x - 1]/x^2`` with ``x = (a+c) T``; the general
-        block route in :mod:`~pyradbio.core.protraction` is used so that
+        block route in [`protraction`][pyradbio.core.protraction] is used so that
         fractionated and split-course deliveries -- including the paper's own
         dose-rate protocols (sec. 3.1.4) -- are covered by the same call.
         """
@@ -318,7 +323,7 @@ class IMKModel(ModifiedMKM):
     ) -> float:
         """Eq. (5): ``RBE_SF = D_SF(photon) / D_SF(ion)``, generalised to any ``S``.
 
-        The photon arm is :meth:`reference`, acute. The paper scores eq. (5)
+        The photon arm is [`reference`][], acute. The paper scores eq. (5)
         under the acute assumption ``beta ~= beta0`` (sec. 2.4); passing a
         ``schedule`` protracts the ion arm only -- a defensible generalisation,
         but not what the paper reports.
@@ -388,7 +393,7 @@ class IMKModel(ModifiedMKM):
         """Eq. (4): the dose giving 10% survival [Gy].
 
         Algebraically the paper's ``D10 = [sqrt(alpha^2 + 4 beta S*) - alpha]/(2 beta)``;
-        evaluated through :func:`~pyradbio.core.lq.dose_for_survival`, whose
+        evaluated through [`dose_for_survival`][pyradbio.core.lq.dose_for_survival], whose
         rationalised root is stable as ``beta -> 0``.
         """
         return _lq_dose_for_survival(0.1, lq.alpha, lq.beta)
@@ -399,7 +404,7 @@ class IMKModel(ModifiedMKM):
         ``h`` cancels, so this needs no micronucleus parameter -- the paper's
         central claim is that this equals the RBE for cell survival. It is a
         ratio of ``alpha`` alone, i.e. ``RBE_max``, the ``D -> 0`` limit, and
-        not comparable with :meth:`rbe_at_survival` at 10% survival.
+        not comparable with [`rbe_at_survival`][] at 10% survival.
         """
         return lq.alpha / self.reference().alpha_x
 

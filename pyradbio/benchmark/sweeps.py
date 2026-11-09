@@ -4,15 +4,15 @@ The validation scripts and tests all need the same loop: "build an ion per grid
 point, call ``alpha_beta``, record ``(LET, alpha, beta)``, maybe sort by LET, maybe
 turn failures into NaN". The two sweeps below are that loop:
 
-- :func:`sweep_energies` -- one ion per kinetic energy (failures become NaN by
+- [`sweep_energies`][] -- one ion per kinetic energy (failures become NaN by
   default; ``e_max_MeV_u`` caps the energy, ``sort_by_let`` orders the rows).
-- :func:`sweep_lets` -- one ion per *LET*, the energy found by a bracketed root
+- [`sweep_lets`][] -- one ion per *LET*, the energy found by a bracketed root
   solve (NaN where the LET is unreachable; ``xtol`` sets the root tolerance).
 
-Both return a :class:`LetSweep`, whose RBE reductions are two *named* methods
+Both return a [`LetSweep`][], whose RBE reductions are two *named* methods
 (no dispatch on the argument type), because the scripts use two different photon
 references and mixing them up is a silent 14% error (see
-:meth:`LetSweep.rbe10_shouldered`).
+[`LetSweep.rbe10_shouldered`][]).
 
 Printing and plotting stay in the scripts.
 """
@@ -42,7 +42,10 @@ FloatArray = npt.NDArray[np.float64]
 
 
 class AlphaBetaModel(Protocol):
-    """Anything with a per-ion ``alpha_beta`` -- every :class:`BiophysicalModel`."""
+    """Anything with a per-ion ``alpha_beta``.
+
+    Every [`BiophysicalModel`][pyradbio.models.base.BiophysicalModel] is one.
+    """
 
     def alpha_beta(self, ion: Ion, /) -> LQParameters: ...
 
@@ -86,12 +89,11 @@ class LetSweep:
         """RBE at 10% survival against a *plain* LQ photon curve ``(alpha_x, beta_x)``.
 
         ``rbe(0.10, alpha, beta, reference=LQParameters(alpha_x, beta_x))`` per row,
-        as in ``examples/lem2_cluster_effect.py`` ``carbon_curve(model, "rbe10")``
-        (and, with the same expression order, ``tests/models/lem/test_lem4.py``
-        ``_rbe10``): ``D10_x / D10_ion`` with both doses from the LQ inversion
-        :func:`pyradbio.core.lq.dose_for_survival`. Correct only while the photon
+        in the expression order of ``tests/models/lem/test_lem4.py``
+        ``_rbe10``: ``D10_x / D10_ion`` with both doses from the LQ inversion
+        [`pyradbio.core.lq.dose_for_survival`][]. Correct only while the photon
         ``D10`` lies below the photon ``D_t``; otherwise use
-        :meth:`rbe10_shouldered`. NaN rows stay NaN.
+        [`rbe10_shouldered`][]. NaN rows stay NaN.
         """
         reference = LQParameters(alpha=alpha_x, beta=beta_x)
         out = np.full(self.alpha.shape, np.nan)
@@ -107,7 +109,7 @@ class LetSweep:
         ``photon.dose_for_survival(0.1) / dose_for_survival(0.1, alpha, beta)`` per
         row. The photon ``D10`` comes off the LEM photon curve, which turns exponential above
         ``D_t`` (Scholz & Kraft 1996, doi:10.1016/0273-1177(95)00784-C); inverting
-        the LQ branch there instead (:meth:`rbe10_lq`) under-states ``D10_x``
+        the LQ branch there instead ([`rbe10_lq`][]) under-states ``D10_x``
         whenever ``D10_x > D_t`` -- 14.5% for the Elsasser 2010 V79 panel. NaN rows
         stay NaN.
         """
@@ -144,7 +146,7 @@ def sweep_energies(
 
     Per row, in grid order: the ion is ``Ion(Z, A, float(E))``; its LET is
     ``stopping_power.let_keV_um(ion)``; then, unless ``E > e_max_MeV_u`` (the
-    route ceiling of ``examples/lem4_trip98_rbe_reproduction.py``, strict: a point
+    route ceiling of ``validation/trip98_lem4_rbe.py``, strict: a point
     exactly at the ceiling is evaluated; rows above it are never evaluated and
     keep NaN ``alpha``/``beta``), ``model.alpha_beta(ion)``.
 
@@ -155,7 +157,7 @@ def sweep_energies(
       call leaves its ``let_keV_um`` NaN; one from building the ion (``E <= 0``)
       leaves the whole row but ``energy_MeV_u`` NaN, and the model is not
       called. The default ``errors`` are the
-      ``(ValueError, ZeroDivisionError)`` of ``examples/lem1_trip98_rbe_reproduction.py``
+      ``(ValueError, ZeroDivisionError)`` of ``validation/trip98_lem1_rbe.py``
       (below ~0.4 MeV/u a LEM track has ``r_max <= r_min`` and raises);
       ``lem4_trip98`` adds ``RuntimeError``. Any other exception propagates.
     - ``on_error="raise"``: nothing is caught (the plain loops of lem2/lem3 and
@@ -244,7 +246,7 @@ def sweep_lets(
     contract) scipy's ``ValueError`` propagates, as from the bare ``brentq`` of
     lem3 ``carbon_energy_for_let``, imk ``carbon_at_let`` and ``test_lem4``
     ``_carbon_energy_for_let``; under ``on_error="nan"`` its row is all NaN, as
-    in ``examples/lem4_reconstruction.py`` ``sweep`` (which therefore passes
+    in ``validation/lem4_elsasser2010_friedrich2012.py`` ``sweep`` (which therefore passes
     ``on_error="nan"`` explicitly). Errors from the model propagate under either
     policy. A misconfigured bracket (not ``0 < lo < hi < inf``) is a
     ``ValueError`` before any row is evaluated.

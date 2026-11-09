@@ -97,7 +97,7 @@ def test_fermi_smearing_costs_more_than_the_paper_implies() -> None:
     insignificant in the final results of the calculation". That claim is about
     the final **survival**, checked against PHITS with delta rays above 1 keV --
     it is not a claim that the moments are unchanged, and they are not (see
-    :func:`test_fermi_smearing_shifts_the_means_by_several_percent`).
+    `test_fermi_smearing_shifts_the_means_by_several_percent`).
     """
     z_max = me.let_to_central_specific_energy_Gy(200.0, radius_um=R_N_UM)
     z, p = me.single_event_density(let_keV_um=200.0, radius_um=R_N_UM)

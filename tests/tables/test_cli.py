@@ -300,6 +300,58 @@ def test_table_headers_differ_when_an_effective_charge_parameter_differs() -> No
     assert len(headers) == 2
 
 
+def _mkm_args(out, *extra: str) -> list[str]:
+    return [
+        "table",
+        "--model",
+        "mkm",
+        "--alpha0",
+        "0.172",
+        "--beta0",
+        "0.0615",
+        "--rd",
+        "0.32",
+        "--rn",
+        "3.9",
+        "--ions",
+        "6",
+        "--energies",
+        "100",
+        "--out",
+        str(out),
+        *extra,
+    ]
+
+
+@pytest.mark.parametrize(
+    "extra",
+    [
+        ("--beta-model", "rapid_lem"),
+        ("--initial-slope-model", "full_simulation"),
+        ("--survival-convention", "mean_effect"),
+        ("--cluster-index-model", "mean_field"),
+        ("--cluster-index-cap", "0.95"),
+        ("--local-dose-overkill",),
+        ("--engine", "numpy"),
+        ("--alpha-x", "0.1"),
+        ("--beta-x", "0.05"),
+        ("--dt", "30"),
+        ("--effective-size-factor", "0.8"),
+    ],
+)
+def test_table_mkm_rejects_lem_only_flags(tmp_path, extra: tuple[str, ...]) -> None:  # type: ignore[no-untyped-def]
+    """Regression: these were silently dropped, so the table was not what was asked for."""
+    with pytest.raises(SystemExit, match=extra[0]):
+        main(_mkm_args(tmp_path / "mkm.csv", *extra))
+    assert not (tmp_path / "mkm.csv").exists()
+
+
+@pytest.mark.parametrize("extra", [("--alpha0", "0.172"), ("--beta0", "0.06"), ("--rd", "0.32")])
+def test_table_lem_rejects_mkm_only_flags(tmp_path, extra: tuple[str, ...]) -> None:  # type: ignore[no-untyped-def]
+    with pytest.raises(SystemExit, match=extra[0]):
+        main(_lem4_args(tmp_path / "lem.csv", *extra))
+
+
 def test_table_mkm_runs_on_the_native_backend(tmp_path) -> None:  # type: ignore[no-untyped-def]
     """``--model mkm`` needs no pyMKM: it builds MKMModel on NativeMKMBackend."""
     out = tmp_path / "mkm.csv"

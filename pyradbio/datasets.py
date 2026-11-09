@@ -104,16 +104,16 @@ LINEAL_ENERGY_DECUNHA = Dataset(
     "Keep other lineal-energy sources under their own dataset/env var.",
 )
 
-#: All known external datasets, keyed by :attr:`Dataset.key`.
 DATASETS: dict[str, Dataset] = {
     d.key: d for d in (PIDE, RADPHYSBIO, TRIP98, SURVIVAL, SURVIVAL_SRC, LINEAL_ENERGY_DECUNHA)
 }
+"""All known external datasets, keyed by [`Dataset.key`][]."""
 
 
 class MissingDatasetError(FileNotFoundError):
     """An external dataset directory is not configured or does not exist.
 
-    Subclasses :class:`FileNotFoundError` so callers that already skip on missing
+    Subclasses `FileNotFoundError` so callers that already skip on missing
     reference data keep working unchanged.
     """
 
@@ -144,7 +144,7 @@ def dataset_dir(dataset: Dataset, *, required: bool = True) -> Path | None:
 
     Loads ``.env`` on first use. Supports ``~`` expansion and forward slashes on
     all platforms. Returns ``None`` when unset/absent and ``required`` is
-    ``False``; otherwise raises :class:`MissingDatasetError`.
+    ``False``; otherwise raises [`MissingDatasetError`][].
     """
     load_project_dotenv()
     raw = os.environ.get(dataset.env_var)

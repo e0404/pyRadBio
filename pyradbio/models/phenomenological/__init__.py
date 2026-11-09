@@ -3,18 +3,26 @@
 Closed-form parameterisations of ion RBE in the dose-averaged LET ``LET_d`` and
 the tissue parameter ``(alpha/beta)_x``. They carry no track structure and no
 microdosimetry: each is a fit to published in-vitro survival data, reduced to
-two functions on the shared skeleton in :mod:`.base`.
+two functions on the shared skeleton in `base`.
 
-    ==============  ========================  =========  ===================
-    Class           Paper                     Ion        RBE_min
-    ==============  ========================  =========  ===================
-    WilkensOelfke   Wilkens & Oelfke 2004     protons    1 (fixed)
-    Carabe          Carabe et al. 2012        protons    1.09 + s L / r
-    LinearScaling   Frese et al. 2011         protons    1 (fixed)
-    Wedenberg       Wedenberg et al. 2013     protons    1 (fixed)
-    McNamara        McNamara et al. 2015      protons    p2 + p3 sqrt(r) L
-    MairaniHelium   Mairani et al. 2016       helium     1 (fixed)
-    ==============  ========================  =========  ===================
+    ================  ========================================
+    Class             Paper
+    ================  ========================================
+    WilkensOelfke     Wilkens & Oelfke 2004
+    LinearScaling     Frese et al. 2011
+    Carabe            Carabe et al. 2012
+    Wedenberg         Wedenberg, Lind & Hardemark 2013
+    McNamara          McNamara, Schuemann & Paganetti 2015
+    MairaniHelium     Mairani et al. 2016 (helium ions)
+    Tilly2, Tilly10   Tilly et al. 2005 (two tissue bands)
+    Chen              Chen & Ahmad 2012
+    Jones             Jones 2015b
+    RorvikUnweighted  Rorvik et al. 2017
+    Peeler            Peeler 2016 (PhD dissertation)
+    Unkelbach         Unkelbach et al. 2016
+    ================  ========================================
+
+Each module's docstring gives the paper's DOI and its RBE_min / RBE_max forms.
 
 ``WilkensOelfke`` and ``LinearScaling`` share one functional form -- ``alpha``
 linear in LET, ``beta`` fixed at ``beta_x`` -- and differ only in how

@@ -46,8 +46,8 @@ class LocalTarget:
         return float(np.pi * self.radius_nm() ** 2 * self.length_nm)
 
 
-#: The one local-target geometry used in every published NanOx calculation.
 DEFAULT_LOCAL_TARGET = LocalTarget()
+"""The one local-target geometry used in every published NanOx calculation."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -160,7 +160,7 @@ class LocalTargetSpectrum:
         ``+-n_sigma`` standard deviations in ``ln z`` (the divisor 2.303 is part of
         the grid definition, not an exact ``ln 10``). The density
         ``exp(-ln(z/median)^2 / (2 sigma_ln^2)) / (z sigma_ln sqrt(2 pi))`` goes
-        through :meth:`from_density`, and ``mean_hit_z_Gy`` is the trapezoid mean
+        through [`from_density`][], and ``mean_hit_z_Gy`` is the trapezoid mean
         ``int z p dz / int p dz`` on the same grid.
         """
         if median_z_Gy <= 0.0:
@@ -185,9 +185,9 @@ class LocalTargetSpectrum:
 class EffectiveLocalLethalFunction:
     """The ELLF ``F(z)``: Monini et al. 2020 eq. (28).
 
-    ::
-
-        F(z) = (h/2) [ 1 + erf( (z - z0) / sigma ) ]
+    ```text
+    F(z) = (h/2) [ 1 + erf( (z - z0) / sigma ) ]
+    ```
 
     ``F`` is **not** a probability. It is ``-N ln(1 - f(z))`` (2022 eq. 7), the
     effective number of local lethal events summed over the ``N`` targets of a
@@ -202,12 +202,12 @@ class EffectiveLocalLethalFunction:
     threshold is what produces the overkill turnover in ``alpha(LET)``.
     """
 
-    #: Height of the response (saturation value of F). Dimensionless.
     h: float
-    #: Restricted specific-energy threshold [Gy]. ``F(z0) = h/2``.
+    """Height of the response (saturation value of F). Dimensionless."""
     z0_Gy: float
-    #: Extent of the increase [Gy].
+    """Restricted specific-energy threshold [Gy]. ``F(z0) = h/2``."""
     sigma_Gy: float
+    """Extent of the increase [Gy]."""
 
     def __post_init__(self) -> None:
         if self.h < 0.0:

@@ -148,7 +148,7 @@ def alpha_beta_sweep(
 
 def local_dose_full_sweep(lem: LEM4, lets: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Carbon ``(alpha_I, beta_I)`` from ONE low-dose LQ fit of the local-dose response
-    (:meth:`LEM4.local_dose_alpha_beta`), ``beta_I`` clamped to >= 0 as plotted.
+    (`LEM4.local_dose_alpha_beta`), ``beta_I`` clamped to >= 0 as plotted.
 
     With ``local_dose_overkill=True`` the single-track Poisson overkill is kept
     analytically (``<exp(-E)> = sum_n P(n) exp(-E(n D_1))``); the plain convolution's
@@ -169,7 +169,7 @@ def local_dose_full_sweep(lem: LEM4, lets: np.ndarray) -> tuple[np.ndarray, np.n
 def discrete_overkill_sweep(lem: LEM4, lets: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Carbon ``(alpha_I, beta_I)`` from the DISCRETE-DSB engine with the stochastic
     overkill ``S = <exp(-E)> = sum_n P(n) exp(-E_n)``, ``E_n`` the pattern's effect at
-    exactly ``n`` traversals (:meth:`LEM4.discrete_dsb_alpha_beta`); neither clamped."""
+    exactly ``n`` traversals (`LEM4.discrete_dsb_alpha_beta`); neither clamped."""
     alpha = np.full_like(lets, np.nan)
     beta = np.full_like(lets, np.nan)
     for i, let in enumerate(lets):

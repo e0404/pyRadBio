@@ -76,7 +76,7 @@ if quick_mode():
 
 SP = SimpleBetheStoppingPower()
 
-#: The four LETs the paper fits its carbon data at (secs. 3.1.1, 4.1).
+# The four LETs the paper fits its carbon data at (secs. 3.1.1, 4.1).
 PAPER_LETS = tuple(let for _, let in ANCHORS)
 
 
@@ -88,7 +88,7 @@ def carbon_at_let(let_keV_um: float) -> Ion:
     return Ion(Z=6, A=12, energy_MeV_u=energy)
 
 
-#: Each cell line's four routes, built once (the photon reference rides along).
+# Each cell line's four routes, built once (the photon reference rides along).
 ROUTES_BY_CELL = {cell: microdosimetry_routes(cell, stopping_power=SP) for cell in ("HSG", "SCC")}
 ROUTES = ROUTES_BY_CELL["HSG"]
 COLOURS = dict(zip(ROUTES, ("C0", "C1", "C2", "C3"), strict=True))

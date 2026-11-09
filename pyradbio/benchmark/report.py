@@ -1,6 +1,6 @@
 """Benchmark report generation: markdown + scatter/residual plots.
 
-Renders a :class:`~pyradbio.benchmark.harness.BenchmarkResult` into a small
+Renders a [`BenchmarkResult`][] into a small
 self-contained report directory: a ``report.md`` with the aggregate metrics and a
 per-ion residual table, plus (optionally) two PNGs -- predicted-vs-measured
 ``alpha`` (log-log scatter) and the log-residual versus LET. Plotting needs the

@@ -120,10 +120,21 @@ def test_core_dose_is_flat() -> None:
     assert d0 > model.local_dose_Gy(1.001 * r_c, ion)  # core above the tail
 
 
-def test_local_dose_requires_stopping_power() -> None:
-    model = KieferChatterjeeRadialDose()  # no stopping power
-    with pytest.raises(ValueError):
-        model.local_dose_Gy(1.0, Ion(6, 12, 100.0))
+@pytest.mark.parametrize("density", [1.0, 1.1])
+def test_local_dose_defaults_to_the_library_stopping_power(density: float) -> None:
+    """No stopping power means ``default_stopping_power()`` at the model's density."""
+    from pyradbio.track.stopping_power import default_stopping_power
+
+    ion = Ion(6, 12, 100.0)
+    implicit = KieferChatterjeeRadialDose(density_g_cm3=density)
+    explicit = KieferChatterjeeRadialDose(
+        stopping_power=default_stopping_power(density), density_g_cm3=density
+    )
+    for r in (1.0e-3, 0.1, 1.0):
+        assert implicit.local_dose_Gy(r, ion) == explicit.local_dose_Gy(r, ion)
+    assert implicit.radial_integral_LET_keV_um(ion) == pytest.approx(
+        default_stopping_power(density).let_keV_um(ion), rel=1e-3
+    )
 
 
 def test_negative_radius_rejected() -> None:

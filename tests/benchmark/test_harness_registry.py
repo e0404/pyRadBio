@@ -215,7 +215,7 @@ def test_build_model_factory_returns_the_specs_factory() -> None:
 
 SECOND_HAND = ("tilly2", "tilly10")
 
-#: Everything else in the Rorvik-introduced group is read from its primary.
+# Everything else in the Rorvik-introduced group is read from its primary.
 PRIMARY_SOURCED = ("chen", "jones", "roru", "peeler", "unkelbach")
 
 

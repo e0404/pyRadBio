@@ -28,13 +28,15 @@ the least certain.
 
 Each curve lives in its own CSV under ``data/`` named
 ``hartzell2025_figure<N>_<ion>_<method>[_<energy>MeVu|_rD<radius>um].csv`` with a
-four-line header::
+four-line header:
 
-    <metadata keys>   figure,ion,Z,A,method,energy_MeV_u,site_radius_um,doi,source_page,note
-    <metadata values>
-    lineal_energy,yd_y
-    keV/um,dimensionless
-    <y>,<yd(y)> data rows ...
+```text
+<metadata keys>   figure,ion,Z,A,method,energy_MeV_u,site_radius_um,doi,source_page,note
+<metadata values>
+lineal_energy,yd_y
+keV/um,dimensionless
+<y>,<yd(y)> data rows ...
+```
 
 Identity/provenance live in the metadata block; the filename is human-facing.
 """
@@ -81,7 +83,7 @@ class Hartzell2025Curve:
     doi: str = HARTZELL2025_DOI
 
     def as_ion(self) -> Ion:
-        """Build the :class:`~pyradbio.core.radiation.Ion` this curve describes."""
+        """Build the [`Ion`][] this curve describes."""
         return Ion(Z=self.Z, A=self.A, energy_MeV_u=self.energy_MeV_u)
 
     def dose_spectrum(

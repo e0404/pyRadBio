@@ -38,7 +38,7 @@ ION_77 = Ion(6, 12, _carbon_energy_for_let(77.0))
 
 # The Suzuki 2000 15-cell-line panel (photon LQ, experimental RBE_alpha, the
 # per-version D_t, and each line's nuclear area) plus the paper's own dRBE_alpha
-# reference live in the benchmark module :mod:`pyradbio.benchmark.elsasser2008`
+# reference live in the benchmark module `pyradbio.benchmark.elsasser2008`
 # (Elsasser 2008 Tables 1-2 + Suzuki 2000 Table 3). Per-cell nuclear radii come
 # from the areas via ``es.EFFECTIVE_SIZE_FACTOR`` (``SuzukiCell.cell_target``).
 
@@ -53,7 +53,7 @@ def _per_cell_deltas(
 ) -> tuple[list[float], list[float]]:
     """Per-cell ``ΔRBE_alpha = RBE_LEM/RBE_exp - 1`` at 13 and 77 keV/um.
 
-    Aligned to :data:`~pyradbio.benchmark.elsasser2008.SUZUKI_PANEL`; ``dt_index``
+    Aligned to `pyradbio.benchmark.elsasser2008.SUZUKI_PANEL`; ``dt_index``
     selects the LEM-version D_t entry on each cell. Uses each line's own Suzuki
     nuclear area (needed for the 77 keV/um channel) and builds every model on
     ``_SP``, the stopping power that placed the two ions.
@@ -200,7 +200,7 @@ def test_golden_lem3_reproduces_paper_per_cell_bragg_deviation() -> None:
     The Bragg channel is nuclear-size-sensitive, so it only reproduces per cell
     with each line's own Suzuki 2000 area (a flat R_n mis-sizes the sensitive
     lines). With the areas, LEM II and LEM III land within ~0.03 RMS of the paper
-    (LEM III: 0.004) for every line except KS-1 (:data:`~pyradbio.benchmark.elsasser2008.
+    (LEM III: 0.004) for every line except KS-1 (`pyradbio.benchmark.elsasser2008.
     OUTLIER_CELLS_77`) -- the panel's highest ``alpha_x``, where our LEM overkills
     the high-LET track centre to dRBE(77) ~ -0.5 regardless of radius. KS-1 is
     excluded here and documented in the benchmark module.

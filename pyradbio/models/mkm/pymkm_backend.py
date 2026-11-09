@@ -3,20 +3,18 @@
 pyMKM (BeppeMagro/pymkm, Magro et al., Computation 2025, MIT) implements MKM /
 modified-MKM / SMK / OSMK with Kiefer-Chatterjee & Scholz-Kraft track structure.
 pyRadBio uses it as an **independent cross-check**, not as a default: the
-default MKM engine is :class:`~pyradbio.models.mkm.native_backend.NativeMKMBackend`
+default MKM engine is [`NativeMKMBackend`][]
 and the default stopping power is
-:func:`~pyradbio.track.stopping_power.default_stopping_power` (ICRU 90's procedure
-for Z 1-18, Hubert alpha scaling for Z 19-92 from 2.5 MeV/u, analytic Bethe
-anchored to them elsewhere). This module
-offers :class:`PyMKMBackend` (an :class:`~pyradbio.models.mkm.base.MKMBackend`)
-and :class:`PyMKMStoppingPower` (pyMKM's bundled water tables) to validation
-code and tests, plus :func:`pymkm_kiefer_chatterjee_dose` (pyMKM's
-Kiefer-Chatterjee radial dose, the reference for
-:class:`~pyradbio.track.kiefer_chatterjee.KieferChatterjeeRadialDose`); it needs
-the optional ``mkm`` extra.
+[`default_stopping_power`][pyradbio.track.stopping_power.default_stopping_power] (ICRU 90's
+procedure for Z 1-18, Hubert alpha scaling for Z 19-92 from 2.5 MeV/u, analytic Bethe anchored to
+them elsewhere). This module offers [`PyMKMBackend`][] (an [`MKMBackend`][]) and
+[`PyMKMStoppingPower`][] (pyMKM's bundled water tables) to validation code and tests, plus
+[`pymkm_kiefer_chatterjee_dose`][] (pyMKM's Kiefer-Chatterjee radial dose, the reference for
+[`KieferChatterjeeRadialDose`][pyradbio.track.kiefer_chatterjee.KieferChatterjeeRadialDose]); it
+needs the optional ``mkm`` extra.
 
 This module is the *only* place that imports pyMKM -- see
-:mod:`pyradbio.models.mkm.base`.
+[`pyradbio.models.mkm.base`][].
 
 pyMKM API used (verified against the installed package; see
 ``docs/references/pyMKM_API.md``):
@@ -63,7 +61,7 @@ def _silence_pymkm() -> Iterator[None]:
 
     pyMKM prints configuration tables and tqdm progress bars containing Unicode
     glyphs (``->``, ``beta``, block characters). On a Windows ``cp1252`` console
-    these raise :class:`UnicodeEncodeError`; capturing into a text buffer both
+    these raise `UnicodeEncodeError`; capturing into a text buffer both
     silences the noise and avoids that crash regardless of console encoding.
     """
     sink = io.StringIO()
@@ -75,7 +73,7 @@ def _silence_pymkm() -> Iterator[None]:
 class PyMKMBackend:
     """MKM engine delegating to pyMKM (validation). Defaults: Inaniwa 2010 HSG.
 
-    Satisfies :class:`~pyradbio.models.mkm.base.MKMBackend`. Geometry and the
+    Satisfies [`MKMBackend`][]. Geometry and the
     saturation parameter ``beta0`` are fixed at construction (Inaniwa 2010,
     Sec. 2.2): ``domain_radius_um`` (r_d), ``nucleus_radius_um`` (R_n) and
     ``beta0`` map onto pyMKM's ``MKTableParameters``; ``z_bar_star_domain`` is
@@ -197,7 +195,7 @@ class PyMKMStoppingPower(TabularStoppingPower):
 
     A validation reference (``fluka_2020_0`` / ``geant4_11_3_0`` / ``mstar_3_12``,
     Z = 1-10, 0.1-1000 MeV/u), not a library default. It lives in the pyMKM
-    adapter so that :mod:`pyradbio.track` never imports pyMKM or ``models``.
+    adapter so that [`pyradbio.track`][] never imports pyMKM or ``models``.
     Constructing it validates that the optional ``mkm`` extra is installed.
     The pyMKM stopping-power table is loaded once and scalar/vector lookups are
     handled by local interpolation; no MKM z* table computation is performed.
@@ -300,16 +298,17 @@ def from_pymkm_source(
     """Adapt a pyMKM StoppingPowerTableSet to the StoppingPower protocol.
 
     source in {"fluka_2020_0", "geant4_11_3_0", "mstar_3_12"}.
-    Raises :class:`ImportError` immediately when the ``mkm`` extra is missing.
+    Raises `ImportError` immediately when the ``mkm`` extra is missing.
     """
     return PyMKMStoppingPower(source)
 
 
-#: pyMKM's ``ParticleTrack`` takes LET in MeV/cm: 1 keV/um = 10 MeV/cm, the
-#: inverse of :data:`~pyradbio.core.constants.MEV_PER_CM_TO_KEV_PER_UM`. A product
-#: (not a division by 0.1) so the value handed to pyMKM is bit-for-bit what the
-#: scripts and tests passed before this helper existed.
 KEV_PER_UM_TO_MEV_PER_CM: float = 10.0
+"""pyMKM's ``ParticleTrack`` takes LET in MeV/cm: 1 keV/um = 10 MeV/cm, the
+inverse of [`MEV_PER_CM_TO_KEV_PER_UM`][]. A product
+(not a division by 0.1) so the value handed to pyMKM is bit-for-bit what the
+scripts and tests passed before this helper existed.
+"""
 
 
 def pymkm_kiefer_chatterjee_dose(
@@ -318,7 +317,7 @@ def pymkm_kiefer_chatterjee_dose(
     """pyMKM's Kiefer-Chatterjee local dose ``D(r)`` [Gy] at ``radii_um`` around ``ion``.
 
     The cross-check reference for
-    :class:`~pyradbio.track.kiefer_chatterjee.KieferChatterjeeRadialDose`:
+    [`KieferChatterjeeRadialDose`][pyradbio.track.kiefer_chatterjee.KieferChatterjeeRadialDose]:
     ``pymkm.physics.particle_track.ParticleTrack(model_name="Kiefer-Chatterjee")``
     evaluated with its ``initial_local_dose``. The track model is Chatterjee &
     Schaefer 1976 (doi:10.1007/BF01330766) with the Kiefer & Straaten 1986 penumbra

@@ -1,10 +1,10 @@
 """Common model interface.
 
-:class:`BiophysicalModel` is the one interface every model family implements.
-A model supplies its per-ion physics (:meth:`~BiophysicalModel._alpha_beta_ion`)
+[`BiophysicalModel`][] is the one interface every model family implements.
+A model supplies its per-ion physics (`_alpha_beta_ion`)
 and, where it differs from the LQ default, its mixing rule; the base class
-expands a :class:`~pyradbio.core.radiation.RadiationField` into dose-weighted
-``(ion, dose)`` nodes with :func:`~pyradbio.core.mixing.dose_quadrature` --
+expands a [`RadiationField`][] into dose-weighted
+``(ion, dose)`` nodes with [`dose_quadrature`][] --
 integrating each binned component over a log sub-grid, never at its bin centre
 (AGENTS.md, "Spectral / intra-bin integration") -- and dose-averages the rule's
 quantities over them.
@@ -19,12 +19,12 @@ with LQ defaults that non-LQ models override:
 ``reference()``                             the photon reference (raises if undefined)
 ``rbe_at_survival(field, S)``               iso-survival RBE, ``D_ref(S) / D(S)``
 ``rbe_at_dose(field, dose_Gy)``             iso-effect RBE at a given ion dose
-``alpha_beta_table(ions, energies)``        an :class:`~pyradbio.tables.alpha_beta.AlphaBetaTable`
+``alpha_beta_table(ions, energies)``        an [`AlphaBetaTable`][]
 ==========================================  ========================================
 
 Model-specific axes -- SMK's nucleus stochastics, OSMK's ``pO2``, IMK's dose
 schedule -- extend these with keyword-only arguments; they never change the
-positional signature. :attr:`BiophysicalModel.capabilities` declares which
+positional signature. [`BiophysicalModel.capabilities`][] declares which
 routes a family implements, so callers can branch without provoking errors.
 """
 
@@ -53,7 +53,7 @@ if TYPE_CHECKING:
 
 
 class PhotonReferenceError(ValueError):
-    """Raised by :meth:`BiophysicalModel.reference` when a model has no photon reference.
+    """Raised by [`BiophysicalModel.reference`][] when a model has no photon reference.
 
     A ``ValueError`` because the cause is configuration (no reference was
     supplied, or the model does not define one), not a bug.
@@ -66,22 +66,24 @@ class ModelCapabilities:
 
     A statement about the *implementation*, not a per-instance switch, so it is
     a ``ClassVar`` on every family (``capabilities``). The benchmark harness
-    reads it (and :class:`LETModel`) instead of keeping its own flags.
+    reads it (and [`LETModel`][]) instead of keeping its own flags.
     """
 
-    #: ``alpha_beta(Ion)`` is implemented (False only for an assembly-only model).
     ion_route: bool = True
-    #: ``alpha_beta(RadiationField)`` mixes a field; False means it raises.
+    """``alpha_beta(Ion)`` is implemented (False only for an assembly-only model)."""
     mixed_field: bool = True
-    #: ``survival`` is exactly ``exp(-alpha D - beta D^2)`` of ``alpha_beta``. False
-    #: for models whose survival is not LQ (SMK's ``1 + gamma D`` factor, Katz's
-    #: multi-target shoulder); their ``alpha_beta`` is then a descriptor, not the curve.
+    """``alpha_beta(RadiationField)`` mixes a field; False means it raises."""
     lq_exact: bool = True
-    #: ``alpha_beta_from_let`` is implemented -- the model is a :class:`LETModel`.
+    """``survival`` is exactly ``exp(-alpha D - beta D^2)`` of ``alpha_beta``. False
+    for models whose survival is not LQ (SMK's ``1 + gamma D`` factor, Katz's
+    multi-target shoulder); their ``alpha_beta`` is then a descriptor, not the curve.
+    """
     let_route: bool = False
-    #: ``alpha_beta_from_spectrum`` / ``alpha_beta_from_dose_spectrum`` take a
-    #: lineal-energy spectrum ``d(y)`` directly.
+    """``alpha_beta_from_let`` is implemented -- the model is a [`LETModel`][]."""
     spectrum_route: bool = False
+    """``alpha_beta_from_spectrum`` / ``alpha_beta_from_dose_spectrum`` take a
+    lineal-energy spectrum ``d(y)`` directly.
+    """
 
 
 _P = TypeVar("_P")
@@ -141,22 +143,22 @@ def invert_survival_curve(
 class BiophysicalModel(ABC):
     """A model maps a radiation field + cell to LQ parameters, survival and RBE.
 
-    Subclasses implement :meth:`_alpha_beta_ion` and declare
-    :attr:`capabilities`. The mixing rule is the pair :meth:`_mixing_quantities`
-    / :meth:`_lq_from_mixed`: the per-ion quantities that are dose-averaged, and
+    Subclasses implement `_alpha_beta_ion` and declare
+    [`capabilities`][]. The mixing rule is the pair `_mixing_quantities`
+    / `_lq_from_mixed`: the per-ion quantities that are dose-averaged, and
     how the averaged quantities map back to LQ parameters. The default is the
     Zaider-Rossi / Kanai rule (dose-average ``alpha`` and ``sqrt(beta)``); the
     MKM mixes on ``z*_1D`` and the LET-based phenomenological models on the LET.
 
-    Survival and RBE default to the LQ algebra on :meth:`alpha_beta` and the
-    photon reference of :meth:`reference`. A model whose survival is not LQ
-    (``capabilities.lq_exact`` False) overrides :meth:`survival`,
-    :meth:`dose_for_survival` and :meth:`_log_kill`; a model whose photon
-    reference is not LQ overrides :meth:`_reference_dose_for_log_kill`.
+    Survival and RBE default to the LQ algebra on [`alpha_beta`][] and the
+    photon reference of [`reference`][]. A model whose survival is not LQ
+    (``capabilities.lq_exact`` False) overrides [`survival`][],
+    [`dose_for_survival`][] and `_log_kill`; a model whose photon
+    reference is not LQ overrides `_reference_dose_for_log_kill`.
     """
 
-    #: What this family implements; see :class:`ModelCapabilities`.
     capabilities: ClassVar[ModelCapabilities]
+    """What this family implements; see [`ModelCapabilities`][]."""
 
     # ---- LQ parameters ------------------------------------------------------
     def alpha_beta(
@@ -168,12 +170,12 @@ class BiophysicalModel(ABC):
     ) -> LQParameters:
         """LQ parameters for a single ion or a mixed field.
 
-        An :class:`Ion` goes straight to the model's per-ion physics. A
-        :class:`RadiationField` is expanded by
-        :func:`~pyradbio.core.mixing.dose_quadrature`: each mono-energetic
+        An [`Ion`][] goes straight to the model's per-ion physics. A
+        [`RadiationField`][] is expanded by
+        [`dose_quadrature`][]: each mono-energetic
         component is one node, each binned component ``sub_nodes`` nodes on a
         ``spacing`` sub-grid with dose weights ``phi(E) S(E)`` (``S`` from
-        :meth:`_dose_weight_stopping_power`). The mixing quantities are
+        `_dose_weight_stopping_power`). The mixing quantities are
         dose-averaged over all nodes, with each distinct ion evaluated once.
         ``sub_nodes``/``spacing`` have no effect on mono-energetic components.
         """
@@ -196,7 +198,7 @@ class BiophysicalModel(ABC):
     def _mixed_quantities(
         self, field: RadiationField, *, sub_nodes: int, spacing: Spacing
     ) -> tuple[float, ...]:
-        """Dose-average :meth:`_mixing_quantities` over the field's quadrature nodes."""
+        """Dose-average `_mixing_quantities` over the field's quadrature nodes."""
         nodes = dose_quadrature(
             field, self._dose_weight_stopping_power, sub_nodes=sub_nodes, spacing=spacing
         )
@@ -215,7 +217,7 @@ class BiophysicalModel(ABC):
         return (lq.alpha, math.sqrt(lq.beta))
 
     def _lq_from_mixed(self, mixed: tuple[float, ...]) -> LQParameters:
-        """Map dose-averaged :meth:`_mixing_quantities` back to LQ parameters."""
+        """Map dose-averaged `_mixing_quantities` back to LQ parameters."""
         alpha, sqrt_beta = mixed
         return LQParameters(alpha=alpha, beta=sqrt_beta * sqrt_beta)
 
@@ -244,7 +246,7 @@ class BiophysicalModel(ABC):
     ) -> float | npt.NDArray[np.float64]:
         """Surviving fraction after ``dose_Gy`` of ``field`` (scalar or array dose).
 
-        LQ default: ``exp(-alpha D - beta D^2)`` with :meth:`alpha_beta`.
+        LQ default: ``exp(-alpha D - beta D^2)`` with [`alpha_beta`][].
         Models whose survival is not LQ override this.
         """
         return lq_survival_curve(dose_Gy, self.alpha_beta(field))
@@ -252,7 +254,7 @@ class BiophysicalModel(ABC):
     def dose_for_survival(self, field: Ion | RadiationField, survival_fraction: float) -> float:
         """Dose [Gy] of ``field`` that reaches ``survival_fraction``.
 
-        LQ default: the closed-form root of :func:`pyradbio.core.lq.dose_for_survival`.
+        LQ default: the closed-form root of [`pyradbio.core.lq.dose_for_survival`][].
         """
         lq = self.alpha_beta(field)
         return _lq_dose_for_survival(survival_fraction, lq.alpha, lq.beta)
@@ -260,7 +262,7 @@ class BiophysicalModel(ABC):
     def _log_kill(self, field: Ion | RadiationField, dose_Gy: float) -> float:
         """``-ln S`` after ``dose_Gy``, formed without exponentiating (no underflow).
 
-        LQ default. A model overriding :meth:`survival` overrides this too.
+        LQ default. A model overriding [`survival`][] overrides this too.
         """
         lq = self.alpha_beta(field)
         return _lq_log_kill(dose_Gy, lq.alpha, lq.beta)
@@ -269,10 +271,10 @@ class BiophysicalModel(ABC):
     def reference(self) -> PhotonParameters:
         """The photon reference RBE is computed against.
 
-        The default raises :class:`PhotonReferenceError`; families that carry a
+        The default raises [`PhotonReferenceError`][]; families that carry a
         reference (``photon``, ``alpha_ref``/``beta_ref``, IMK's
         ``reference_z_star_1D_Gy``) return it here as
-        :class:`~pyradbio.core.photon.PhotonParameters`, whose ``D_t`` (if any)
+        [`PhotonParameters`][], whose ``D_t`` (if any)
         shapes the reference curve exactly as the model's own physics does.
         """
         raise PhotonReferenceError(
@@ -281,7 +283,7 @@ class BiophysicalModel(ABC):
         )
 
     def _reference_dose_for_log_kill(self, log_kill: float) -> float:
-        """Reference dose [Gy] producing log-kill ``log_kill``; from :meth:`reference`."""
+        """Reference dose [Gy] producing log-kill ``log_kill``; from [`reference`][]."""
         return self.reference().dose_for_log_kill(log_kill)
 
     def rbe_at_survival(self, field: Ion | RadiationField, survival_fraction: float) -> float:
@@ -303,7 +305,7 @@ class BiophysicalModel(ABC):
         return self._reference_dose_for_log_kill(self._log_kill(field, dose_Gy)) / dose_Gy
 
     def _rbe_at_survival_from_lq(self, lq: LQParameters, survival_fraction: float) -> float:
-        """Iso-survival RBE of an explicit LQ pair against :meth:`reference`.
+        """Iso-survival RBE of an explicit LQ pair against [`reference`][].
 
         The shared arithmetic of every LQ route (ion, LET, spectrum), so they
         cannot drift apart.
@@ -317,15 +319,15 @@ class BiophysicalModel(ABC):
     def alpha_beta_table(
         self, ions: Sequence[int], energies_MeV_u: Sequence[float]
     ) -> AlphaBetaTable:
-        """Build an (ion, energy) -> (alpha, beta) table (see :mod:`pyradbio.tables`).
+        """Build an (ion, energy) -> (alpha, beta) table (see [`pyradbio.tables`][]).
 
         ``ions`` are atomic numbers ``Z``; each is resolved to its default
-        isotope (:func:`pyradbio.core.elements.default_mass_number`) before
-        delegating to :func:`pyradbio.tables.alpha_beta.build_alpha_beta_table`,
+        isotope ([`pyradbio.core.elements.default_mass_number`][]) before
+        delegating to [`pyradbio.tables.alpha_beta.build_alpha_beta_table`][],
         which evaluates this model over the grid. Every model returns the same
-        :class:`~pyradbio.tables.alpha_beta.AlphaBetaTable`; model-specific
+        [`AlphaBetaTable`][]; model-specific
         columns live under their own names (e.g.
-        :meth:`~pyradbio.models.mkm.model.MKMModel.alpha_beta_z_star_table`).
+        [`alpha_beta_z_star_table`][pyradbio.models.mkm.model.MKMModel.alpha_beta_z_star_table]).
         Imported lazily to avoid an import cycle with the tables layer.
         """
         from pyradbio.core.elements import default_mass_number
@@ -340,7 +342,7 @@ class LETModel(BiophysicalModel):
 
     The phenomenological RBE family is exactly this: closed forms in ``LET_d``
     with no track structure to run, which is what a treatment-planning system
-    holds. Subclasses implement :meth:`alpha_beta_from_let`; the LET-route
+    holds. Subclasses implement [`alpha_beta_from_let`][]; the LET-route
     survival and RBE below mirror the ion-route interface with the LET in place
     of the field (``survival(ion, D)`` <-> ``survival_from_let(let, D)``).
     """
@@ -375,7 +377,10 @@ class LETModel(BiophysicalModel):
         )
 
     def rbe_at_dose_from_let(self, let_keV_um: float, dose_Gy: float) -> float:
-        """RBE at a given ion dose and dose-averaged LET (see :meth:`rbe_at_dose`)."""
+        """RBE at a given ion dose and dose-averaged LET.
+
+        See [`rbe_at_dose`][pyradbio.models.base.LETModel.rbe_at_dose].
+        """
         if dose_Gy <= 0.0:
             raise ValueError(f"dose must be > 0 Gy, got {dose_Gy!r}")
         lq = self.alpha_beta_from_let(let_keV_um)

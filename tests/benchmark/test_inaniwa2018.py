@@ -83,7 +83,7 @@ def test_digitized_domain_to_nucleus_ratio_is_geometric_for_contained_tracks() -
     Panels (a) and (c) were calibrated independently and the colour->species
     assignment is a legend convention, so recovering 837 in the contained limit
     checks both at once; the fall-off is checked separately against our own model
-    in :func:`test_model_reproduces_the_domain_to_nucleus_ratio_falloff`.
+    in `test_model_reproduces_the_domain_to_nucleus_ratio_falloff`.
     """
     expected = (FIG4_PARAMETERS["nucleus_radius_um"] / FIG4_PARAMETERS["domain_radius_um"]) ** 2
     assert expected == pytest.approx(837.0, rel=1e-3)
@@ -207,8 +207,8 @@ def test_curve_helpers() -> None:
 # Figs. 2-3: survival curves
 # --------------------------------------------------------------------------
 DOSE = np.linspace(0.01, 12.0, 800)
-#: One LET source for both the LET -> energy inversion and the model's own track, as
-#: this reconstruction was validated with (the library default has moved on since).
+# One LET source for both the LET -> energy inversion and the model's own track, as
+# this reconstruction was validated with (the library default has moved on since).
 _SP = SimpleBetheStoppingPower()
 
 
@@ -216,7 +216,7 @@ def _model_d10(cell_line: str, curve: SurvivalCurve, which: str) -> float:
     """``D_10`` of our SMK or MK curve for one panel, from its quoted LET alone.
 
     doi:10.1088/1361-6560/aabede sec 3.2 (monoenergetic beams at the reported
-    LETs); :func:`reconstruct_panel` inverts the LET on the high-energy root.
+    LETs); `reconstruct_panel` inverts the LET on the high-energy root.
     """
     smk_factory, mk_factory = CELL_MODELS[cell_line]
     if which == "smk":

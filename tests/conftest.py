@@ -65,7 +65,7 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
 
 
 class LETFunction:
-    """A :class:`~pyradbio.track.stopping_power.StoppingPower` from a plain ``ion -> LET``.
+    """A `pyradbio.track.stopping_power.StoppingPower` from a plain ``ion -> LET``.
 
     Tests that pin a LET per ion (rather than exercise a real stopping power)
     wrap the lookup in this, since every model's ``stopping_power`` is typed by

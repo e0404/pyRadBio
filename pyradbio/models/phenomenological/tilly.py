@@ -13,19 +13,21 @@ from typing import ClassVar
 
 from pyradbio.models.phenomenological.base import RBEMinMax, RBEMinMaxModel
 
-#: Slope of ``RBE_max - 1`` against ``LET_d/(alpha/beta)_x`` [Gy um / keV] for the
-#: low-``(alpha/beta)_x`` database (around 2 Gy).
-#:
-#: **Rorvik et al. 2018 appendix B is the only numeric source for this**, and
-#: reading Tilly et al. 2005 does not change that: the primary states only that
-#: "the alpha/alpha_ref values were empirically fitted as linear functions of the
-#: LET where the slope is determined by the alpha_ref/beta_ref ratio, as shown in
-#: figure 2" -- it prints no slope. Rorvik presumably read them off that figure.
 TILLY2_Q = 0.309
+"""Slope of ``RBE_max - 1`` against ``LET_d/(alpha/beta)_x`` [Gy um / keV] for the
+low-``(alpha/beta)_x`` database (around 2 Gy).
 
-#: The same slope for the high-``(alpha/beta)_x`` database (around 10 Gy); same
-#: provenance caveat as :data:`TILLY2_Q`.
+**Rorvik et al. 2018 appendix B is the only numeric source for this**, and
+reading Tilly et al. 2005 does not change that: the primary states only that
+"the alpha/alpha_ref values were empirically fitted as linear functions of the
+LET where the slope is determined by the alpha_ref/beta_ref ratio, as shown in
+figure 2" -- it prints no slope. Rorvik presumably read them off that figure.
+"""
+
 TILLY10_Q = 0.550964
+"""The same slope for the high-``(alpha/beta)_x`` database (around 10 Gy); same
+provenance caveat as [`TILLY2_Q`][].
+"""
 
 _DOI = "10.1088/0031-9155/50/12/003"
 
@@ -43,8 +45,8 @@ class _TillyBase(RBEMinMaxModel):
     reference_doi: ClassVar[str] = _DOI
     radiation_modes: ClassVar[tuple[str, ...]] = ("protons",)
 
-    #: Subclass supplies the fitted slope.
     q_Gy_um_keV: ClassVar[float]
+    """Subclass supplies the fitted slope."""
 
     def _limits(self, let_keV_um: float) -> RBEMinMax:
         return RBEMinMax(
@@ -66,7 +68,7 @@ class Tilly2(_TillyBase):
     Seven points is the smallest database in the family, and the band it covers
     is narrow enough that the ``1/(alpha/beta)_x`` scaling is essentially
     untested by this fit -- which is why the paper reports a second one
-    (:class:`Tilly10`) rather than one model across both.
+    ([`Tilly10`][]) rather than one model across both.
 
     The ``RBE_min = 1`` is the primary's own assumption, and it comes with the
     LET bound encoded above: "the beta values were assumed to be equal to the

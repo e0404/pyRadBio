@@ -8,7 +8,7 @@ nucleus point is a compound-Poisson (shot-noise) sum over the infinite track
 field, so ``f_D(d)`` follows from the exact characteristic function and
 ``N_ion(D) = N_sv <rho(d)>_{f_D}``.
 
-These tests pin the numerics of :mod:`pyradbio.models.lem._localdose` bottom-up
+These tests pin the numerics of `pyradbio.models.lem._localdose` bottom-up
 (dose-area conservation, compound-Poisson moments, the photon limit) before the
 assembled ``beta_I(LET)`` is compared against the paper's digitized curve in
 ``test_lem4_intertrack.py``.
@@ -293,7 +293,7 @@ def test_compound_poisson_approaches_a_delta_in_the_many_track_limit() -> None:
 def test_wrapped_mass_flags_a_too_short_dose_grid() -> None:
     """``wrapped_mass`` is negligible for a generous grid and large for a short one.
 
-    It is the folding assumption's own alarm: :meth:`density` moves the upper
+    It is the folding assumption's own alarm: `density` moves the upper
     half of the grid to ``d = 0``, which is only right while ``d_hi`` bounds the
     support. Squeezing the grid below the distribution's mean must show up.
     """
@@ -623,7 +623,7 @@ def test_overkill_correction_is_small_on_the_photon_effect_kernel_only() -> None
 def test_b2_overcorrects_against_the_exact_stochastic_survival() -> None:
     """The analytic B2 correction drops ``beta`` by far more than the exact one does.
 
-    B2 (:attr:`LEM4.local_dose_overkill`) approximates ``<exp(-E)>`` by evaluating
+    B2 (`LEM4.local_dose_overkill`) approximates ``<exp(-E)>`` by evaluating
     the *mean-effect curve* at ``n D_1``; the explicit-track MC computes it from
     real ``n``-track configurations. Both drops are measured here as
     ``beta(mean effect) - beta(overkill)`` so any common bias of the truncated MC
@@ -718,7 +718,7 @@ def test_golden_lem4_local_dose_reproduces_friedrich2012_fig4_full_simulation() 
     Reference: Friedrich, Scholz, Elsasser, Durante & Scholz 2012, Int. J. Radiat.
     Biol. 88(1-2):103-107, doi:10.3109/09553002.2011.611213, Fig. 4 (p. 107),
     hypothetical cell (alpha_g=0.25, beta_g=0.05, D_t=9.5 Gy, R_n=5 um) --
-    digitized in :mod:`pyradbio.benchmark.friedrich2012`.
+    digitized in `pyradbio.benchmark.friedrich2012`.
 
     The default ``"cluster_index"`` kernel reproduces **both** features of the
     curve with no free parameter -- the small rise above ``beta_x`` at

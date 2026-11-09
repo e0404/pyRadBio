@@ -37,8 +37,8 @@ def test_example_runs_and_writes_a_png(
         )
 
 
-#: The agreed gallery: a new example is a deliberate decision, and a
-#: reference reconstruction belongs in ``validation/`` instead.
+# The agreed gallery: a new example is a deliberate decision, and a
+# reference reconstruction belongs in ``validation/`` instead.
 _EXAMPLE_SET = frozenset(
     {
         "dose_protraction_and_bed",

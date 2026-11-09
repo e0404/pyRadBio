@@ -38,12 +38,12 @@ original LEM" (Scholz 1997), the Poisson single-track average
     alpha_I = (1 - e^-N_1) / D_1        (overkill saturation at 1/D_1),
 
 with ``D_1`` the mean single-traversal nuclear dose (Elsasser & Scholz 2007 eq. 8),
-plus an escaped-energy term (:meth:`LEM4.initial_slope`) that restores
+plus an escaped-energy term ([`LEM4.initial_slope`][]) that restores
 ``alpha_I -> alpha_x`` at low LET.
 
 **beta_I.** The default Kraemer & Scholz 2006 slope matching reproduces Friedrich 2012
 Fig. 3, which "is based on the single particle approximation" (p. 105); the
-full-simulation ``beta_model`` options target its Fig. 4 (see :data:`LEM4BetaModel`).
+full-simulation ``beta_model`` options target its Fig. 4 (see [`LEM4BetaModel`][]).
 
 **Track structure.** Amorphous 1/r^2 profile with velocity-dependent core
 ``r_min = beta * r_c``, ``r_c = 6.5 nm`` (Pfuhl 2020 eq. 1; LEM III uses 40 nm),
@@ -84,7 +84,7 @@ from pyradbio.track.base import RadialDoseModel
 from pyradbio.track.scholz_kraft import ScholzKraftRadialDose
 
 # Execution engine for the discrete DSB-pattern scoring. ``numpy`` is the
-# vectorised reference; ``numba`` is the compiled parallel kernel (:mod:`._lem4_kernel`,
+# vectorised reference; ``numba`` is the compiled parallel kernel (`._lem4_kernel`,
 # ~30x faster, requires the ``fast`` extra); ``auto`` uses numba when importable and
 # the radial dose is the built-in Scholz-Kraft radical-diffusion profile, else numpy.
 LEM4Engine = Engine  # one definition: pyradbio.models.lem.engine
@@ -103,11 +103,11 @@ LEM4EffectModel = Literal["photon_equivalent", "globle"]
 #       ``beta_I = (s_max - alpha_I) / (2 D_t)`` (LEMBase._beta); Friedrich 2012 Fig. 3.
 #   "intertrack_mc" -- Friedrich 2012 Fig. 4 full simulation as an explicit-track
 #       Monte-Carlo placing discrete DSBs into a shared 540 nm grid
-#       (:meth:`LEM4.intertrack_mc_beta`). Slow diagnostic; ``alpha_I`` is unchanged.
+#       (`LEM4.intertrack_mc_beta`). Slow diagnostic; ``alpha_I`` is unchanged.
 #   "local_dose" -- the Fig. 4 full simulation as a deterministic compound-Poisson
-#       local-dose convolution (Elsasser & Scholz 2007; :meth:`LEM4.local_dose_beta`).
+#       local-dose convolution (Elsasser & Scholz 2007; `LEM4.local_dose_beta`).
 #   "discrete_dsb" -- the same simulation as an explicit discrete damage pattern
-#       (:meth:`LEM4.discrete_dsb_beta`); a cross-check of ``"local_dose"`` by an
+#       (`LEM4.discrete_dsb_beta`); a cross-check of ``"local_dose"`` by an
 #       independent route, provably unable to add the high-LET roll-off it misses.
 LEM4BetaModel = Literal[
     "slope_matching", "rapid_lem", "intertrack_mc", "local_dose", "discrete_dsb"
@@ -118,7 +118,7 @@ LEM4BetaModel = Literal[
 #       average the effect; the only part of the engine not algebraically identical to
 #       the continuum convolution.
 #   "mean_counts" -- ``C_I`` from the realisation-averaged loop counts; provably identical
-#       to ``local_dose_kernel="cluster_index"`` (:meth:`LEM4.discrete_dsb_lethal_events`).
+#       to ``local_dose_kernel="cluster_index"`` (`LEM4.discrete_dsb_lethal_events`).
 LEM4DiscreteConvention = Literal["per_realisation", "mean_counts"]
 
 # Cell-survival convention of the discrete-DSB engine.
@@ -126,7 +126,7 @@ LEM4DiscreteConvention = Literal["per_realisation", "mean_counts"]
 #   "stochastic" -- ``S = <exp(-E)> = sum_n Pois(n; D/D_1) exp(-E_n)``, the Scholz 1997
 #       convention, evaluated exactly from the per-traversal loop counts. Requires
 #       ``discrete_convention="per_realisation"``. A diagnostic; it does not make this
-#       engine preferable (:meth:`LEM4.discrete_dsb_lethal_events`).
+#       engine preferable (`LEM4.discrete_dsb_lethal_events`).
 LEM4DiscreteSurvival = Literal["mean_effect", "stochastic"]
 
 # How the single-particle initial slope averages over track configurations
@@ -145,14 +145,14 @@ _DISCRETE_N_IMPACT: int = 384
 
 # Which estimator supplies the single-particle cluster index to the RBE path
 # (LEM_IV_OPEN_CHOICES.md entry 2.3). None of them is right everywhere.
-#   "mean_field" (default) -- :meth:`LEM4.cluster_index`, track at a subvolume centre.
+#   "mean_field" (default) -- `LEM4.cluster_index`, track at a subvolume centre.
 #       Over-clusters (near 1 over 0.4-2.5 MeV/u); right above ~3.5 MeV/u.
-#   "discrete" -- :meth:`LEM4.analytic_discrete_cluster_index`, deterministic; matches
+#   "discrete" -- `LEM4.analytic_discrete_cluster_index`, deterministic; matches
 #       the sampled MC from ~2.5 MeV/u up, runs 3-6x above it below ~1 MeV/u.
-#   "discrete_mc" -- :meth:`LEM4.discrete_cluster_index`, sampled (seeded); the estimator
+#   "discrete_mc" -- `LEM4.discrete_cluster_index`, sampled (seeded); the estimator
 #       below ~2 MeV/u and the one reproducing the Pfuhl 2020 Table 3 anchors.
 #   "trip98_composite" -- "discrete" while the whole profile fits one 540 nm loop
-#       (:meth:`LEM4.pattern_is_single_loop`, 2.206 MeV/u for every ion), "mean_field"
+#       (`LEM4.pattern_is_single_loop`, 2.206 MeV/u for every ion), "mean_field"
 #       above: a geometric threshold with no free parameter, for reproducing the TRiP98
 #       RBE_alpha TABLES only (not a general improvement). "discrete" is the low arm as it
 #       is deterministic and ~10x cheaper. The seam is discontinuous (up to 4x for carbon),
@@ -172,26 +172,26 @@ _DISCRETE_MC_SEED: int = 0
 _DISCRETE_CLUSTER_INDEX_MAX: float = 0.999
 
 # How the local-dose convolution maps its dose density to lethal events
-# (``beta_model="local_dose"``; see :meth:`LEM4.local_dose_beta`).
+# (``beta_model="local_dose"``; see `LEM4.local_dose_beta`).
 #   "cluster_index" (default) -- LEM IV's own mapping (Pfuhl eqs. 3-6) on the local-dose
 #       density: nucleus-wide damaged and clustered loop counts, ``C_I = N_cDSB / N_dmg``,
 #       ``C_g(D_eq) = C_I``, ``E = N_dmg * (-ln S_g(D_eq)) / N_dmg,g(D_eq)``, on the
-#       eta-enhanced dose (:meth:`LEM4._local_dose_jumps`). The only kernel reproducing
+#       eta-enhanced dose (`LEM4._local_dose_jumps`). The only kernel reproducing
 #       both Fig. 4 features (``beta_I`` rising above ``beta_x``, then collapsing); any
 #       response that is a function of the *physical* local dose has ``beta_I <= beta_x``.
 #   "photon_effect" -- the Elsasser & Scholz 2007 local effect ``rho_A(d) = -ln S_x(d)``
-#       (:meth:`LEM4._photon_effect`); its threshold ``D_t`` makes ``beta_I`` fall with LET.
+#       (`LEM4._photon_effect`); its threshold ``D_t`` makes ``beta_I`` fall with LET.
 #   "globle" -- the per-loop GLOBLE response ``P_iDSB(m) eps_i + P_cDSB(m) eps_c``. A
 #       cross-check: without ``D_t`` and with ``m <= 0.33`` it stays quadratic, so
 #       ``beta_I = beta_x`` for every ion.
 #   "discrete_cluster_index" -- as "cluster_index" but with the average-of-ratios
-#       ``E[N_cDSB/N_dmg]`` (:func:`._discrete.expected_damaged_ratio`); Monte-Carlo only.
+#       ``E[N_cDSB/N_dmg]`` (`._discrete.expected_damaged_ratio`); Monte-Carlo only.
 #       A cross-check; it does not fix the high-Z ``initial_slope_model="full_simulation"``
 #       route (docs/references/LEM_IV_Friedrich2012.md).
 LEM4LocalDoseKernel = Literal["cluster_index", "discrete_cluster_index", "photon_effect", "globle"]
 
 # Execution backend for the intertrack Monte-Carlo (not the model's ``engine``):
-# "numpy" (default) is the seed-reproducible reference; "numba" (:mod:`._intertrack_kernel`,
+# "numpy" (default) is the seed-reproducible reference; "numba" (`._intertrack_kernel`,
 # ``fast`` extra) is much faster but per-thread RNG makes it *not* bit-reproducible for a
 # fixed ``seed``; "auto" picks numba when importable.
 LEM4MCEngine = Engine  # the same three engines
@@ -222,7 +222,7 @@ DSB_PER_GY_PER_LOOP: float = (
 # Geometric giant-loop count of the 540 nm grid, ``V / l_DSB^3`` ~ 3175. The intertrack
 # MC bins DSBs into this grid, so its GLOBLE ``eps_c`` is calibrated to this count (the
 # photon limit recovers ``beta_x * N_L(eps_c) / N_grid``), not to the empirically fitted
-# :attr:`LEM4.globle_n_loops`.
+# `LEM4.globle_n_loops`.
 MC_GRID_N_LOOPS: float = DSB_PER_GY_CELL / DSB_PER_GY_PER_LOOP
 
 # DSB-yield enhancement eta(D) parameters (Friedrich, Durante & Scholz 2015). At
@@ -272,15 +272,15 @@ _CLUSTER_INDEX_TRIP98_LEGACY: float = 0.95
 # adaptive per-LET dose grid that stays in the LQ region.
 _INTERTRACK_REALIZATIONS: int = 600  # shared-grid dose-response realisations per beta
 # The same 600 realisations in 12 batches for the delete-one jackknife
-# (:meth:`LEM4.intertrack_mc_beta_jackknife`), as LEM I's ``base._TC_BATCHES``.
+# (`LEM4.intertrack_mc_beta_jackknife`), as LEM I's ``base._TC_BATCHES``.
 _INTERTRACK_BATCHES: int = 12
 _INTERTRACK_REALIZATIONS_PER_BATCH: int = 50
-# Ceiling and per-round growth cap for :meth:`LEM4.intertrack_mc_beta_to_precision`;
+# Ceiling and per-round growth cap for `LEM4.intertrack_mc_beta_to_precision`;
 # the 4x cap keeps an unluckily noisy pilot from allocating the whole ceiling at once.
 _INTERTRACK_MAX_REALIZATIONS: int = 120_000
 _INTERTRACK_MAX_ALLOCATION_GROWTH: float = 4.0
 _INTERTRACK_N_DOSES: int = 9  # doses in the adaptive LQ-region grid
-# Adaptive dosing (:meth:`LEM4._adaptive_doses`): ``D_max = min(target/alpha_sp, frac*D_t)``.
+# Adaptive dosing (`LEM4._adaptive_doses`): ``D_max = min(target/alpha_sp, frac*D_t)``.
 _INTERTRACK_EFFECT_TARGET: float = 2.0
 _INTERTRACK_DMAX_DT_FRACTION: float = 0.9
 
@@ -319,7 +319,7 @@ _LOCALDOSE_MC_REALIZATIONS: int = 400
 
 # Impact-parameter cut for ``local_dose_mc_impact_cut="auto"``, in nucleus radii. Far
 # tracks (most of the low-LET cost) are replaced by their expectation
-# (:func:`_localdose.far_track_background_per_Gy`), dropping only their fluctuation. A
+# (`_localdose.far_track_background_per_Gy`), dropping only their fluctuation. A
 # convergence choice, valid only with the domain-fraction floor below
 # (LEM_IV_OPEN_CHOICES.md entry 1.3).
 _MC_IMPACT_CUT_FACTOR: float = 8.0
@@ -378,7 +378,7 @@ def _r2_points(n: int) -> npt.NDArray[np.float64]:
     """``n`` points of the R2 low-discrepancy sequence on the unit square.
 
     Deterministic (no seed), used to marginalise the giant-loop lattice's phase in
-    :meth:`LEM4.analytic_discrete_cluster_index`.
+    [`LEM4.analytic_discrete_cluster_index`][].
     """
     i = np.arange(1, n + 1, dtype=np.float64)
     a1, a2 = 1.0 / _PLASTIC_RATIO, 1.0 / (_PLASTIC_RATIO * _PLASTIC_RATIO)
@@ -397,7 +397,7 @@ def _bin_dsb_3d(
 
     A cube is a nuclear loop iff its transverse *centre* lies within ``r_eff`` (the
     centre-inside boundary rule); ``N_clustered`` counts valid loops holding >= 2 DSBs.
-    Used by :meth:`LEM4.discrete_cluster_index`.
+    Used by [`LEM4.discrete_cluster_index`][].
     """
     codes = np.stack([np.floor(x / ell), np.floor(y / ell), np.floor(z / ell)], axis=1).astype(
         np.int64
@@ -413,10 +413,10 @@ def _bin_dsb_3d(
 
 @dataclass(frozen=True, slots=True)
 class DiscreteSetup:
-    """Per-ion inputs of the discrete-DSB engine (:meth:`LEM4._discrete_setup`).
+    """Per-ion inputs of the discrete-DSB engine (`LEM4._discrete_setup`).
 
     ``a0`` / ``a1`` are the per-loop single-track factors ``<e^-mu>`` / ``<mu e^-mu>``
-    over track positions uniform on the nucleus disk (:func:`._discrete.track_factors`),
+    over track positions uniform on the nucleus disk (`_discrete.track_factors`),
     ``n_z`` the number of loop layers along the beam, and ``n_loops`` the total giant-loop
     count of the lattice (``~ V / l_DSB^3``).
 
@@ -440,10 +440,10 @@ class IntertrackSurvival:
 
     ``batch_effect`` holds one row of mean *effects* ``<E(D)>`` per independent batch.
     The effect, not the survival, is the poolable quantity (survival is ``exp(-<E>)``).
-    Mirrors :class:`~pyradbio.models.lem.base.TraversalConditionedSurvival` (LEM I-III).
+    Mirrors [`TraversalConditionedSurvival`][] (LEM I-III).
     ``beta`` is a nonlinear functional (a least-squares fit) of the pooled curve, so its
     error comes from a delete-one jackknife over batches
-    (:func:`~pyradbio.models.lem.base._delete_one_jackknife`).
+    (`_delete_one_jackknife`).
     """
 
     batch_effect: npt.NDArray[np.float64]  # (n_batches, n_doses)
@@ -502,7 +502,7 @@ class IntertrackSurvival:
 
         **Unclamped**: in deep overkill a negative ``beta`` is a measurement, and
         flooring it would bias the mean and shrink the error. The scalar
-        :meth:`LEM4.intertrack_mc_beta` floors its return value (and warns).
+        [`LEM4.intertrack_mc_beta`][] floors its return value (and warns).
         """
         return self.jackknife(
             lambda effect: _intertrack_kernel.fit_alpha_beta(
@@ -563,8 +563,8 @@ def _outside_square_fraction(
 def _cluster_index_bounds(c_g: npt.NDArray[np.float64]) -> tuple[float, float]:
     """``(lo, hi)`` clip bounds for a cluster index fed to a ``C_g -> g`` lookup.
 
-    ``lo`` is the lookup grid's floor, ``hi`` is :data:`_CLUSTER_INDEX_MAX`, the same
-    regularisation :meth:`LEM4._damage_and_deq` and the intertrack kernels (``ci_max``)
+    ``lo`` is the lookup grid's floor, ``hi`` is `_CLUSTER_INDEX_MAX`, the same
+    regularisation `LEM4._damage_and_deq` and the intertrack kernels (``ci_max``)
     apply. Do not clip to ``c_g[-1]`` instead: ``C_g`` saturates to exactly 1.0 near
     3175 Gy, so the top grid entries tie and a saturated ``C_I`` would map to a far
     higher ``D_eq`` than on the analytic path. Route every cluster index through here.
@@ -590,24 +590,25 @@ class LEM4(LEMBase):
     - ``effect_model``: ``"photon_equivalent"`` (default, ``D_eq`` mapping) or
       ``"globle"`` (bounded per-loop effect); ``globle_n_loops`` is GLOBLE's ``N_L``.
     - ``beta_model``: ``"slope_matching"`` (default, Friedrich 2012 Fig. 3) or a Fig. 4
-      full simulation (:meth:`local_dose_beta`, :meth:`discrete_dsb_beta`,
-      :meth:`intertrack_mc_beta`). ``alpha_I`` is the single-particle slope in every case.
+      full simulation ([`local_dose_beta`][], [`discrete_dsb_beta`][],
+      [`intertrack_mc_beta`][]). ``alpha_I`` is the single-particle slope in every case.
     - ``fit_survival_bound`` (default ``None``): survival-bounded LQ fit ceiling instead
-      of the fixed ``0.05-0.85 D_t`` (:meth:`fit_doses_Gy`); off by default because it
+      of the fixed ``0.05-0.85 D_t`` ([`fit_doses_Gy`][]); off by default because it
       reproduces Fig. 4 worse and is unbounded on radioresistant cells.
     - ``mc_effect_model``: effect model of the intertrack MC, independent of
-      ``effect_model`` (:meth:`intertrack_mc_survival`).
+      ``effect_model`` ([`intertrack_mc_survival`][]).
 
     Model choices without a paper basis: docs/references/LEM_IV_OPEN_CHOICES.md.
     """
 
-    #: LEM IV's alpha_I routes: the D -> 0 cross section, or a fit to the simulated
-    #: survival curve (TRiP98's protocol). The ``lethal_*`` models are not defined
-    #: for LEM IV's DSB-pattern override.
     initial_slope_models: ClassVar[tuple[InitialSlopeModel, ...]] = (
         "cross_section",
         "full_simulation",
     )
+    """LEM IV's alpha_I routes: the D -> 0 cross section, or a fit to the simulated
+    survival curve (TRiP98's protocol). The ``lethal_*`` models are not defined
+    for LEM IV's DSB-pattern override.
+    """
 
     engine: LEM4Engine = "auto"
     effect_model: LEM4EffectModel = "photon_equivalent"
@@ -630,7 +631,7 @@ class LEM4(LEMBase):
         LEMBase.__post_init__(self)
         check_choice("engine", self.engine, ENGINES)
         # "scholz1997_two_track" is deliberately absent from LEM4BetaModel: see
-        # :meth:`scholz1997_two_track_beta` for why it cannot be defined here.
+        # `scholz1997_two_track_beta` for why it cannot be defined here.
         beta_models = get_args(LEM4BetaModel)
         if self.beta_model not in beta_models:
             raise ValueError(
@@ -708,7 +709,7 @@ class LEM4(LEMBase):
         radical-diffusion radial dose, evaluated once and interpolated below.
 
         The grid runs to the profile's *support*
-        (:meth:`~pyradbio.track.scholz_kraft.ScholzKraftRadialDose.r_support_um`),
+        ([`r_support_um`][pyradbio.track.scholz_kraft.ScholzKraftRadialDose.r_support_um]),
         ``8 sigma`` past ``r_max``; callers treat the top radius as "where the track ends",
         and stopping at ``r_max`` would drop most of a 0.1 MeV/u carbon track's energy.
         """
@@ -748,7 +749,7 @@ class LEM4(LEMBase):
         540 nm subvolumes; the penumbra carries isolated DSB only (``P_dmg ~ m``) and is
         added analytically out to ``r_eff``. ``in_nucleus_dose_area = int_0^{r_top} D 2 pi
         r dr`` feeds the escaped-energy slope term. Uses numba or NumPy per
-        :meth:`_use_numba`.
+        `_use_numba`.
         """
         if self._use_numba():
             return self._damage_pattern_numba(ion)
@@ -767,7 +768,7 @@ class LEM4(LEMBase):
         return xs.astype(np.float64), span, ell, 2 * half + 1, cell_area
 
     def _damage_pattern_numba(self, ion: Ion) -> tuple[float, float, float]:
-        """Compiled-kernel path (:func:`_lem4_kernel.damage_pattern`)."""
+        """Compiled-kernel path (`_lem4_kernel.damage_pattern`)."""
         radial = self._radial()
         assert isinstance(radial, ScholzKraftRadialDose)
         r_min = radial.r_min_um(ion)
@@ -810,7 +811,7 @@ class LEM4(LEMBase):
         )
 
     def _damage_pattern_numpy(self, ion: Ion) -> tuple[float, float, float]:
-        """Vectorised NumPy path (reference); see :meth:`_damage_pattern`."""
+        """Vectorised NumPy path (reference); see `_damage_pattern`."""
         r_grid, dose_grid, _r_min, r_max = self._local_dose_profile(ion)
         log_r = np.log(r_grid)
         log_d = np.log(np.maximum(dose_grid, 1.0e-300))
@@ -844,7 +845,7 @@ class LEM4(LEMBase):
 
         # Penumbra isolated DSB (outside the fine square): P_dmg ~ m ~ kappa_dsb * d
         # (eta ~ 1 there), integrated DIRECTLY over the square's complement with
-        # :func:`_outside_square_fraction`, not as (total - fine sum).
+        # `_outside_square_fraction`, not as (total - fine sum).
         radial_area = dose_at(r_grid) * 2.0 * math.pi * r_grid
         total_dose_area = float(trapezoid(radial_area, x=r_grid))
         n_dmg += DSB_PER_GY_PER_LOOP * float(
@@ -861,11 +862,11 @@ class LEM4(LEMBase):
         (the dense track core clusters every loop it crosses); Friedrich 2012
         Fig. 2b.
 
-        .. warning::
+        !!! warning
             A **mean-field** ratio of areas, so by Jensen it runs **high** and misses the
             Pfuhl 2019/2020 Table 3 anchors (12C 2.5 MeV/u ~0.99, 20Ne 31 MeV/u ~0.31 vs
             0.80 / 0.19); the goldens validate the RBE built on it, not this value. For
-            the discrete value see :meth:`discrete_cluster_index`.
+            the discrete value see [`discrete_cluster_index`][].
         """
         n_dmg, n_cdsb, _ = self._damage_pattern(ion)
         return n_cdsb / n_dmg
@@ -878,19 +879,19 @@ class LEM4(LEMBase):
         Samples an explicit **3-D** discrete DSB pattern and averages the
         per-realisation ratio (average-of-ratios), reproducing the Pfuhl 2019/2020
         Table 3 anchors (12C 2.5 MeV/u ~0.80, 20Ne 31 MeV/u ~0.19) that the mean-field
-        :meth:`cluster_index` cannot.
+        [`cluster_index`][] cannot.
 
         One ion crosses at an impact parameter uniform on the disk, depositing
         ``Poisson(a_DSB D_1 <eta>)`` DSBs with radii from the *plain* dose density
         ``D(r) 2 pi r`` (**Variant B**: ``eta`` scales the count, not the placement) and
-        depth uniform over ``V / A_eff``, binned into 540 nm cubes (:func:`_bin_dsb_3d`).
+        depth uniform over ``V / A_eff``, binned into 540 nm cubes (`_bin_dsb_3d`).
 
         Used by ``cluster_index_model="discrete_mc"``; prefer it to
-        :meth:`analytic_discrete_cluster_index` **below ~2 MeV/u**, where ``1 - C_I`` lives
+        [`analytic_discrete_cluster_index`][] **below ~2 MeV/u**, where ``1 - C_I`` lives
         in a thin shell of track positions a regular grid cannot resolve. Raises
         ``ValueError`` if ``n_realisations < 1``.
 
-        .. warning::
+        !!! warning
             Judge convergence on ``1 - C_I``, never on ``C_I``: its relative noise
             (``~1/sqrt(n)``) is worst where ``C_I`` is highest.
         """
@@ -941,24 +942,24 @@ class LEM4(LEMBase):
 
         The *average-of-ratios* cluster index by quadrature, without seed noise. Given
         the track position the loop occupancies are independent Poisson, and
-        :func:`._discrete.expected_damaged_ratio` closes the ratio expectation into one
+        `_discrete.expected_damaged_ratio` closes the ratio expectation into one
         1-D integral; this method supplies the geometry (per-loop means from the
         box-averaged eta-enhanced dose, ``n_z`` layers per column) and marginalises the
         track-to-lattice registration over ``n_impact`` track positions (``n_nodes``
         quadrature nodes). Used by ``cluster_index_model="discrete"``.
 
-        Agrees with :meth:`discrete_cluster_index` (under this method's eta convention)
+        Agrees with [`discrete_cluster_index`][] (under this method's eta convention)
         to 1-7% in ``1 - C_I`` above ~2.5 MeV/u; below ~1 MeV/u it runs 1.4-6x high, as
-        :func:`._localdose.box_averaged_profile` smears the track ~2.5x too wide
+        `_localdose.box_averaged_profile` smears the track ~2.5x too wide
         (LEM_IV_OPEN_CHOICES.md entry 3.2). It places ``eta`` in the DSB *placement*
         (Variant A), the sampled estimator in the *count* (Variant B; entry 2.4), and does
         **not** reproduce the Pfuhl 2019/2020 Table 3 anchors.
 
-        .. warning::
+        !!! warning
             Judge convergence on ``1 - C_I``, never on ``C_I``: at ``C_I`` ~ 0.98 a "1%"
             agreement in ``C_I`` is a ~60% error in the ``1 - C_I`` that ``D_eq`` reads.
             Convergence in ``n_impact`` is oscillatory (two node counts are not a test);
-            :data:`_DISCRETE_N_IMPACT` holds ``1 - C_I`` to ~1% from 2.5 MeV/u up, only
+            `_DISCRETE_N_IMPACT` holds ``1 - C_I`` to ~1% from 2.5 MeV/u up, only
             ~12% below ~1 MeV/u.
         """
         if n_impact < 1 or n_nodes < 8:
@@ -1010,10 +1011,10 @@ class LEM4(LEMBase):
 
         Friedrich 2012 Fig. 4's ``"Full Simulation, S>0.01"`` legend read as a fit
         protocol. The threshold is applied to the simulated effect of the deterministic
-        convolution (:meth:`local_dose_lethal_events`, ``S = e^{-E}``), never to a fitted
+        convolution ([`local_dose_lethal_events`][], ``S = e^{-E}``), never to a fitted
         curve, and that one response serves every fitted route.
 
-        ``survival`` defaults to :attr:`fit_survival_bound`; ``ValueError`` if neither is
+        ``survival`` defaults to [`fit_survival_bound`][]; ``ValueError`` if neither is
         given or it lies outside ``(0, 1)``. If the threshold is not crossed on the probe
         grid, the grid's top (or bottom) dose is returned rather than raising.
         """
@@ -1049,13 +1050,13 @@ class LEM4(LEMBase):
     ) -> npt.NDArray[np.float64]:
         """Dose grid [Gy] the LQ fits use, as fractions of this cell's ``D_t``.
 
-        Every fitted route (:meth:`local_dose_beta`, :meth:`local_dose_mc_alpha_beta`,
-        :meth:`discrete_dsb_beta`, :meth:`full_simulation_initial_slope`) reads its window
-        here. ``fractions`` defaults to :data:`_LOCALDOSE_DOSE_FRACTIONS`, a pyRadBio
+        Every fitted route ([`local_dose_beta`][], [`local_dose_mc_alpha_beta`][],
+        [`discrete_dsb_beta`][], [`full_simulation_initial_slope`][]) reads its window
+        here. ``fractions`` defaults to `_LOCALDOSE_DOSE_FRACTIONS`, a pyRadBio
         choice (no paper documents one); quote it with any fitted number.
 
-        With :attr:`fit_survival_bound` set and an ``ion`` given, the ceiling becomes
-        :meth:`survival_bounded_ceiling_Gy` and the fractions are re-mapped onto
+        With [`fit_survival_bound`][] set and an ``ion`` given, the ceiling becomes
+        [`survival_bounded_ceiling_Gy`][] and the fractions are re-mapped onto
         ``[lo, ceiling]`` at their own log positions (lower bound unchanged); without
         ``ion`` the fixed grid is returned. Raises ``ValueError`` if a bounded window gets
         fewer than 2 positive, increasing fractions.
@@ -1123,7 +1124,7 @@ class LEM4(LEMBase):
         """Shared ``(N_dmg, N_cDSB, D_eq, in_nucleus_dose_area)`` for the
         scaling/log-kill/initial-slope methods.
 
-        ``D_eq`` comes from :meth:`mean_field_deq`, which matches the loop's
+        ``D_eq`` comes from [`mean_field_deq`][], which matches the loop's
         Poisson mean directly in the single-loop regime and inverts ``C_g`` above
         it.
         """
@@ -1151,7 +1152,7 @@ class LEM4(LEMBase):
     def single_particle_log_kill(self, ion: Ion) -> float:
         """Lethal events ``N_1 = kappa * (-ln S_g(D_eq))`` from one traversal (Pfuhl
         eqs. 4, 6). The photon effect uses the eta-enhanced shouldered->linear
-        response :meth:`_photon_effect`.
+        response `_photon_effect`.
         """
         n_dmg, _n_cdsb, d_eq, _in = self._damage_and_deq(ion)
         kappa = n_dmg / self._photon_damaged_loops(d_eq)
@@ -1164,14 +1165,14 @@ class LEM4(LEMBase):
         Friedrich, Durante & Scholz 2012 (Radiat. Res. 178(5):385-394, doi:10.1667/RR2964.1)
         eqs. 8-9: ``eps_i = alpha_x / a_DSB`` (the linear / alpha channel) and
         ``eps_c = 2 (N_L beta_x + a_DSB alpha_x) / a_DSB^2`` (the quadratic / beta
-        channel), with the DSB yield ``a_DSB = 30 /Gy`` (:data:`DSB_PER_GY_CELL`) and the
+        channel), with the DSB yield ``a_DSB = 30 /Gy`` ([`DSB_PER_GY_CELL`][]) and the
         giant-loop count ``N_L``. Both are < 1 and are the mean lethal events of an
         isolated / clustered damaged loop; folding the Poisson loop counts with them
         reproduces the photon LQ ``alpha_x D + beta_x D^2`` at low dose *when DSBs are
         distributed over exactly ``N_L`` loops*.
 
-        ``n_loops`` defaults to :attr:`globle_n_loops`; the intertrack MC passes
-        :data:`MC_GRID_N_LOOPS` so that ``eps_c`` matches the grid it bins into.
+        ``n_loops`` defaults to [`globle_n_loops`][]; the intertrack MC passes
+        [`MC_GRID_N_LOOPS`][] so that ``eps_c`` matches the grid it bins into.
         """
         n_l = self.globle_n_loops if n_loops is None else n_loops
         a_g, b_g = self.photon.alpha_x, self.photon.beta_x
@@ -1184,7 +1185,7 @@ class LEM4(LEMBase):
         """GLOBLE single-traversal lethal events ``N_1 = n_iDSB eps_i + n_cDSB eps_c``.
 
         ``n_dmg`` / ``n_cdsb`` are the damaged / clustered loop *areas* [um^2] of one
-        transverse layer from :meth:`_damage_pattern`. The full-traversal loop *counts*
+        transverse layer from `_damage_pattern`. The full-traversal loop *counts*
         follow by multiplying by the geometric giant-loop count ``N_geom = V / l_DSB^3 =
         DSB_PER_GY_CELL / DSB_PER_GY_PER_LOOP`` per effective nuclear area (the track spans
         the whole nuclear depth ``V / A_eff``), i.e. ``n_loop = area * N_geom / A_eff``.
@@ -1201,15 +1202,15 @@ class LEM4(LEMBase):
         return n_i * eps_i + n_c * eps_c
 
     def _single_traversal_effect(self, ion: Ion) -> tuple[float, float]:
-        """``(N_1, in_nucleus_dose_area)`` per :attr:`effect_model` (one scoring pass).
+        """``(N_1, in_nucleus_dose_area)`` per [`effect_model`][] (one scoring pass).
 
         ``"photon_equivalent"`` (default) is the capped ``kappa * E_eq(D_eq)`` mapping;
-        ``"globle"`` is the bounded per-loop :meth:`_globle_log_kill`. Both share the
-        escaped-energy indirect term added in :meth:`initial_slope`.
+        ``"globle"`` is the bounded per-loop `_globle_log_kill`. Both share the
+        escaped-energy indirect term added in [`initial_slope`][].
 
-        :attr:`cluster_index_model` selects the ``C_I`` estimator; ``n_dmg`` still comes
+        [`cluster_index_model`][] selects the ``C_I`` estimator; ``n_dmg`` still comes
         from the damage pattern, because ``kappa`` needs the damaged *area*. The discrete
-        estimators are bounded by :data:`_DISCRETE_CLUSTER_INDEX_MAX`, not the mean-field
+        estimators are bounded by `_DISCRETE_CLUSTER_INDEX_MAX`, not the mean-field
         guard. ``"discrete_mc"`` makes this method **stochastic and slow** (seeded, so
         reproducible per model, but uncached and carrying realisation noise).
         """
@@ -1252,7 +1253,7 @@ class LEM4(LEMBase):
         Purely geometric; it does **not** mean the pattern is degenerate (at 1 MeV/u
         ``C_I`` is 0.12 for protons, ~1 for carbon). It guarantees that one Poisson mean
         ``m`` describes the pattern, so ``D_eq`` can be matched on ``m``
-        (:meth:`photon_equivalent_dose_from_dsb_mean`).
+        ([`photon_equivalent_dose_from_dsb_mean`][]).
         """
         return self._radial().r_support_um(ion) <= 0.5 * SUBVOLUME_SIDE_NM * 1.0e-3
 
@@ -1260,7 +1261,7 @@ class LEM4(LEMBase):
         """Poisson mean ``m`` of the one loop the track occupies (single-loop regime).
 
         With the whole profile inside one subvolume the fine 2-D grid of
-        :meth:`_damage_pattern` reduces to the radial integral
+        `_damage_pattern` reduces to the radial integral
 
             ``m = (kappa_dsb / l_DSB^2) int eta(D) D 2 pi r dr``
 
@@ -1301,9 +1302,9 @@ class LEM4(LEMBase):
         directly. Otherwise: the usual ``C_g^-1(C_I)`` root-find, since a
         multi-loop pattern has no single ``m`` to match.
 
-        Setting :attr:`legacy_trip98_cluster_index_cap` forces the ``C_I`` route
+        Setting [`legacy_trip98_cluster_index_cap`][] forces the ``C_I`` route
         everywhere and clips the index at that cap. ``pattern`` passes an
-        already-computed :meth:`_damage_pattern` result so it is not scored twice.
+        already-computed `_damage_pattern` result so it is not scored twice.
         """
         cap = self.legacy_trip98_cluster_index_cap
         if cap is None and self.pattern_is_single_loop(ion):
@@ -1317,9 +1318,9 @@ class LEM4(LEMBase):
         """Has the mean-field pattern lost the information ``D_eq`` needs?
 
         True only when the ``C_I`` route is non-invertible (``1 - C_I`` below the float64
-        bound of :data:`_CLUSTER_INDEX_MAX`). That is set by track density, not by the
-        single-loop geometry of :meth:`pattern_is_single_loop` (protons in that regime
-        invert cleanly). In the single-loop regime :meth:`mean_field_deq` matches ``m``
+        bound of `_CLUSTER_INDEX_MAX`). That is set by track density, not by the
+        single-loop geometry of [`pattern_is_single_loop`][] (protons in that regime
+        invert cleanly). In the single-loop regime [`mean_field_deq`][] matches ``m``
         instead, so the predicate matters for the multi-loop branch and for callers
         checking the ``C_I`` route itself.
         """
@@ -1336,7 +1337,7 @@ class LEM4(LEMBase):
 
         Raises ``ValueError`` rather than clipping: any clip value (such as 0.95) is a
         free parameter that would fabricate the magnitude. Set
-        :attr:`legacy_trip98_cluster_index_cap` to restore the capped behaviour.
+        [`legacy_trip98_cluster_index_cap`][] to restore the capped behaviour.
         """
         cap = self.legacy_trip98_cluster_index_cap
         if cap is not None:
@@ -1357,11 +1358,11 @@ class LEM4(LEMBase):
     def single_traversal_log_kill(self, ion: Ion) -> float:
         """``N_1`` from LEM IV's **own** effect model, not the base local-dose integral.
 
-        Overrides :class:`LEMBase`'s ``-ln S_x(D(r))`` disk integral (the LEM I-III
+        Overrides [`LEMBase`][]'s ``-ln S_x(D(r))`` disk integral (the LEM I-III
         lethal-event density) with LEM IV's DSB-pattern effect
-        (:meth:`_single_traversal_effect`), so the inherited ``beta_model="rapid_lem"``
+        (`_single_traversal_effect`), so the inherited ``beta_model="rapid_lem"``
         is correct here instead of silently returning a LEM I number. In-nucleus dose
-        only; the escaped-energy term is added by :meth:`initial_slope`.
+        only; the escaped-energy term is added by [`initial_slope`][].
         """
         return self._single_traversal_effect(ion)[0]
 
@@ -1421,7 +1422,7 @@ class LEM4(LEMBase):
 
             alpha_I = (1 - e^-N_1) / D_1  +  alpha_x * (1 - D_1^in / D_1) .
 
-        ``N_1`` comes from :attr:`effect_model`; the direct term is the Poisson
+        ``N_1`` comes from [`effect_model`][]; the direct term is the Poisson
         single-track average (Scholz 1997) on the *in-nucleus* dose. The indirect term
         is the impact-parameter cross-section of tracks with ``b > R_eff`` in its linear
         limit (a weak photon field, ``alpha_x`` per unit escaped dose;
@@ -1430,8 +1431,8 @@ class LEM4(LEMBase):
         over the discrete pattern is not implemented.
 
         ``survival_convention="mean_effect"`` replaces ``1 - e^-N_1`` by ``N_1``
-        (:data:`LEM4SurvivalConvention`); ``initial_slope_model="full_simulation"`` fits
-        the slope instead (:meth:`full_simulation_initial_slope`). The ``lethal_central``
+        ([`LEM4SurvivalConvention`][]); ``initial_slope_model="full_simulation"`` fits
+        the slope instead ([`full_simulation_initial_slope`][]). The ``lethal_central``
         / ``lethal_full`` models are not defined for LEM IV.
         """
         if self.initial_slope_model == "full_simulation":
@@ -1451,17 +1452,17 @@ class LEM4(LEMBase):
         TRiP98's LEM IV tables come from the "full simulation" (``-iter 50000``; Pfuhl
         2021 thesis ch. 2.3.2: hit classes weighted "according to the requested
         irradiation dose level"), i.e. an LQ fit over a finite dose window rather than
-        the ``D -> 0`` limit of :meth:`initial_slope`. Under overkill ``-ln S(D)`` is
+        the ``D -> 0`` limit of [`initial_slope`][]. Under overkill ``-ln S(D)`` is
         concave, so the fitted ``beta`` goes negative and lifts ``alpha`` above the true
         initial slope (1.0x at 10 MeV/u, ~1.4x by 1 MeV/u). See
         docs/references/LEM_IV_Friedrich2012.md.
 
-        Computed as :meth:`local_dose_mc_alpha_beta` averaged over :data:`_FULLSIM_SEEDS`
-        (deterministic); :attr:`survival_convention` selects whether the fit runs on
+        Computed as [`local_dose_mc_alpha_beta`][] averaged over `_FULLSIM_SEEDS`
+        (deterministic); [`survival_convention`][] selects whether the fit runs on
         ``-ln <e^-E>`` or on ``<E>``. Use it in the overkill band only: cost grows as
         ``(R_eff + r_max)^2`` (about a minute at 50 MeV/u carbon; warns past
-        :data:`_FULLSIM_DOMAIN_WARN`) while above it the two slopes agree to a few %. The
-        window (:meth:`fit_doses_Gy`) moves the slope by up to ~10%; quote it.
+        `_FULLSIM_DOMAIN_WARN`) while above it the two slopes agree to a few %. The
+        window ([`fit_doses_Gy`][]) moves the slope by up to ~10%; quote it.
         """
         r_eff = self.cell.effective_nucleus_radius_um()
         ratio = (r_eff + self._radial().r_support_um(ion)) / r_eff
@@ -1483,12 +1484,12 @@ class LEM4(LEMBase):
 
     # ---- ion beta (slope-matching default / intertrack Monte-Carlo) -----
     def _beta_for_ion(self, ion: Ion, alpha_ion: float) -> float:
-        """``beta_I`` per :attr:`beta_model` (default Kraemer-Scholz slope matching).
+        """``beta_I`` per [`beta_model`][] (default Kraemer-Scholz slope matching).
 
         ``"local_dose"`` runs the Friedrich 2012 Fig. 4 full simulation as a
-        local-dose convolution (:meth:`local_dose_beta`; deterministic, ~1 s per
+        local-dose convolution ([`local_dose_beta`][]; deterministic, ~1 s per
         ion); ``"intertrack_mc"`` runs the explicit-track discrete-DSB Monte-Carlo
-        (:meth:`intertrack_mc_beta`), which is slow and does not reproduce Fig. 4.
+        ([`intertrack_mc_beta`][]), which is slow and does not reproduce Fig. 4.
         """
         if self.beta_model == "local_dose":
             return self.local_dose_beta(ion)
@@ -1503,8 +1504,8 @@ class LEM4(LEMBase):
     def _globle_single_particle_slope(self, ion: Ion) -> float:
         """Single-particle ``alpha_I`` under the GLOBLE effect (adaptive-dose helper).
 
-        The same direct + escaped-energy assembly as :meth:`initial_slope`, but with
-        the bounded GLOBLE per-loop ``N_1`` regardless of :attr:`effect_model` -- the
+        The same direct + escaped-energy assembly as [`initial_slope`][], but with
+        the bounded GLOBLE per-loop ``N_1`` regardless of [`effect_model`][] -- the
         intertrack MC uses the GLOBLE effect, and Friedrich 2012 fixes ``alpha_I`` as
         model-invariant, so this alpha both sets the adaptive dose scale and is the
         cross-check the fitted MC ``alpha`` must reproduce.
@@ -1545,9 +1546,11 @@ class LEM4(LEMBase):
         """``(C_g, g)`` lookup for the photon-equivalent MC scoring.
 
         A pattern with cluster index ``C_I`` and ``N_dmg`` damaged loops has effect
-        ``E = N_dmg * g(C_I)`` with ``C_g(D_eq) = C_I`` (Pfuhl eqs. 3/6) and::
+        ``E = N_dmg * g(C_I)`` with ``C_g(D_eq) = C_I`` (Pfuhl eqs. 3/6) and:
 
-            g(C_I) = _photon_effect(D_eq) / (MC_GRID_N_LOOPS * P_dmg(m(D_eq)))
+        ```text
+        g(C_I) = _photon_effect(D_eq) / (MC_GRID_N_LOOPS * P_dmg(m(D_eq)))
+        ```
 
         i.e. the photon effect per damaged photon loop, tabulated once against the
         monotone ``C_g`` so callers need an ``interp`` instead of a per-sample ``brentq``.
@@ -1573,7 +1576,7 @@ class LEM4(LEMBase):
         """``(u, g)`` -- the same photon-equivalent lookup, keyed on ``1 - C_g``.
 
         ``C_g`` saturates to exactly 1.0 over the top nodes of
-        :meth:`_intertrack_pe_lookup` (a tie spanning 193x in ``g``, undefined for
+        `_intertrack_pe_lookup` (a tie spanning 193x in ``g``, undefined for
         ``np.interp``); the unclustered fraction ``u = m e^-m / (1 - e^-m)``, formed
         directly, stays strictly monotone. Returned ascending in ``u``. Callers must form
         ``u`` **without** subtracting ``C_I`` from 1, or the fix is undone.
@@ -1591,7 +1594,7 @@ class LEM4(LEMBase):
         """Per-LET LQ-region dose grid keeping the effect in ~[0.2, 2].
 
         ``D_max = min(target/alpha_sp, frac*D_t)`` from the single-particle GLOBLE
-        ``alpha`` (:meth:`_globle_single_particle_slope`): a fixed grid fails across
+        ``alpha`` (`_globle_single_particle_slope`): a fixed grid fails across
         LET because ``alpha*D >> 1`` at high LET breaks the LQ fit.
         """
         alpha_sp = self._globle_single_particle_slope(ion)
@@ -1621,8 +1624,8 @@ class LEM4(LEMBase):
         backend: ``"numpy"`` (default, deterministic for a fixed ``seed``), ``"numba"``
         (the compiled parallel kernel; faster but not bit-reproducible), or ``"auto"``.
 
-        Scoring follows :attr:`mc_effect_model`: ``"globle"`` (default) with ``eps_c``
-        calibrated to :data:`MC_GRID_N_LOOPS` so the photon limit recovers ``beta_x``; or
+        Scoring follows [`mc_effect_model`][]: ``"globle"`` (default) with ``eps_c``
+        calibrated to [`MC_GRID_N_LOOPS`][] so the photon limit recovers ``beta_x``; or
         ``"photon_equivalent"`` (experimental), whose ``beta`` *rises* through mid-LET
         instead of collapsing -- a diagnostic ruling out the effect model as the cause of
         the Fig. 4 collapse (docs/references/LEM_IV_Friedrich2012.md).
@@ -1728,15 +1731,15 @@ class LEM4(LEMBase):
     ) -> float:
         """Full-simulation ion ``beta_I`` (Friedrich 2012 Fig. 4), the reference engine.
 
-        Runs :meth:`intertrack_mc_survival` on an adaptive per-LET dose grid (unless
+        Runs [`intertrack_mc_survival`][] on an adaptive per-LET dose grid (unless
         ``doses_Gy`` is given) and fits ``-ln S(D)/D = alpha + beta D``, returning
         ``beta``; the fitted ``alpha`` cross-checks the single-particle GLOBLE ``alpha``.
-        ``engine`` selects the backend (see :meth:`intertrack_mc_survival`).
+        ``engine`` selects the backend (see [`intertrack_mc_survival`][]).
 
-        The default grid is LET-dependent (:meth:`_adaptive_doses`) and a narrower window
+        The default grid is LET-dependent (`_adaptive_doses`) and a narrower window
         reads a higher ``beta``; over one common window this engine's ``beta`` is flat at
         ``beta_x``, so pass explicit ``doses_Gy`` to compare LET points. A single call is
-        one noisy draw: use :meth:`intertrack_mc_beta_jackknife` for an error bar. A
+        one noisy draw: use [`intertrack_mc_beta_jackknife`][] for an error bar. A
         negative fit is clamped to 0 with a warning (the jackknife path does not clamp).
         """
         doses = (
@@ -1771,9 +1774,9 @@ class LEM4(LEMBase):
         seed: int = 0,
         engine: LEM4MCEngine = "numpy",
     ) -> IntertrackSurvival:
-        """Batched intertrack dose response -> :class:`IntertrackSurvival`.
+        """Batched intertrack dose response -> [`IntertrackSurvival`][].
 
-        The same simulation as :meth:`intertrack_mc_survival`, partitioned into
+        The same simulation as [`intertrack_mc_survival`][], partitioned into
         independent batches so a delete-one jackknife can put an error bar on any
         functional of the curve. On the ``"numpy"`` engine the realisations are
         drawn in one uninterrupted stream, so the pooled curve reproduces the
@@ -1880,11 +1883,11 @@ class LEM4(LEMBase):
     ) -> tuple[float, float]:
         """Full-simulation ``beta_I`` **with its standard error** -> ``(beta, sem)``.
 
-        Prefer this over :meth:`intertrack_mc_beta` whenever the number is compared to
+        Prefer this over [`intertrack_mc_beta`][] whenever the number is compared to
         anything: the per-seed spread can exceed the value at high LET. The error is a
         delete-one jackknife over batches (``beta`` is a nonlinear functional of the
         pooled curve); the returned ``beta`` is **not clamped**
-        (:meth:`IntertrackSurvival.jackknife_beta`).
+        ([`IntertrackSurvival.jackknife_beta`][]).
         """
         return self.intertrack_mc_batches(
             ion,
@@ -1912,7 +1915,7 @@ class LEM4(LEMBase):
         """``beta_I`` to a requested precision -> ``(beta, standard_error, n_realizations)``.
 
         Runs a pilot, then keeps *adding* batches (never restarting -- see
-        :meth:`IntertrackSurvival.pooled_with`) until the jackknife error meets
+        [`IntertrackSurvival.pooled_with`][]) until the jackknife error meets
         ``target_sem`` or ``max_realizations`` is reached.
 
         ``target_sem`` is **absolute** (Gy^-2), since ``beta_I`` passes through zero in
@@ -1978,7 +1981,7 @@ class LEM4(LEMBase):
 
         The jump a track deposits in a subvolume whose centre passes at distance
         ``rho`` is the subvolume-*averaged* dose ``g(rho)``
-        (:func:`_localdose.box_averaged_profile`), and the mean number of tracks
+        (`_localdose.box_averaged_profile`), and the mean number of tracks
         passing at ``[rho, rho+drho]`` is ``phi 2 pi rho drho`` with
         ``phi = D / I_track``. The returned intensities carry the geometric
         ``2 pi rho drho`` factor only, so a whole dose-response curve is obtained
@@ -1986,7 +1989,7 @@ class LEM4(LEMBase):
 
         ``I_track = integral g 2 pi rho drho`` is taken from the *averaged* profile, so
         the mean local dose is exactly ``D``. ``eta_enhanced`` averages ``eta(d) d``
-        instead of ``d`` (as :meth:`_damage_pattern` does; ``eta`` acts on the pointwise
+        instead of ``d`` (as `_damage_pattern` does; ``eta`` acts on the pointwise
         core dose, so averaging plain dose first destroys it); ``I_track`` stays the
         *plain* dose-area, since ``phi = D / I_track`` follows the physical dose.
         """
@@ -2051,16 +2054,16 @@ class LEM4(LEMBase):
         r"""Lethal events ``N_ion(D)`` from the local-dose convolution.
 
         The local dose at a random nucleus point is a compound-Poisson sum over
-        the track field (see :mod:`._localdose`), so with ``f_D`` its density and
-        ``rho`` the per-subvolume response of :attr:`local_dose_kernel`,
+        the track field (see `_localdose`), so with ``f_D`` its density and
+        ``rho`` the per-subvolume response of [`local_dose_kernel`][],
 
             N_ion(D) = N_sv <rho(d)>_{f_D}        (per-loop response) ,
             N_ion(D) =        <rho(d)>_{f_D}      (whole-cell response) .
 
         The infinite track plane includes the far penumbra analytically (no simulated
         domain radius); as tracks become dense ``f_D -> delta(d - D)`` and the photon
-        response is recovered exactly. With :attr:`local_dose_overkill` the single-track
-        Poisson overkill is applied (:meth:`_local_dose_overkill_events`); otherwise this
+        response is recovered exactly. With [`local_dose_overkill`][] the single-track
+        Poisson overkill is applied (`_local_dose_overkill_events`); otherwise this
         is the mean effect (``exp(-<E>)`` convention).
         """
         doses = np.asarray(list(doses_Gy), dtype=np.float64)
@@ -2072,7 +2075,7 @@ class LEM4(LEMBase):
         self, ion: Ion, doses: npt.NDArray[np.float64]
     ) -> npt.NDArray[np.float64]:
         """Mean lethal events ``<E>`` (the ``exp(-<E>)`` convention); see
-        :meth:`local_dose_lethal_events`."""
+        [`local_dose_lethal_events`][]."""
         d_max = float(doses.max())
         if self.local_dose_kernel == "discrete_cluster_index":
             raise NotImplementedError(
@@ -2087,7 +2090,7 @@ class LEM4(LEMBase):
         solver, i_track = self._local_dose_solver(ion, d_max, eta_enhanced=False)
         response, per_loop = self._local_dose_response(self.local_dose_kernel, solver.dose_grid)
         # The nucleus holds ``V / l_DSB^3`` subvolumes, the same count the 540 nm
-        # tiling gives (:data:`MC_GRID_N_LOOPS`).
+        # tiling gives (`MC_GRID_N_LOOPS`).
         scale = MC_GRID_N_LOOPS if per_loop else 1.0
         return np.array(
             [scale * solver.response_mean(float(d) / i_track, response) for d in doses],
@@ -2138,7 +2141,7 @@ class LEM4(LEMBase):
             N_dmg(D)  = N_sv <P_dmg(m(d))> ,   N_cDSB(D) = N_sv <P_cDSB(m(d))> ,
 
         with ``m = a_DSB/loop * d`` on the *eta-enhanced* jump field, then (Pfuhl
-        eqs. 3-6, via the ``C_g -> g`` lookup :meth:`_intertrack_pe_lookup`)
+        eqs. 3-6, via the ``C_g -> g`` lookup `_intertrack_pe_lookup`)
 
             C_g(D_eq) = C_I ,   E(D) = N_dmg * (-ln S_g(D_eq)) / N_dmg,g(D_eq) .
 
@@ -2164,13 +2167,13 @@ class LEM4(LEMBase):
         """Full-simulation ``(alpha_I, beta_I)`` from one LQ fit of the local-dose response.
 
         One low-dose LQ fit ``-ln S / D = alpha + beta D``
-        (:func:`pyradbio.core.lq.fit_lq_linearised`) of :meth:`local_dose_lethal_events`
-        over ``doses_Gy`` (default :meth:`fit_doses_Gy`): the full simulation of Scholz et
+        ([`pyradbio.core.lq.fit_lq_linearised`][]) of [`local_dose_lethal_events`][]
+        over ``doses_Gy`` (default [`fit_doses_Gy`][]): the full simulation of Scholz et
         al. 1997 (doi:10.1007/s004110050055), as in Friedrich et al. 2012
         (doi:10.3109/09553002.2011.611213) Fig. 4.
 
-        **Neither coefficient is clamped** (unlike :meth:`local_dose_beta`); ``alpha`` is
-        the window-projected linear coefficient, not the ``D -> 0`` :meth:`initial_slope`.
+        **Neither coefficient is clamped** (unlike [`local_dose_beta`][]); ``alpha`` is
+        the window-projected linear coefficient, not the ``D -> 0`` [`initial_slope`][].
         Raises ``ValueError`` when the response is non-finite (zero survival in the
         window) or ``doses_Gy`` is degenerate (fewer than 2 doses, a non-positive dose,
         or a single repeated dose).
@@ -2188,20 +2191,20 @@ class LEM4(LEMBase):
         Reproduces the Friedrich et al. 2012 (doi:10.3109/09553002.2011.611213) Fig. 4
         full-simulation ``beta_I(LET)``: ``beta_x`` in the photon limit, a slight rise at
         intermediate LET, then a collapse toward 0. ``beta_I`` is the LQ coefficient over
-        :meth:`fit_doses_Gy`, a window chosen on this very panel (agreement partly by
-        construction; quote it). Deterministic; :meth:`local_dose_mc_beta` is the
+        [`fit_doses_Gy`][], a window chosen on this very panel (agreement partly by
+        construction; quote it). Deterministic; [`local_dose_mc_beta`][] is the
         explicit-track cross-check.
 
         Within ~4% of the paper up to LET 50, increasingly high above LET ~65 (open). The
         enhancement cannot roll off here: by dose conservation the cluster index's dose
-        slope is the photon rate ``kappa/2`` at every LET (also :meth:`discrete_dsb_beta`).
+        slope is the photon rate ``kappa/2`` at every LET (also [`discrete_dsb_beta`][]).
         ``"local_dose"`` is the faithful full simulation for Fig. 4b
         (LEM_IV_OPEN_CHOICES.md entry 2.5; docs/references/LEM_IV_Friedrich2012.md).
-        Kernels: :data:`LEM4LocalDoseKernel`; overkill: :attr:`local_dose_overkill`.
+        Kernels: [`LEM4LocalDoseKernel`][]; overkill: [`local_dose_overkill`][].
 
         **Deep overkill returns a clamped 0, with a warning.** Past roughly 150 keV/um
         the response has no curvature left and the least-squares ``beta`` goes
-        marginally negative (a fit artifact that :class:`~pyradbio.core.lq.LQParameters`
+        marginally negative (a fit artifact that [`LQParameters`][]
         would reject); the floor is not a computed value, hence the warning.
         """
         doses = (
@@ -2230,7 +2233,7 @@ class LEM4(LEMBase):
         seed: int = 0,
         overkill: bool = False,
     ) -> float:
-        """Explicit-track Monte-Carlo cross-check of :meth:`local_dose_beta`.
+        """Explicit-track Monte-Carlo cross-check of [`local_dose_beta`][].
 
         Places tracks one by one on the extended domain ``R_eff + r_max`` and
         accumulates each subvolume's local dose. Slow and noisy; it validates the
@@ -2240,9 +2243,9 @@ class LEM4(LEMBase):
         computes); ``overkill=True`` fits the exact ``-ln <exp(-E)>`` that the analytic B2
         correction approximates (judge it on ``"cluster_index"`` only; other kernels
         understate it). Cost grows as ``(R_sim/R_eff)^2``, so without
-        :attr:`local_dose_mc_impact_cut` it is practical from about LET 40 up. A single
+        [`local_dose_mc_impact_cut`][] it is practical from about LET 40 up. A single
         ``beta`` is noise-dominated; compare conventions with
-        :meth:`local_dose_mc_beta_pair`.
+        [`local_dose_mc_beta_pair`][].
         """
         effect, survival, doses = self._local_dose_mc_curves(
             ion, doses_Gy, n_realizations=n_realizations, seed=seed
@@ -2267,9 +2270,9 @@ class LEM4(LEMBase):
         configurations, with no B2-style truncation.
 
         ``alpha`` is the *window-projected* linear coefficient, not the ``D -> 0`` slope,
-        which is analytically :meth:`initial_slope`'s direct term ``(1 - e^{-N_1})/D_1``.
+        which is analytically [`initial_slope`][]'s direct term ``(1 - e^{-N_1})/D_1``.
         A single MC ``beta`` is dominated by realisation scatter: average over seeds, and
-        use :meth:`local_dose_mc_beta_pair` for differences between conventions.
+        use [`local_dose_mc_beta_pair`][] for differences between conventions.
         """
         effect, survival, doses = self._local_dose_mc_curves(
             ion, doses_Gy, n_realizations=n_realizations, seed=seed
@@ -2291,7 +2294,7 @@ class LEM4(LEMBase):
         Both conventions are scored on the *same* sampled track configurations, so their
         difference is a common-random-numbers estimator far better conditioned than
         either term (biases of the truncated domain cancel). It is the estimator that
-        shows the analytic B2 correction (:attr:`local_dose_overkill`) over-corrects
+        shows the analytic B2 correction ([`local_dose_overkill`][]) over-corrects
         (LEM_IV_OPEN_CHOICES.md entry 2.6).
         """
         effect, survival, doses = self._local_dose_mc_curves(
@@ -2390,17 +2393,17 @@ class LEM4(LEMBase):
     ) -> Callable[[npt.NDArray[np.float64]], float]:
         """Map a realisation's subvolume local doses to one cell effect.
 
-        Each kernel's aggregation (see :func:`_localdose.monte_carlo_effect`):
+        Each kernel's aggregation (see `_localdose.monte_carlo_effect`):
         ``"globle"`` sums a per-loop response over all loops, ``"photon_effect"``
         averages a whole-cell response, and the cluster-index kernels form ``C_I`` over
         the *whole nucleus* first, then map it to an effect. The cluster-index branches
-        pin the loop count to :data:`MC_GRID_N_LOOPS` (the count the ``C_g -> g`` lookup
-        divides by), so they reproduce :meth:`_local_dose_cluster_index_events` term by
+        pin the loop count to [`MC_GRID_N_LOOPS`][] (the count the ``C_g -> g`` lookup
+        divides by), so they reproduce `_local_dose_cluster_index_events` term by
         term; the per-subvolume branches keep the ``V / (A ell)`` layer count.
         """
         if kernel == "cluster_index":
             # Keyed on the UNCLUSTERED fraction, not on C_I, whose saturated lookup top
-            # is a tie (see :meth:`_pe_lookup_by_unclustered`).
+            # is a tie (see `_pe_lookup_by_unclustered`).
             u_grid, g_grid = self._pe_lookup_by_unclustered()
             # The shared overkill regularisation (_CLUSTER_INDEX_MAX), expressed in u.
             u_lo = max(float(u_grid[0]), 1.0 - _CLUSTER_INDEX_MAX)
@@ -2424,7 +2427,7 @@ class LEM4(LEMBase):
         if kernel == "discrete_cluster_index":
             # As above, but C_I is the average-of-ratios E[N_cDSB/N_dmg] over the
             # realisation's independent Poisson loops; N_dmg is unchanged (kappa needs
-            # the damaged area, as in :meth:`_single_traversal_effect`).
+            # the damaged area, as in `_single_traversal_effect`).
             u_grid, g_grid = self._pe_lookup_by_unclustered()
             u_lo = max(float(u_grid[0]), 1.0 - _CLUSTER_INDEX_MAX)
             u_hi = float(u_grid[-1])
@@ -2459,7 +2462,7 @@ class LEM4(LEMBase):
 
         ``mu(rho) = a_DSB/loop * g_eta(rho)`` is the mean DSB one track puts into a
         loop at transverse distance ``rho``, with ``g_eta`` the **box-averaged**
-        eta-enhanced dose -- the same quantity :meth:`_damage_pattern` integrates over
+        eta-enhanced dose -- the same quantity `_damage_pattern` integrates over
         a subvolume, and never the pointwise ``1/r^2`` dose.
         """
         r, dose, _r_min, r_max = self._local_dose_profile(ion)
@@ -2473,7 +2476,7 @@ class LEM4(LEMBase):
         )
         a0, a1 = _discrete.track_factors(rho, DSB_PER_GY_PER_LOOP * g_eta, r_eff=r_eff, ell=ell)
         # The centre-inside lattice overshoots ``pi R_eff^2`` by ~3%; pin the total loop
-        # count to the geometric ``V / l_DSB^3`` (:data:`MC_GRID_N_LOOPS`), the count the
+        # count to the geometric ``V / l_DSB^3`` (`MC_GRID_N_LOOPS`), the count the
         # ``C_g -> g`` lookup divides by, so the photon normalisation is consistent.
         n_z = MC_GRID_N_LOOPS / float(a0.size)
         return DiscreteSetup(
@@ -2516,7 +2519,7 @@ class LEM4(LEMBase):
 
         ``survival="stochastic"`` returns ``-ln <exp(-E)>`` instead of ``<E>``; it is
         exact here because ``E_n`` is the true effect at ``n`` traversals rather than a
-        mean curve evaluated at ``n D_1`` (see :data:`LEM4DiscreteSurvival`). Only
+        mean curve evaluated at ``n D_1`` (see [`LEM4DiscreteSurvival`][]). Only
         defined for ``convention="per_realisation"``.
 
         ``retained`` overrides the dose-conserving split (diagnostic only -- any other
@@ -2562,7 +2565,7 @@ class LEM4(LEMBase):
 
         Its *dose slope* is the intertrack enhancement, and measuring that slope is
         how the no-go is checked (see
-        :func:`tests...test_discrete_cluster_index_slope_stays_at_the_photon_rate`).
+        `tests...test_discrete_cluster_index_slope_stays_at_the_photon_rate`).
         """
         out = np.empty(doses.size, dtype=np.float64)
         for i, dose in enumerate(doses):
@@ -2586,16 +2589,16 @@ class LEM4(LEMBase):
         disk, **no domain extension**) placing discrete DSBs from their radial profile;
         the escaped dose ``D (1 - f_ret)`` arrives as a uniform Poisson DSB background.
         Scored with the cluster-index functional of
-        :meth:`_local_dose_cluster_index_events`. Deterministic: conditioning on the track
-        number ``n`` leaves closed-form loop statistics (:mod:`._discrete`).
+        `_local_dose_cluster_index_events`. Deterministic: conditioning on the track
+        number ``n`` leaves closed-form loop statistics (`_discrete`).
 
-        ``convention`` overrides :attr:`discrete_convention`. **``"mean_counts"`` is
+        ``convention`` overrides [`discrete_convention`][]. **``"mean_counts"`` is
         provably identical to ``local_dose_kernel="cluster_index"``**: averaging over
         ``n ~ Poisson(D/D_1)`` gives ``sum_n Pois(n) a0^n = exp(-(D/D_1)(1 - a0))``, the
         compound-Poisson exponent of the local-dose density. The default
         ``"per_realisation"`` is *not* (``beta`` differs by -4% to +55% over LET 10-100).
 
-        ``survival`` overrides :attr:`discrete_survival`: ``"stochastic"`` returns
+        ``survival`` overrides [`discrete_survival`][]: ``"stochastic"`` returns
         Scholz 1997's ``-ln <exp(-E)>`` rather than ``<E>``.
         """
         doses = np.asarray(list(doses_Gy), dtype=np.float64)
@@ -2616,12 +2619,12 @@ class LEM4(LEMBase):
     ) -> tuple[float, float]:
         """Full-simulation ``(alpha_I, beta_I)`` from one LQ fit of the discrete-DSB response.
 
-        As :meth:`local_dose_alpha_beta`, on :meth:`discrete_dsb_lethal_events` (same
+        As [`local_dose_alpha_beta`][], on [`discrete_dsb_lethal_events`][] (same
         default window, no clamping, same ``ValueError`` cases). ``convention`` /
-        ``survival`` default to :attr:`discrete_convention` / :attr:`discrete_survival`;
+        ``survival`` default to [`discrete_convention`][] / [`discrete_survival`][];
         ``"per_realisation"`` with ``"stochastic"`` is the exact
         ``<exp(-E)> = sum_n P(n) exp(-E_n)`` reference for the analytic B2 overkill
-        (:attr:`local_dose_overkill`). Deterministic (no seed).
+        ([`local_dose_overkill`][]). Deterministic (no seed).
         """
         doses = (
             self.fit_doses_Gy(_DISCRETE_DOSE_FRACTIONS, ion=ion)
@@ -2641,9 +2644,9 @@ class LEM4(LEMBase):
         ``beta_I`` above ``beta_x`` at intermediate LET, the collapse toward 0) and the
         photon limit at LET 10 to within ~5%.
 
-        It **cannot** add the high-LET roll-off that :meth:`local_dose_beta` lacks:
+        It **cannot** add the high-LET roll-off that [`local_dose_beta`][] lacks:
         ``C_I`` sees loop occupancy counts only, never track provenance, and those are the
-        continuum's (:meth:`discrete_dsb_lethal_events`). A **cross-check of**
+        continuum's ([`discrete_dsb_lethal_events`][]). A **cross-check of**
         ``beta_model="local_dose"``, **not a replacement**; it fits Fig. 4 marginally worse
         under either ``discrete_survival`` (LEM_IV_OPEN_CHOICES.md, "Why RMS cannot pick
         the engine"; docs/references/LEM_IV_Friedrich2012.md).
@@ -2659,10 +2662,10 @@ class LEM4(LEMBase):
     ) -> npt.NDArray[np.float64]:
         """Photon-limit (uniform-field) discrete survival for the GLOBLE effect.
 
-        ``Poisson(30 D)`` DSBs placed uniformly over exactly :attr:`globle_n_loops` giant
+        ``Poisson(30 D)`` DSBs placed uniformly over exactly [`globle_n_loops`][] giant
         loops and scored with the same ``(eps_i, eps_c)``. Its fitted ``(alpha, beta)``
         must recover the photon ``(alpha_x, beta_x)`` and its ``N_lethal`` the analytic
-        GLOBLE eqs. (2)-(3); hence it uses :attr:`globle_n_loops` (the loop count those
+        GLOBLE eqs. (2)-(3); hence it uses [`globle_n_loops`][] (the loop count those
         equations assume), not the spatial 540 nm grid of the ion path.
         """
         eps_i, eps_c = self._globle_lethalities()

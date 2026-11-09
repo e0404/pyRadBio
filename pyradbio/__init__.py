@@ -9,8 +9,8 @@ from __future__ import annotations
 from importlib.metadata import PackageNotFoundError, version
 
 try:
-    #: The installed distribution's version: ``pyproject.toml`` is the single source.
     __version__ = version("pyradbio")
+    """The installed distribution's version: ``pyproject.toml`` is the single source."""
 except PackageNotFoundError:  # pragma: no cover - running from an uninstalled tree
     __version__ = "0+unknown"
 

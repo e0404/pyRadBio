@@ -3,7 +3,7 @@
 
 LEM's benchmark routes (``inactivation_cross_section``, ``lethal_full`` and the
 central single-traversal ``N_1``) integrate the local log-kill ``-ln S_x(D(r))``
-over the nuclear disk. :func:`~pyradbio.micro.nuclear_functional_impact_profile`
+over the nuclear disk. `pyradbio.micro.nuclear_functional_impact_profile`
 does the same integral independently (different grid, Simpson vs LEM's trapezoid,
 no shell refinement). These tests pin that the two agree to <=1% across the
 benchmark range, so a future change to either implementation that drifts is caught.

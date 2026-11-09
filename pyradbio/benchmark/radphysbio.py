@@ -8,7 +8,7 @@ LQ survival parameters for **human** cell lines under X-rays, gamma-rays,
 protons, carbon ions and alpha-particles, browsable and exportable at
 https://radbiodb.physics.ntua.gr/radphysbio/. It is open access, so unlike PIDE
 it *may* be redistributed; this package still reads it from a user-configured
-folder (``PYRADBIO_RADPHYSBIO_DIR``, see :mod:`pyradbio.datasets`) to keep the
+folder (``PYRADBIO_RADPHYSBIO_DIR``, see [`pyradbio.datasets`][]) to keep the
 package small, and bundles only a short attributed excerpt as a test fixture.
 
 What the export is, and is not
@@ -18,7 +18,7 @@ radiation type, each with its own ``#ExpID`` numbering restarting at 1 -- so
 ``(TypeofRadiation, #ExpID)`` is the row key, not ``#ExpID`` alone. Each row is
 one survival experiment: a cell line, a radiation, and the LQ ``alpha``/``beta``
 of that exposure. **Photon references are separate rows**, not paired per ion
-row as in PIDE; :func:`pair_photon_references` builds the pairing this package
+row as in PIDE; [`pair_photon_references`][] builds the pairing this package
 needs by matching an ion row to the X-ray/gamma row of the *same publication
 (PMID) and cell line*. Only about a third of the ion rows have such a partner.
 
@@ -32,7 +32,7 @@ column descriptions:
   which rows are which. A trailing ``f`` marks a *fitted* value only in the DSB
   column.
 * ``Energy (MeV)`` is the **total nominal beam** kinetic energy (a 290 MeV/u
-  carbon beam is listed as 3480); :attr:`RadPhysBioEntry.energy_MeV_u` divides
+  carbon beam is listed as 3480); [`RadPhysBioEntry.energy_MeV_u`][] divides
   by the mass number. For photons it is the tube voltage / photon energy in MeV
   (``0.2`` for 200 kVp, ``1.332`` for 60Co).
 * ``LET`` is in water, keV/um. **For ions it is partly derived, not measured**:
@@ -101,7 +101,6 @@ RADPHYSBIO_CITATION = (
     "https://radbiodb.physics.ntua.gr/radphysbio/"
 )
 
-#: What a reader must know before believing a score against RadPhysBio.
 RADPHYSBIO_CAVEATS: tuple[str, ...] = (
     "**Largely digitized.** Where a publication printed no LQ parameters, RadPhysBio's "
     "alpha/beta are the authors' own unweighted LQ fits to survival points read off "
@@ -135,6 +134,7 @@ RADPHYSBIO_CAVEATS: tuple[str, ...] = (
     "Potential transcription and metadata defects are listed in `KNOWN_DEFECTS` and "
     "left as exported; check the original publications before quantitative use.",
 )
+"""What a reader must know before believing a score against RadPhysBio."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -151,7 +151,6 @@ class KnownDefect:
     what: str
 
 
-#: Qualitative review notes only; no PIDE-derived replacement parameters.
 KNOWN_DEFECTS: tuple[KnownDefect, ...] = (
     KnownDefect(
         "9687977",
@@ -186,18 +185,20 @@ KNOWN_DEFECTS: tuple[KnownDefect, ...] = (
         "figure); not independent experiments.",
     ),
 )
+"""Qualitative review notes only; no PIDE-derived replacement parameters."""
 
-#: ``TypeofRadiation`` value (ASCII-normalised) -> ``(Z, A)`` for the ion tables.
-#: RadPhysBio carries no isotope column; carbon is 12C and the alpha-particle
-#: table is 4He from radionuclide sources, so these are the only sensible reads.
 ION_SPECIES: Mapping[str, tuple[int, int]] = {
     "protons": (1, 1),
     "carbon": (6, 12),
     "alpha-particles": (2, 4),
 }
+"""``TypeofRadiation`` value (ASCII-normalised) -> ``(Z, A)`` for the ion tables.
+RadPhysBio carries no isotope column; carbon is 12C and the alpha-particle
+table is 4He from radionuclide sources, so these are the only sensible reads.
+"""
 
-#: The two photon tables.
 PHOTON_TYPES: frozenset[str] = frozenset({"X-rays", "gamma-rays"})
+"""The two photon tables."""
 
 _RADIATION_NORMALISE: Mapping[str, str] = {
     "x-rays": "X-rays",
@@ -257,19 +258,21 @@ class RadPhysBioEntry:
     dose_rate_Gy_min: float | None
     alpha: float | None
     beta: float | None
-    #: DSB yield from the publication (per Gy per Gbp); ``dsb_from_fit`` marks the
-    #: export's trailing ``f`` (a value the authors fitted rather than read).
     dsb_per_Gy_Gbp: float | None
+    """DSB yield from the publication (per Gy per Gbp); ``dsb_from_fit`` marks the
+    export's trailing ``f`` (a value the authors fitted rather than read).
+    """
     dsb_from_fit: bool
     non_dsb_clusters_per_Gy_Gbp: float | None
-    #: MCDS yields at the experiment's own energy, and at the fixed 1 / 10 keV
-    #: electron energies the authors ran as stand-ins.
     mcds_at_energy: MCDSYields
+    """MCDS yields at the experiment's own energy, and at the fixed 1 / 10 keV
+    electron energies the authors ran as stand-ins.
+    """
     mcds_1keV: MCDSYields
     mcds_10keV: MCDSYields
     irradiation_conditions: str
-    #: Radionuclide / source string as exported (``"60Co"``, ``"241Am"``, ``""``).
     radiation_source: str
+    """Radionuclide / source string as exported (``"60Co"``, ``"241Am"``, ``""``)."""
 
     @property
     def is_photon(self) -> bool:
@@ -302,7 +305,6 @@ class RadPhysBioEntry:
 
 # --- column mapping --------------------------------------------------------
 
-#: Logical field -> normalised header of the export (see :func:`normalise_header`).
 _COLUMNS: Mapping[str, str] = {
     "exp_id": "expid",
     "pmid": "pmid",
@@ -335,9 +337,8 @@ _COLUMNS: Mapping[str, str] = {
     "mcds_E_other_20": "other20o2",
     "source": "source",
 }
+"""Logical field -> normalised header of the export (see [`normalise_header`][])."""
 
-#: The export's column order (30 fields), used to resolve headers the
-#: normaliser cannot (the Greek alpha/beta headers and ``DoseRate``), and to repair rows.
 _EXPECTED_HEADERS: tuple[str, ...] = (
     "#ExpID",
     "PMID",
@@ -370,6 +371,9 @@ _EXPECTED_HEADERS: tuple[str, ...] = (
     "Other_20%O2",
     "Source",
 )
+"""The export's column order (30 fields), used to resolve headers the
+normaliser cannot (the Greek alpha/beta headers and ``DoseRate``), and to repair rows.
+"""
 _N_FIELDS = len(_EXPECTED_HEADERS)
 
 _FIELD_BY_POSITION: Mapping[str, int] = {
@@ -472,7 +476,7 @@ def parse_radphysbio_rows(
     *,
     strict: bool = False,
 ) -> list[RadPhysBioEntry]:
-    """Typed :class:`RadPhysBioEntry` records from the export's header + rows.
+    """Typed [`RadPhysBioEntry`][] records from the export's header + rows.
 
     Rows with an unexpected field count (other than the 31-field cell-line-comma
     case, which is repaired) are skipped, or raise ``ValueError`` if ``strict``.
@@ -606,21 +610,24 @@ class PairingReport:
 
     n_ion_rows: int
     n_paired: int
-    #: Ion rows with no photon row of the same PMID + cell line.
     n_unpaired: int
-    #: Ion rows whose PMID + cell line has *several* photon rows with different
-    #: LQ values (paired with the first by ``#Exp``; flagged, not dropped).
+    """Ion rows with no photon row of the same PMID + cell line."""
     n_ambiguous: int
-    #: Paired rows dropped for the harness: no LET, no alpha, or alpha_x <= 0.
+    """Ion rows whose PMID + cell line has *several* photon rows with different
+    LQ values (paired with the first by ``#Exp``; flagged, not dropped).
+    """
     n_incomplete: int
-    #: Eligible ion rows dropped as verbatim copies of an eligible ion row under
-    #: an earlier PMID (see ``collapse_duplicates``). Only the ion row is
-    #: compared; the retained copy keeps its own publication's photon partner.
+    """Paired rows dropped for the harness: no LET, no alpha, or alpha_x <= 0."""
     n_duplicate_copies: int = 0
-    #: Ion rows that verbatim re-list a row under an earlier PMID but formed no
-    #: eligible pair (unpaired, incomplete, or an excluded ambiguous pair).
-    #: Informational: already counted in those tallies, not a partition term.
+    """Eligible ion rows dropped as verbatim copies of an eligible ion row under
+    an earlier PMID (see ``collapse_duplicates``). Only the ion row is
+    compared; the retained copy keeps its own publication's photon partner.
+    """
     n_relisted_unscored: int = 0
+    """Ion rows that verbatim re-list a row under an earlier PMID but formed no
+    eligible pair (unpaired, incomplete, or an excluded ambiguous pair).
+    Informational: already counted in those tallies, not a partition term.
+    """
 
 
 def _pmid_order(pmid: str) -> tuple[int, str]:
@@ -674,7 +681,7 @@ def pair_photon_references(
 
     With ``collapse_duplicates`` (default), only ion rows whose pairs pass the
     above completeness and ambiguity rules participate in
-    :func:`duplicate_copies`, which compares the ion row alone. The earliest
+    [`duplicate_copies`][], which compares the ion row alone. The earliest
     eligible PMID is retained with its own photon partner; later eligible copies
     are dropped and counted ``n_duplicate_copies`` rather than ``n_paired``. An
     unpaired or excluded original cannot suppress a usable later copy. Re-listings
@@ -682,7 +689,7 @@ def pair_photon_references(
     additionally counted ``n_relisted_unscored``.
 
     The record's ``source`` is ``"radphysbio:<PMID>"`` and ``photon_radiation``
-    is :func:`photon_quality_label` of the partner. Every record is marked
+    is [`photon_quality_label`][] of the partner. Every record is marked
     ``energy_is_nominal=True``; the harness permits only LET-based models.
     """
     photons: dict[tuple[str, str], list[RadPhysBioEntry]] = {}
@@ -763,10 +770,10 @@ def load_radphysbio_dataset(
     include_ambiguous: bool = True,
     collapse_duplicates: bool = True,
 ) -> ReferenceDataset:
-    """RadPhysBio as a harness :class:`~pyradbio.benchmark.dataset.ReferenceDataset`.
+    """RadPhysBio as a harness [`ReferenceDataset`][].
 
     Loads the export, pairs ion rows with their publication's photon row
-    (:func:`pair_photon_references`) and appends the pairing tally to the
+    ([`pair_photon_references`][]) and appends the pairing tally to the
     dataset's caveats so every report states how much of the database it scored.
     """
     entries = load_radphysbio(path)

@@ -80,8 +80,8 @@ FIGURES = figures_dir(globals().get("__file__"))
 if quick_mode():
     print("QUICK MODE (PYRADBIO_QUICK=1): 12/20-point energy grids, 2 genome sizes")
 
-#: Carbon energy grid of every RBE panel, and the wider Fig. 11 grid (helium
-#: reaches a given LET at a much lower energy than carbon).
+# Carbon energy grid of every RBE panel, and the wider Fig. 11 grid (helium
+# reaches a given LET at a much lower energy than carbon).
 ENERGIES_MEV_U = np.geomspace(1.5, 350.0, pick(48, 12))
 FIG11_ENERGIES_MEV_U = np.geomspace(0.8, 400.0, pick(90, 20))
 GENOME_SIZES_BP = pick((3.0e9, 5.4e9, 6.0e9, 1.2e10), (3.0e9, 1.2e10))

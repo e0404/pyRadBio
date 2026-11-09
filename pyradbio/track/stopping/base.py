@@ -1,30 +1,30 @@
 """Common interface of the water stopping-power classes.
 
-Every class in :mod:`pyradbio.track.stopping` returns the **mass** stopping power
+Every class in [`pyradbio.track.stopping`][] returns the **mass** stopping power
 of liquid water in ``MeV cm^2/g`` as a function of the projectile's kinetic
 energy per nucleon in ``MeV/u``, for a given ion ``Z`` and mass number ``A``:
 
-* :meth:`MassStoppingPowerModel.mass_stopping_power` -- the values, always an array;
-* :meth:`MassStoppingPowerModel.energy_range` -- where the source is valid;
-* :meth:`MassStoppingPowerModel.metadata` -- an :class:`IonSourceInfo` naming the
+* [`MassStoppingPowerModel.mass_stopping_power`][] -- the values, always an array;
+* [`MassStoppingPowerModel.energy_range`][] -- where the source is valid;
+* [`MassStoppingPowerModel.metadata`][] -- an [`IonSourceInfo`][] naming the
   source, edition, I-value, range and options *per ion* (one table may mix sources);
-* :meth:`MassStoppingPowerModel.let_keV_um` / ``lets_keV_um`` -- the adapter onto
-  the package-wide :class:`~pyradbio.track.stopping_power.StoppingPower` protocol, so
+* [`MassStoppingPowerModel.let_keV_um`][] / ``lets_keV_um`` -- the adapter onto
+  the package-wide [`StoppingPower`][pyradbio.track.stopping_power.StoppingPower] protocol, so
   every class can be passed to any model's ``stopping_power`` field.
 
-Requests outside :meth:`~MassStoppingPowerModel.energy_range` raise
-:class:`OutOfRangeError`; nothing is extrapolated silently.
+Requests outside [`energy_range`][pyradbio.track.stopping.base.MassStoppingPowerModel.energy_range]
+raise [`OutOfRangeError`][]; nothing is extrapolated silently.
 
 Conventions
 -----------
 * **Energy axis.** ``MeV/u`` is the kinetic energy *per nucleon*, ``T/A``,
-  the convention of :class:`~pyradbio.core.radiation.Ion`. A proton's ``MeV/u`` is
+  the convention of [`Ion`][]. A proton's ``MeV/u`` is
   therefore plain ``MeV``, and converting a NIST total kinetic energy is an exact
-  division by ``A`` (:func:`energy_per_nucleon_MeV_u`). Users may read "MeV/u" as
+  division by ``A`` ([`energy_per_nucleon_MeV_u`][]). Users may read "MeV/u" as
   energy per atomic mass unit instead; the two differ by ``m/(A u)`` (0.7% for
   protons), which is why the convention is fixed here and stated on every table.
   Wherever velocity enters the physics (Bethe, velocity scaling between ions) it
-  is computed from the true ion mass with :func:`beta_from_energy_per_nucleon`,
+  is computed from the true ion mass with [`beta_from_energy_per_nucleon`][],
   never from ``T/A`` alone.
 * **Isotope masses.** Atomic masses come from the NIST "Atomic Weights and
   Isotopic Compositions" database (fetched and cited, see
@@ -33,12 +33,12 @@ Conventions
   binding is negligible here).
 * **Interpolation.** Tabulated sources are interpolated with a not-a-knot
   cubic spline in log-log space; PCHIP is available for comparison
-  (:mod:`pyradbio.track.stopping.grid`).
+  ([`pyradbio.track.stopping.grid`][]).
 * **Computed sources.** Sources with a per-energy formalism we implement
   (MSTAR, the ICRU 90 procedure) evaluate it on the user's grid and interpolate
   between nodes by default; full per-energy evaluation is an opt-in option. The
   plain analytic Bethe is always evaluated directly.
-* **Material.** Liquid water only (:data:`LIQUID_WATER`), kept as an explicit
+* **Material.** Liquid water only ([`LIQUID_WATER`][]), kept as an explicit
   field so other targets can be added later without changing the interface.
 """
 
@@ -57,17 +57,17 @@ import numpy.typing as npt
 from pyradbio.core.constants import MEV_PER_CM_TO_KEV_PER_UM, WATER_DENSITY_G_CM3
 from pyradbio.core.radiation import Ion
 
-#: The one target material supported so far.
 LIQUID_WATER = "liquid water"
+"""The one target material supported so far."""
 
-#: Option values a table records in its metadata (JSON-serialisable scalars or mappings).
 OptionValue = str | float | int | bool | None | Mapping[str, Any]
+"""Option values a table records in its metadata (JSON-serialisable scalars or mappings)."""
 
 
 class OutOfRangeError(ValueError):
     """An energy outside the range a source is valid for; nothing is extrapolated.
 
-    A :class:`ValueError` subclass, so existing callers that catch ``ValueError``
+    A `ValueError` subclass, so existing callers that catch ``ValueError``
     (e.g. the NS1970 + Bethe-tail hybrid) keep working.
     """
 
@@ -125,7 +125,7 @@ class IonSourceInfo:
         object.__setattr__(self, "options", MappingProxyType(dict(self.options)))
 
     def to_dict(self) -> dict[str, Any]:
-        """A JSON-serialisable description (the inverse of :meth:`from_dict`)."""
+        """A JSON-serialisable description (the inverse of [`from_dict`][])."""
         return {
             "Z": self.Z,
             "A": self.A,
@@ -158,16 +158,16 @@ class IonSourceInfo:
 class MassStoppingPowerModel(ABC):
     """Base class of every water stopping-power source in this package.
 
-    Subclasses implement :meth:`supported_Z`, :meth:`energy_range`,
-    :meth:`metadata` and :meth:`_evaluate`; the base class owns input validation,
+    Subclasses implement [`supported_Z`][], [`energy_range`][],
+    [`metadata`][] and `_evaluate`; the base class owns input validation,
     the range check (so no subclass can extrapolate by accident) and the LET
     adapter.
     """
 
-    #: Short name stamped into checkpoints and CLI choices.
     name: ClassVar[str]
-    #: Target density used only to convert mass stopping power to LET [g/cm^3].
+    """Short name stamped into checkpoints and CLI choices."""
     density_g_cm3: float = WATER_DENSITY_G_CM3
+    """Target density used only to convert mass stopping power to LET [g/cm^3]."""
 
     def settings(self) -> dict[str, object]:
         """The resolved options this source computes with, JSON-safe (table provenance).
@@ -213,7 +213,7 @@ class MassStoppingPowerModel(ABC):
         """Mass stopping power of water [MeV cm^2/g] at ``energy_MeV_u`` (T/A) [MeV/u].
 
         :raises UnsupportedIonError: if the source does not cover ``Z``.
-        :raises OutOfRangeError: if any energy lies outside :meth:`energy_range`.
+        :raises OutOfRangeError: if any energy lies outside [`energy_range`][].
         """
         energies = np.atleast_1d(np.asarray(energy_MeV_u, dtype=np.float64))
         if energies.ndim != 1:
@@ -231,7 +231,7 @@ class MassStoppingPowerModel(ABC):
     def lets_keV_um(
         self, Z: int, A: int, energies_MeV_u: Sequence[float]
     ) -> npt.NDArray[np.float64]:
-        """LET [keV/um] at :attr:`density_g_cm3` (``VectorizedStoppingPower``)."""
+        """LET [keV/um] at [`density_g_cm3`][] (``VectorizedStoppingPower``)."""
         mass_sp = self.mass_stopping_power(Z, A, np.asarray(energies_MeV_u, dtype=np.float64))
         return mass_sp * self.density_g_cm3 * MEV_PER_CM_TO_KEV_PER_UM
 
@@ -241,7 +241,7 @@ class MassStoppingPowerModel(ABC):
 
 
 def setting_value(value: object) -> object:
-    """JSON-safe form of one option for :meth:`MassStoppingPowerModel.settings`."""
+    """JSON-safe form of one option for [`MassStoppingPowerModel.settings`][]."""
     if value is None or isinstance(value, bool | int | float | str):
         return value
     if isinstance(value, Mapping):
@@ -279,7 +279,7 @@ def energy_per_nucleon_MeV_u(total_kinetic_energy_MeV: float, A: int) -> float:
 
 
 def total_kinetic_energy_MeV(energy_MeV_u: float, A: int) -> float:
-    """Total kinetic energy ``T = A * (T/A)`` [MeV]; inverse of :func:`energy_per_nucleon_MeV_u`."""
+    """Total kinetic energy ``T = A * (T/A)`` [MeV]; inverse of [`energy_per_nucleon_MeV_u`][]."""
     if A < 1:
         raise ValueError(f"mass number A must be >= 1, got {A}")
     return energy_MeV_u * A
@@ -291,7 +291,7 @@ def beta_from_energy_per_nucleon(energy_MeV_u: float, A: int, ion_mass_MeV: floa
     ``gamma = 1 + T / (M c^2)`` with ``T = A * energy_MeV_u`` and ``M c^2`` the ion's
     rest energy ``ion_mass_MeV`` (nuclear mass for a bare ion). With
     ``ion_mass_MeV = A * u c^2`` this reduces to
-    :func:`pyradbio.core.radiation.relativistic_beta`, which assumes exactly that.
+    [`pyradbio.core.radiation.relativistic_beta`][], which assumes exactly that.
     """
     if energy_MeV_u <= 0.0 or not math.isfinite(energy_MeV_u):
         raise ValueError(f"energy_MeV_u must be finite and > 0, got {energy_MeV_u!r}")

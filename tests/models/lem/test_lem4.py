@@ -173,7 +173,7 @@ def test_lem4_overkill_region_has_no_jumping() -> None:
 
     This is a statement about the *legacy* configuration, so it is pinned to it.
     The uncapped default has no such jump -- below 2.206 MeV/u it reaches ``D_eq``
-    by matching the single loop's Poisson mean (:meth:`LEM4.mean_field_deq`), which
+    by matching the single loop's Poisson mean (`LEM4.mean_field_deq`), which
     is smooth in energy because ``m`` is -- but it lands several times above the
     TRiP98 tables, so the smoothness is not by itself evidence of correctness.
     """
@@ -527,7 +527,7 @@ def test_golden_lem4_discrete_cluster_index_matches_pfuhl() -> None:
     Reference: Pfuhl, Friedrich & Scholz 2019/2020 (Radiat. Res. 193:130,
     doi:10.1667/RR15456.1, Table 3): 12C 2.5 MeV/u (LET ~437) C_I ~0.80 and 20Ne
     31 MeV/u (LET ~183) C_I ~0.19. The discrete average-of-ratios reproduces them, while
-    the mean-field :meth:`cluster_index` ratio-of-averages over-clusters (~0.99 / ~0.31) --
+    the mean-field `cluster_index` ratio-of-averages over-clusters (~0.99 / ~0.31) --
     this asserts the discrete value both matches Pfuhl and sits well below the mean-field.
     Seed-pinned; MC scatter is < 0.004 over seeds at this realisation count.
     """
@@ -556,8 +556,8 @@ def _ion_for_let(z: int, a: int, let: float) -> Ion | None:
 class _RbeCurve(Protocol):
     """Structural type for digitized ``(LET, RBE)`` benchmark curves.
 
-    Both :class:`pyradbio.benchmark.elsasser2010.Elsasser2010Curve` and
-    :class:`pyradbio.benchmark.friedrich2012.Friedrich2012Curve` satisfy this.
+    Both `pyradbio.benchmark.elsasser2010.Elsasser2010Curve` and
+    `pyradbio.benchmark.friedrich2012.Friedrich2012Curve` satisfy this.
     Declared as read-only properties (not plain attributes) so frozen
     dataclasses -- whose fields mypy treats as non-writable -- can match.
     """
@@ -764,7 +764,7 @@ def test_golden_lem4_analytic_cluster_index_matches_pfuhl_without_sampling() -> 
     Reference: Pfuhl, Friedrich & Scholz 2019/2020 (Radiat. Res. 193:130,
     doi:10.1667/RR15456.1, Table 3): 12C 2.5 MeV/u C_I ~0.80, 20Ne 31 MeV/u ~0.19.
 
-    Same average-of-ratios quantity as :meth:`LEM4.discrete_cluster_index`, but
+    Same average-of-ratios quantity as `LEM4.discrete_cluster_index`, but
     evaluated by quadrature instead of sampled, so it carries no seed and no
     realisation noise. Conditioned on the track position the loop occupancies are
     independent Poisson, so with ``1/B = int_0^1 t^(B-1) dt`` the expectation
@@ -887,7 +887,7 @@ def test_rbe_alpha_is_smooth_through_the_sub_mev_band() -> None:
     Scored under ``legacy_trip98_cluster_index_cap`` because that is the only
     configuration whose *mean field* returns a number across this whole band: the
     single-central-traversal pattern is degenerate here (see
-    :meth:`LEM4.mean_field_pattern_is_degenerate`). The defect this test guards is
+    `LEM4.mean_field_pattern_is_degenerate`). The defect this test guards is
     in the radial scoring domain, which is upstream of that and shared by every
     configuration, so the legacy cap is the right lens for it.
     """
@@ -1285,7 +1285,7 @@ def _trip_geometry(**kw: object) -> LEM4:
 def test_trip98_composite_switches_on_the_single_loop_criterion() -> None:
     """``"trip98_composite"`` uses discrete inside the single-loop regime, mean field above.
 
-    The threshold is :meth:`LEM4.pattern_is_single_loop` (2.206 MeV/u for every ion,
+    The threshold is `LEM4.pattern_is_single_loop` (2.206 MeV/u for every ion,
     since ``r_max = 0.062 E^1.7`` depends on energy per nucleon alone) -- no free
     parameter, and also the accuracy optimum on the TRiP98 tables (the RMS error
     rises for every larger E_c).

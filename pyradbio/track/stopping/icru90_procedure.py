@@ -19,17 +19,17 @@ p and alpha tables equal ICRU 49's (PSTAR/ASTAR) below ``T1`` (p: identical; alp
 
 Our implementation, Z 3-18:
 
-* low energies: Paul's MSTAR ratio (:func:`~pyradbio.track.stopping.mstar.paul.mstar1`,
+* low energies: Paul's MSTAR ratio ([`mstar1`][],
   ``mstar_mode``) applied to **ICRU 90's alpha table** at the same energy per nucleon.
   ASSUMPTION: this is how we read footnote 33's "adjusted to reflect"; ICRU 90 does not
   spell the adjustment out. The alpha table is at I = 78 eV whatever ``i_value_eV`` is.
-* high energies: :class:`~pyradbio.track.stopping.bethe.Bethe` at ``i_value_eV`` with
+* high energies: [`Bethe`][] at ``i_value_eV`` with
   ``density_effect`` (default: ICRU 90's own delta, table A.3) and, by default, ICRU 90's
   own higher-order terms: Bloch + Ahlen (1980)'s Mott correction (``higher_order=
   "bloch_ahlen"``); ``"lindhard_sorensen"`` reproduces ICRU
   90 carbon equally well, 0.06% above 30 MeV/u), and --
   like BEST -- shell and Barkas corrections (``shell_barkas``,
-  default on: :mod:`~pyradbio.track.stopping.shell`, :mod:`~pyradbio.track.stopping.barkas`).
+  default on: [`shell`][], [`barkas`][]).
   Measured against ICRU 90 carbon: with them, <= 0.070% at every tabulated
   energy above 1 MeV/u (blend included); without them, -0.34% in the blend region.
 * blend: an interpolating not-a-knot cubic spline of ``beta^2 S`` in ``ln(E)``, through
@@ -50,7 +50,7 @@ Our implementation, Z 3-18:
 Protons and alphas (Z 1, 2):
 
 * low energies: ICRU 49's empirical formulae for liquid water
-  (:mod:`~pyradbio.track.stopping.icru49_empirical`; shipped table, evaluated from our
+  ([`icru49_empirical`][]; shipped table, evaluated from our
   transcription of its coefficients);
 * high energies: Bethe with Bloch, shell and Barkas (``shell_barkas``) -- ICRU 49 eq. 2.1;
   no Mott/Lindhard-Sorensen term (``higher_order`` applies to Z 3-18 only);
@@ -67,9 +67,9 @@ Both:
   50 log-uniform points per decade over the full range) and interpolated (not-a-knot cubic
   in log-log); ``evaluation="direct"`` evaluates it at every requested energy.
 * isotopes: computed for the element's most abundant isotope and velocity-scaled for the
-  others, as everywhere in :mod:`pyradbio.track.stopping`.
+  others, as everywhere in [`pyradbio.track.stopping`][].
 * ``quantity="total"`` adds ``nuclear``
-  (:class:`~pyradbio.track.stopping.nuclear.WaterNuclearStopping`; default: ICRU 49's
+  ([`WaterNuclearStopping`][]; default: ICRU 49's
   method -- Moliere protons, ZBL otherwise -- as ICRU 49 and 90 tabulate it).
 """
 
@@ -100,14 +100,14 @@ from pyradbio.track.stopping.nuclear import ICRU49_PROTON_POTENTIAL, WaterNuclea
 Evaluation = Literal["interpolate", "direct"]
 HigherOrder = Literal["lindhard_sorensen", "bloch_ahlen", "bloch_mott", "none"]
 
-#: ICRU 90, App. A.3: MSTAR for T <= 30 MeV, Bethe for T >= 60 MeV (C-12, total energy).
 DEFAULT_THRESHOLDS_MEV_U = (30.0 / 12.0, 60.0 / 12.0)
+"""ICRU 90, App. A.3: MSTAR for T <= 30 MeV, Bethe for T >= 60 MeV (C-12, total energy)."""
 ThresholdScaling = Literal["stripping", "none"]
-#: The ion the thresholds are stated for (ICRU 90: carbon) and the stripping exponent.
 _THRESHOLD_REFERENCE_Z = 6
+"""The ion the thresholds are stated for (ICRU 90: carbon) and the stripping exponent."""
 _STRIPPING_EXPONENT = 4.0 / 3.0
-#: Lowest beta*gamma of the p/alpha Bethe (its Barkas term raises below ~0.0206).
 _LIGHT_MIN_BETA_GAMMA = 0.02
+"""Lowest beta*gamma of the p/alpha Bethe (its Barkas term raises below ~0.0206)."""
 ICRU90_PROCEDURE_REFERENCE = (
     "ICRU Report 90 (2014), Appendix A.3 (C ions): MSTAR below 30 MeV, Bethe above 60 MeV, "
     "cubic spline of beta^2 S between; reimplemented by pyRadBio"

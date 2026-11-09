@@ -1,5 +1,12 @@
 # pyRadBio
 
+[![CI](https://github.com/e0404/pyRadBio/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/e0404/pyRadBio/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/e0404/pyRadBio/graph/badge.svg)](https://codecov.io/gh/e0404/pyRadBio)
+[![PyPI](https://img.shields.io/pypi/v/pyradbio)](https://pypi.org/project/pyradbio/)
+[![Python](https://img.shields.io/pypi/pyversions/pyradbio)](https://pypi.org/project/pyradbio/)
+[![Documentation](https://readthedocs.org/projects/pyradbio/badge/?version=latest)](https://pyradbio.readthedocs.io/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24046436.svg)](https://doi.org/10.5281/zenodo.24046436)
+
 Radiobiological modelling for ion-beam therapy, centred on the
 linear-quadratic (LQ) model
 
@@ -66,11 +73,51 @@ reference, is in `ROADMAP.md`.
 
 ## Install
 
+pyRadBio supports Python 3.10 to 3.14.
+
+**Using pyRadBio.** The core install depends only on NumPy and SciPy. It covers
+every model, the LQ utilities, the stopping powers and the `pyradbio`
+command-line tool:
+
 ```bash
-pip install -e ".[all]"      # dev: core + tables + benchmark + fast + plot + dev tools
-pip install pyradbio         # (once published) core only
-pip install "pyradbio[mkm]"  # optional: pyMKM, for cross-checking the MKM family
+pip install pyradbio
 ```
+
+**Developing pyRadBio.** Install an editable copy from a clone with the
+development tools and the extras the tests and scripts use. Add `docs` to build
+the documentation site (Python 3.11 or newer):
+
+```bash
+git clone https://github.com/e0404/pyRadBio.git
+cd pyRadBio
+pip install -e ".[all]"   # or ".[all,docs]"
+```
+
+The workflow and the checks to run before a pull request are in
+[CONTRIBUTING.md](https://github.com/e0404/pyRadBio/blob/develop/CONTRIBUTING.md).
+
+**Optional extras.** Install only the extras you need. This command lists all
+of them:
+
+```bash
+pip install "pyradbio[tables,benchmark,fast,plot,dev,docs,mkm]"
+```
+
+- `tables`: pandas, pyarrow and openpyxl, for Parquet I/O, pandas views of the
+  tables, Excel reading and the PIDE benchmark harness. CSV works without it.
+- `benchmark`: python-dotenv, which reads the locations of external reference
+  data from a local `.env` file.
+- `fast`: numba, for the compiled LEM Monte-Carlo and radial-dose kernels.
+- `plot`: matplotlib, for the `examples/` and `validation/` scripts. The
+  library itself never imports it.
+- `dev`: pytest, hypothesis, ruff, mypy and pre-commit, for running the tests
+  and the linters.
+- `docs`: Zensical and mkdocstrings, for building the documentation site.
+  Needs Python 3.11 or newer.
+- `mkm`: the external [pyMKM](https://github.com/BeppeMagro/pymkm) package,
+  which cross-checks the MKM family independently. It is never a default and
+  is not part of `all`. It also keeps NumPy below 2.4.
+- `all`: `tables`, `benchmark`, `fast`, `plot` and `dev`.
 
 ## Quick start
 
@@ -112,7 +159,7 @@ from pyradbio.models.phenomenological import McNamara
 
 mcn = McNamara(photon=PhotonParameters(alpha_x=0.18, beta_x=0.028))
 ab = mcn.alpha_beta_from_let(5.0)  # dose-averaged LET [keV/um]
-rbe10 = mcn.rbe_at_survival(0.10, let_keV_um=5.0)
+rbe10 = mcn.rbe_at_survival_from_let(5.0, 0.10)  # RBE at 10% survival
 ```
 
 The `examples/` folder has runnable demonstrations, one or more per model
@@ -170,6 +217,13 @@ published values (`pytest -m golden`), and `docs/references/` records every
 reconstruction, including where and why a result departs from the paper. See
 `ROADMAP.md` for planned and open work and `AGENTS.md` for the
 contributor/agent contract.
+
+## Citing
+
+Every release is archived on Zenodo; doi:10.5281/zenodo.24046436 always
+resolves to the latest version, and the Zenodo page lists the DOI of each
+release. Cite the release you used (see `CITATION.cff`), together with the
+papers of the models you use.
 
 ## License
 

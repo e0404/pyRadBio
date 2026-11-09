@@ -6,9 +6,9 @@ fine logarithmic sub-grid per energy bin (~16 nodes/bin), never at bin centres:
 the intra-bin covariance between stopping power and the looked-up quantity is
 the numerically significant term.
 
-Models consume this through :func:`dose_quadrature`, which expands every
-component of a :class:`~pyradbio.core.radiation.RadiationField` into
-``(ion, dose weight)`` nodes; :class:`~pyradbio.models.base.BiophysicalModel`
+Models consume this through [`dose_quadrature`][], which expands every
+component of a [`RadiationField`][] into
+``(ion, dose weight)`` nodes; [`BiophysicalModel`][pyradbio.models.base.BiophysicalModel]
 then dose-averages its per-family mixing quantity over those nodes.
 """
 
@@ -23,8 +23,8 @@ import numpy as np
 
 from pyradbio.core.radiation import Ion, RadiationField, SpectrumComponent, fluence_to_dose
 
-#: Sub-grid nodes per energy bin (AGENTS.md: "~16 nodes/bin", log spacing).
 DEFAULT_SUB_NODES = 16
+"""Sub-grid nodes per energy bin (AGENTS.md: "~16 nodes/bin", log spacing)."""
 
 Spacing = Literal["log", "linear"]
 
@@ -309,11 +309,11 @@ def dose_quadrature(
 
     The one place a mixed field is discretised for the models. A mono-energetic
     component is a single node at its own ion with its absorbed dose (exactly
-    :meth:`RadiationField.dose_weights`). A binned component becomes
+    [`RadiationField.dose_weights`][]). A binned component becomes
     ``sub_nodes`` ions on a sub-grid spanning its bin, edges included, each
     weighted by ``w_j dD/dE(E_j)`` with ``w_j`` the composite-Simpson weight, so
     ``sum_j D_j q(E_j)`` is the bin's product integral ``int dD/dE q(E) dE`` --
-    the same integral :func:`spectral_integral` evaluates -- for *any* per-ion
+    the same integral [`spectral_integral`][] evaluates -- for *any* per-ion
     quantity ``q``. Dose-averaging a quantity over these nodes is therefore the
     sub-grid integration AGENTS.md requires, never a bin-centre evaluation.
     A dose-specified bin (uniform dose density) is normalised so its node

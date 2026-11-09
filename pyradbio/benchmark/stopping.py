@@ -10,21 +10,21 @@ source by a short CLI/environment string. This module is the one map from that
 string to a stopping-power object, so the plotted curves and the checkpoint rows
 cannot be computed at different LETs without the mismatch being visible.
 
-Every object returned by :func:`select_stopping_power` carries a ``name``
+Every object returned by [`select_stopping_power`][] carries a ``name``
 attribute. That is the value the generators stamp into the ``stopping_power``
 column of a checkpoint and the readers compare against, which is why plain
 analytic Bethe is returned as the *named*
-:class:`~pyradbio.track.northcliffe_schilling.BetheOnly` rather than an unnamed
-:class:`~pyradbio.track.stopping_power.SimpleBetheStoppingPower`.
+[`BetheOnly`][pyradbio.track.northcliffe_schilling.BetheOnly] rather than an unnamed
+[`SimpleBetheStoppingPower`][pyradbio.track.stopping_power.SimpleBetheStoppingPower].
 
 Choices:
 
 ``"ns1970"``
-    :class:`~pyradbio.track.northcliffe_schilling.NorthcliffeSchillingWithBetheTail`
+    [`NorthcliffeSchillingWithBetheTail`][pyradbio.track.northcliffe_schilling.NorthcliffeSchillingWithBetheTail]
     (``name = "ns1970+bethe"``): the paper's own water table inside its
     0.0125-12 MeV/u grid, analytic Bethe above it, with the seam counted.
 ``"bethe"``
-    :class:`~pyradbio.track.northcliffe_schilling.BetheOnly` (``name = "bethe"``).
+    [`BetheOnly`][pyradbio.track.northcliffe_schilling.BetheOnly] (``name = "bethe"``).
 ``"pymkm[:SOURCE]"``
     pyMKM's tabulated LET (optional ``mkm`` extra; ``SOURCE`` defaults to
     ``geant4_11_3_0``), named ``"pymkm:<SOURCE>"``. Imported lazily, so this
@@ -47,8 +47,8 @@ __all__ = [
     "stopping_power_label",
 ]
 
-#: The accepted forms of a stopping-power choice, for help and error texts.
 STOPPING_POWER_CHOICES = "ns1970|bethe|pymkm[:SOURCE]|libdedx[:PROGRAM]"
+"""The accepted forms of a stopping-power choice, for help and error texts."""
 
 _DEFAULT_PYMKM_SOURCE = "geant4_11_3_0"
 _DEFAULT_LIBDEDX_PROGRAM = "DEFAULT"
@@ -73,7 +73,7 @@ def select_stopping_power(choice: str) -> StoppingPower:
     Parameters
     ----------
     choice:
-        One of :data:`STOPPING_POWER_CHOICES`.
+        One of [`STOPPING_POWER_CHOICES`][].
 
     Returns
     -------

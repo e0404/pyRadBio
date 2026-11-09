@@ -2,7 +2,7 @@
 
 For a straight ion track passing a target at perpendicular distance ``b`` (the
 impact parameter), the mean specific energy deposited is ``z_1(b)``, obtained by
-integrating any :class:`~pyradbio.track.base.RadialDoseModel` ``D(r)`` over the
+integrating any [`RadialDoseModel`][] ``D(r)`` over the
 target. Impact points are uniform in the plane, so an event's frequency weight is
 ``2 b / b_max^2`` out to ``b_max = R + r_max``.
 
@@ -13,7 +13,7 @@ lineal-energy spectrum, energy-loss straggling model, or delta-ray Monte Carlo:
 * dose mean ``z_D = <z_1^2> / <z_1>``,
 * the MKM saturation-corrected dose-mean ``z*_1D`` (Kase 2006 / Inaniwa 2010),
 
-plus a generic :meth:`SpecificEnergyProfile.average` for any per-event functional.
+plus a generic [`SpecificEnergyProfile.average`][] for any per-event functional.
 This is track-model-agnostic (Kiefer-Chatterjee, Scholz-Kraft LEM I/II/III, ...).
 
 Two target geometries are provided:
@@ -21,9 +21,9 @@ Two target geometries are provided:
 * **cylindrical / disk** (default) -- the MKM **domain**: a disk of the region
   radius perpendicular to the track, ``z_1 = (1/pi R^2) integral_disk D dA``. This
   is exactly pyMKM's ``SpecificEnergy`` geometry ("a water cylinder perpendicular
-  to the ion path"), so :func:`specific_energy_impact_profile` reproduces
+  to the ion path"), so [`specific_energy_impact_profile`][] reproduces
   ``z_bar_star_domain`` to a few percent. It is also the LEM cell-nucleus geometry:
-  :func:`nuclear_functional_impact_profile` integrates an *arbitrary* functional
+  [`nuclear_functional_impact_profile`][] integrates an *arbitrary* functional
   of the local dose (e.g. the LEM local log-kill ``-ln S_x(D(r))``) over the disk
   and reduces it to the single-track nuclear effect ``nu(b)`` and the inactivation
   cross-section ``sigma``. The disk arc-angle weight matches
@@ -140,7 +140,7 @@ def specific_energy_impact_profile(
 
     Evaluates ``radial_dose`` once on a log ``s``-grid over ``[r_min, r_max]`` and
     integrates it over the target for every impact parameter (any
-    :class:`~pyradbio.track.base.RadialDoseModel`).
+    [`RadialDoseModel`][]).
 
     ``geometry`` selects the target:
 
@@ -222,7 +222,7 @@ def disk_area_integral_over_site(
     ``values_s`` on ``s_grid_um``) over a disk of radius ``radius_um`` -- the
     transverse cross-section of a LEM nucleus for a track parallel to the axis (the
     height cancels in the area-mean ``.../ (pi R^2)``). The disk analogue of
-    :meth:`SphericalSite.volume_integral_over_site`.
+    [`SphericalSite.volume_integral_over_site`][].
     """
     weight = disk_arc_weight(s_grid_um, impact_um, radius_um)
     integrand = np.asarray(values_s, dtype=np.float64)[None, :] * s_grid_um[None, :] * weight
@@ -269,7 +269,7 @@ class NuclearImpactProfile:
         """``integral nu(b) 2 pi b db`` [um^2] -- the *unsaturated* lethal-event area.
 
         The mean lethal-event yield per unit fluence, dropping the ``1-exp(-nu)``
-        overkill term of :meth:`inactivation_cross_section_um2`. Matches the
+        overkill term of [`inactivation_cross_section_um2`][]. Matches the
         ``lethal_full`` numerator in ``models.lem.base.lethal_full_initial_slope``.
         """
         b = self.b_grid_um

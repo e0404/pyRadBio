@@ -2,8 +2,8 @@
 
 Numerical core of the *discrete* reading of the Friedrich et al. 2012 (Int. J.
 Radiat. Biol. 88:103-107, doi:10.3109/09553002.2011.611213, Fig. 4) full
-simulation. Like :mod:`._localdose` it holds no biophysics --
-:mod:`pyradbio.models.lem.lem4` supplies the radial dose profile and the effect
+simulation. Like `_localdose` it holds no biophysics --
+[`pyradbio.models.lem.lem4`][] supplies the radial dose profile and the effect
 functional, this module supplies the statistics.
 
 **The model.** The dose is split exactly as the traversal decomposition does, with
@@ -15,7 +15,7 @@ no free parameter and, crucially, **no domain extension**:
     B      = D (1 - f_ret)      the escaped / near-miss dose, delivered as a
                                 UNIFORM Poisson DSB background over the loops
 
-``f_ret`` (:func:`retained_dose_fraction`) is the fraction of a uniformly-placed
+``f_ret`` (`retained_dose_fraction`) is the fraction of a uniformly-placed
 track's dose that lands in the nucleus, so the split conserves dose exactly. The
 alternative of resolving the near-miss penumbra spatially is what breaks the
 explicit-track ``"intertrack_mc"`` engine: at LET 20 it needed a 3400x track multiplier whose
@@ -32,7 +32,7 @@ evaluates the loop statistics in closed form. For a loop at transverse position
 ``x``, one track placed uniformly on the disk contributes ``Poisson(mu(|x - b|))``
 DSBs with ``b`` uniform, so
 
-    a0(x) = <e^{-mu}>_b ,      a1(x) = <mu e^{-mu}>_b        (:func:`track_factors`)
+    a0(x) = <e^{-mu}>_b ,      a1(x) = <mu e^{-mu}>_b        (`track_factors`)
 
 are disk-convolutions, computed exactly by FFT. With ``n`` independent tracks plus
 a uniform background of mean ``m_bg`` per loop,
@@ -40,7 +40,7 @@ a uniform background of mean ``m_bg`` per loop,
     P(0 DSB | n) = a0^n e^{-m_bg}
     P(1 DSB | n) = [n a1 a0^{n-1} + m_bg a0^n] e^{-m_bg}
 
-giving ``N_dmg(n)`` and ``N_cDSB(n)`` exactly (:func:`conditional_loop_counts`).
+giving ``N_dmg(n)`` and ``N_cDSB(n)`` exactly (`conditional_loop_counts`).
 The result is deterministic, seed-free and fast.
 
 **The theorem this module exists to demonstrate.** Averaging those conditional
@@ -71,12 +71,12 @@ from pyradbio.models.lem._localdose import subvolume_centres, trapezoid_weights
 FloatArray = npt.NDArray[np.float64]
 IntArray = npt.NDArray[np.int64]
 
-# Transverse grid step [um] for the FFT disk-convolution of :func:`track_factors`.
+# Transverse grid step [um] for the FFT disk-convolution of `track_factors`.
 # The convolution is smooth on the 540 nm loop scale, so ~12 nodes per loop side
 # resolves it; halving the step moves ``a0`` by <0.2%.
 _CONV_STEP_UM: float = 0.045
 
-# Poisson tail cut for the track-number sum (:func:`poisson_track_weights`): the
+# Poisson tail cut for the track-number sum (`poisson_track_weights`): the
 # grid runs to ``lam + _POISSON_SIGMA sqrt(lam) + _POISSON_FLOOR``, then the
 # weights are renormalised. 9 sigma leaves < 1e-9 of the mass outside.
 _POISSON_SIGMA: float = 9.0
@@ -102,7 +102,7 @@ def retained_dose_fraction(r: FloatArray, dose: FloatArray, *, r_eff: float) -> 
     Tracks are centred uniformly on the disk of radius ``r_eff`` with areal density
     ``phi``. The dose they deposit inside the nucleus, per unit nuclear area, is
     ``phi int D(r) 2 pi r O(r) dr`` with ``O`` the two-disk overlap fraction
-    (:func:`disk_overlap_fraction`), because a shell of radius ``r`` around a track
+    (`disk_overlap_fraction`), because a shell of radius ``r`` around a track
     at ``b`` lies inside the nucleus for exactly that fraction of ``b``. Since
     ``D_1`` is defined from the *full* track energy, that means the retained mean
     dose is ``D f_ret`` with
@@ -137,7 +137,7 @@ def track_factors(
     ``mu(rho)`` is the mean number of DSB one track deposits in a loop whose centre
     lies at transverse distance ``rho`` -- i.e. the *box-averaged* eta-enhanced dose
     times the DSB yield per loop per Gy. It must be the subvolume average, never the
-    pointwise ``1/r^2`` dose (see :func:`._localdose.box_averaged_profile`).
+    pointwise ``1/r^2`` dose (see `_localdose.box_averaged_profile`).
 
     With the track centre ``b`` uniform on the nucleus disk,
 
@@ -153,7 +153,7 @@ def track_factors(
     ``x - b`` actually summed satisfies ``|x - b| <= 2 r_eff`` and is represented
     exactly on the periodic grid.
 
-    Returns ``(a0, a1)`` sampled at :func:`._localdose.subvolume_centres`.
+    Returns ``(a0, a1)`` sampled at `_localdose.subvolume_centres`.
     """
     rho = np.asarray(rho, dtype=np.float64)
     mu = np.asarray(mu, dtype=np.float64)
@@ -245,19 +245,21 @@ def expected_damaged_ratio(mu: FloatArray, *, n_nodes: int = 256) -> float:
     ``A = #{N_j >= 2}``, ``B = #{N_j >= 1}``, ``q_j = e^{-mu_j}`` and
     ``p2_j = 1 - e^{-mu_j}(1 + mu_j)``, the identity ``1/B = int_0^1 t^{B-1} dt``
     (valid for ``B >= 1``) turns the expectation into one integral of the
-    occupancy generating function::
+    occupancy generating function:
 
-        E[A t^B] = t G(t) sum_j p2_j / (q_j + (1 - q_j) t) ,
-        G(t)     = prod_k (q_k + (1 - q_k) t) ,
+    ```text
+    E[A t^B] = t G(t) sum_j p2_j / (q_j + (1 - q_j) t) ,
+    G(t)     = prod_k (q_k + (1 - q_k) t) ,
 
-        E[A/B | B >= 1] = int_0^1 G(t) sum_j p2_j/(q_j + (1-q_j)t) dt
-                          / (1 - prod_j q_j) .
+    E[A/B | B >= 1] = int_0^1 G(t) sum_j p2_j/(q_j + (1-q_j)t) dt
+                      / (1 - prod_j q_j) .
+    ```
 
     Why this and not the mean-field ``sum_j p2_j / sum_j (1 - q_j)``: a single
     traversal damages only a handful of loops, so ``A`` and ``B`` are far from
     their concentration limit and ``E[A/B] != E[A]/E[B]``. Jensen then pushes the
     ratio-of-averages high -- the documented over-clustering of
-    :meth:`~pyradbio.models.lem.lem4.LEM4.cluster_index`.
+    [`cluster_index`][pyradbio.models.lem.lem4.LEM4.cluster_index].
 
     ``G`` is accumulated in logs, since it is a product over thousands of loops.
     """

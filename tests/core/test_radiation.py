@@ -54,6 +54,54 @@ def test_fluence_component_can_carry_energy_bin_support() -> None:
     assert comp.is_energy_bin
 
 
+def _let_power_law(ion: Ion) -> float:
+    """LET falling as ``E^-0.8`` [keV/um]: steep enough that a bin's centre misses its dose."""
+    return 100.0 * ion.energy_MeV_u**-0.8
+
+
+def _binned_carbon(fluence: float = 1.0e7) -> SpectrumComponent:
+    lo, hi = 1.0, 30.0
+    return SpectrumComponent(
+        Ion(6, 12, (lo * hi) ** 0.5), fluence=fluence, energy_lo_MeV_u=lo, energy_hi_MeV_u=hi
+    )
+
+
+def test_binned_fluence_dose_integrates_over_the_bin() -> None:
+    """Uniform phi(E) over [lo, hi]: D = phi/(hi-lo) * int L(E) dE, not phi * L(E_rep).
+
+    The closed form of ``int 100 E^-0.8 dE`` is the dense reference (AGENTS.md
+    Numerics: never at the bin centre).
+    """
+    comp = _binned_carbon()
+    lo, hi = 1.0, 30.0
+    integral = 100.0 * 5.0 * (hi**0.2 - lo**0.2)
+    expected = fluence_to_dose(comp.fluence / (hi - lo), integral)  # type: ignore[operator]
+    assert comp.absorbed_dose_Gy(_let_power_law) == pytest.approx(expected, rel=1e-5)
+    centre = fluence_to_dose(1.0e7, _let_power_law(comp.ion))
+    assert comp.absorbed_dose_Gy(_let_power_law) != pytest.approx(centre, rel=0.05)
+
+
+def test_binned_fluence_dose_is_the_sum_of_the_quadrature_nodes() -> None:
+    """The field's dose and the nodes the models mix over must agree."""
+    from pyradbio.core.mixing import dose_quadrature
+
+    field = RadiationField([_binned_carbon(), SpectrumComponent(Ion(1, 1, 150.0), dose_Gy=1.0)])
+    nodes = dose_quadrature(field, _let_power_law)
+    assert field.total_dose_Gy(_let_power_law) == pytest.approx(
+        sum(dose for _ion, dose in nodes), rel=1e-12
+    )
+    weights = field.dose_weights(_let_power_law)
+    assert weights[0] == pytest.approx(sum(dose for _ion, dose in nodes[:-1]), rel=1e-12)
+    assert weights[1] == 1.0
+
+
+def test_binned_dose_component_keeps_its_stated_dose() -> None:
+    comp = SpectrumComponent(
+        Ion(6, 12, 5.0), dose_Gy=2.0, energy_lo_MeV_u=1.0, energy_hi_MeV_u=30.0
+    )
+    assert comp.absorbed_dose_Gy(_let_power_law) == 2.0
+
+
 def test_mixed_field_weights() -> None:
     c12 = Ion(Z=6, A=12, energy_MeV_u=200.0)
     he4 = Ion(Z=2, A=4, energy_MeV_u=100.0)

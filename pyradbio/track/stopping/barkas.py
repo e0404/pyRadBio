@@ -1,16 +1,18 @@
 """Barkas (z^3) correction of Ashley, Ritchie & Brandt, as used by ICRU 49, for water.
 
 ICRU 49 (sec. 2.3, eqs. 2.8, 2.9) adds ``z L1`` to the stopping number per electron with,
-per target element of atomic number ``Z``::
+per target element of atomic number ``Z``:
 
-    L1 = gamma F_ARB(b / x^1/2) / (Z^1/2 x^3/2),     x = (beta / alpha)^2 / Z
+```text
+L1 = gamma F_ARB(b / x^1/2) / (Z^1/2 x^3/2),     x = (beta / alpha)^2 / Z
+```
 
 ``F`` is the function of J.C. Ashley, R.H. Ritchie and W. Brandt, Phys. Rev. B 5, 2393
 (1972), eq. (14) (Lenz-Jensen atom). We recover it from their Phys. Rev. A 8, 2402 (1973)
 Table I, which prints ``kappa(b, x) = F(b/x^1/2) / (x^1/2 L(x))`` with ``L(x) = ln(x/q)``,
 ``q = 0.18`` for ``x > 1`` (their eqs. 2, 3): ``F = kappa x^1/2 ln(x/0.18)``. Below
 ``x = 1`` their ``L`` carries an inner-shell term known only as a figure, so the
-correction raises there (:class:`~pyradbio.track.stopping.base.OutOfRangeError`); for
+correction raises there ([`OutOfRangeError`][]); for
 water that is ``x_O < 1``, i.e. below ~0.2 MeV/u. Above the table (``x > 100``) ``F`` is
 continued linearly in ``ln x`` (ASSUMPTION; ARB 1972, p. 2394: for small ``xi`` the
 underlying ``I(xi) ~ -(3/2) pi ln xi + A``), fitted to the shipped nodes with
@@ -51,12 +53,12 @@ FloatArray = npt.NDArray[np.float64]
 
 ARB_1972 = "J.C. Ashley, R.H. Ritchie and W. Brandt, Phys. Rev. B 5, 2393 (1972)"
 ARB_1973 = "J.C. Ashley, R.H. Ritchie and W. Brandt, Phys. Rev. A 8, 2402 (1973), Table I"
-#: ARB 1973 eq. (3): L(x) = ln(x/q) for x > 1.
 ARB_Q = 0.18
-#: Values of the scaled minimum impact parameter tabulated by ARB 1973.
+"""ARB 1973 eq. (3): L(x) = ln(x/q) for x > 1."""
 B_VALUES = (1.6, 1.8, 2.0)
-#: ICRU 49 Table 2.3: "1.8 for H in compounds", 1.8 for Z 3-10.
+"""Values of the scaled minimum impact parameter tabulated by ARB 1973."""
 ICRU49_B_WATER = 1.8
+"""ICRU 49 Table 2.3: "1.8 for H in compounds", 1.8 for Z 3-10."""
 ICRU49_GAMMA = 1.29
 SHIPPED_TABLE = "barkas_arb1973.csv"
 _EXTRAPOLATE_FROM_X = 30.0

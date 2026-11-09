@@ -1,27 +1,31 @@
 """The time axis: dose protraction and the Lea-Catcheside ``G`` factor.
 
-Model-agnostic, like :mod:`pyradbio.core.oxygen`. The LQ model as used
+Model-agnostic, like [`pyradbio.core.oxygen`][]. The LQ model as used
 everywhere else in this package describes an *acute* dose: the quadratic term
 counts pairs of sublethal lesions that meet, and every pair is available
 because the whole dose arrives at once. Spread the same dose over time and
 some of those lesions are repaired before their partner appears, so the
-quadratic term is reduced by a factor ``G <= 1``::
+quadratic term is reduced by a factor ``G <= 1``:
 
-    -ln S(D) = alpha D + G beta D^2
+```text
+-ln S(D) = alpha D + G beta D^2
+```
 
 ``G`` is a property of the *temporal pattern* of the irradiation alone. It does
 not depend on the total dose, on the cell's ``alpha``/``beta``, or on the
 radiation quality -- only on how the dose is distributed in time relative to
 the sublethal-damage repair half-time. That is why it lives here rather than
-inside any one model, and why :class:`DoseSchedule` carries no biology.
+inside any one model, and why [`DoseSchedule`][] carries no biology.
 
 Definition
 ----------
 Lea & Catcheside's generalised time factor (Lea & Catcheside 1942, *J. Genet.*
 44:216; in the modern LQ notation of Kellerer & Rossi's theory of dual
-radiation action, and reviewed by Brenner 2008)::
+radiation action, and reviewed by Brenner 2008):
 
-    G = (2 / D^2) * int dt Ddot(t) int_{-inf}^{t} dt' Ddot(t') exp(-lam (t - t'))
+```text
+G = (2 / D^2) * int dt Ddot(t) int_{-inf}^{t} dt' Ddot(t') exp(-lam (t - t'))
+```
 
 with ``Ddot`` the dose rate [Gy/h], ``D = int Ddot dt`` the total dose and
 ``lam = ln2 / T_half`` the first-order repair rate constant [1/h].
@@ -35,16 +39,18 @@ brachytherapy delivery, a fractionated course, a split course, an arbitrary
 mixture -- and for it the double integral has an elementary closed form, so no
 quadrature is needed. Writing ``D_i`` for the dose of block ``i``,
 ``T_i`` for its duration, ``x_i = lam T_i``, and ``g_ij >= 0`` for the gap
-between the end of an earlier block ``j`` and the start of a later block ``i``::
+between the end of an earlier block ``j`` and the start of a later block ``i``:
 
-    G = (2 / D^2) [ sum_i D_i^2 f(x_i)
-                    + sum_{i > j} D_i D_j h(x_i) h(x_j) exp(-lam g_ij) ]
+```text
+G = (2 / D^2) [ sum_i D_i^2 f(x_i)
+                + sum_{i > j} D_i D_j h(x_i) h(x_j) exp(-lam g_ij) ]
 
-    f(x) = (x - 1 + e^-x) / x^2      (a block interacting with itself)
-    h(x) = (1 - e^-x) / x            (a block seen by a later one)
+f(x) = (x - 1 + e^-x) / x^2      (a block interacting with itself)
+h(x) = (1 - e^-x) / x            (a block seen by a later one)
+```
 
 Both ``f`` and ``h`` are written so that no cancellation occurs as ``x -> 0``
-(:func:`_self_overlap`, :func:`_block_weight`); ``f(0) = 1/2`` and ``h(0) = 1``.
+(`_self_overlap`, `_block_weight`); ``f(0) = 1/2`` and ``h(0) = 1``.
 The known special cases drop out of the same expression and are *not*
 implemented separately:
 
@@ -84,7 +90,7 @@ here -- they are the caller's to respect:
 - **``G`` corrects the quadratic term only.** Thames 1985 sec. 2.2, point (1):
   "incomplete repair affects only the beta-component of killing, and not the
   alpha-component". That is a *derivation* result, not an approximation, and it
-  is why ``g`` multiplies ``beta`` alone in :mod:`pyradbio.core.lq`.
+  is why ``g`` multiplies ``beta`` alone in [`pyradbio.core.lq`][].
 - **Dose per fraction.** The whole construction assumes the LQ form is adequate
   at the per-fraction dose. Thames sec. 4.2(b) puts that at roughly ``x <= 4 Gy``
   for the cell line he analyses, beyond which the LQ approximation "may not be
@@ -124,13 +130,14 @@ import math
 from dataclasses import dataclass
 from itertools import pairwise
 
-#: Repair rate constant per unit half-time: ``lam = LN2 / T_half``.
 LN2: float = math.log(2.0)
+"""Repair rate constant per unit half-time: ``lam = LN2 / T_half``."""
 
-#: Below this ``x = lam T`` the closed forms are evaluated by their Taylor
-#: series. Chosen where the series truncation error (~x^3/120 for ``f``) and the
-#: cancellation error of the direct form (~eps/x) are both far below 1e-15.
 _SERIES_CUTOFF: float = 1e-4
+"""Below this ``x = lam T`` the closed forms are evaluated by their Taylor
+series. Chosen where the series truncation error (~x^3/120 for ``f``) and the
+cancellation error of the direct form (~eps/x) are both far below 1e-15.
+"""
 
 
 def _self_overlap(x: float) -> float:
@@ -149,7 +156,7 @@ def _self_overlap(x: float) -> float:
 def _block_weight(x: float) -> float:
     """``h(x) = (1 - e^-x) / x``, the weight a block carries into later blocks.
 
-    ``h(0) = 1``. Evaluated with :func:`math.expm1`, which is exact to full
+    ``h(0) = 1``. Evaluated with `math.expm1`, which is exact to full
     relative precision as ``x -> 0``, so no series branch is needed.
     """
     if x == 0.0:
@@ -194,10 +201,10 @@ class DoseBlock:
 
 @dataclass(frozen=True, slots=True)
 class DoseSchedule:
-    """A complete irradiation: non-overlapping :class:`DoseBlock` s in time.
+    """A complete irradiation: non-overlapping [`DoseBlock`][] s in time.
 
     Blocks are sorted by start time on construction and must not overlap, which
-    is what lets :func:`lea_catcheside_g` split the double integral into a
+    is what lets [`lea_catcheside_g`][] split the double integral into a
     self-term per block plus one ordered cross-term per pair.
     """
 
@@ -295,7 +302,7 @@ def repair_rate_per_h(repair_half_time_h: float) -> float:
 
 
 def repair_half_time_h_from_rate(repair_rate_per_h: float) -> float:
-    """Inverse of :func:`repair_rate_per_h`: ``T_half = ln2 / lam`` [h].
+    """Inverse of [`repair_rate_per_h`][]: ``T_half = ln2 / lam`` [h].
 
     For models that state the repair *rate* rather than the half-time -- the IMK
     model's ``(a+c)`` (Matsuya et al. 2025 eq. 1) is the case in hand. A rate of

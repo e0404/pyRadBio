@@ -2,9 +2,9 @@
 
 Two published formulations, both here:
 
-* :class:`OSMK2021` -- Inaniwa, Kanematsu, Shinoto, Koto & Yamada,
+* [`OSMK2021`][] -- Inaniwa, Kanematsu, Shinoto, Koto & Yamada,
   *Phys. Med. Biol.* **66** (2021) 205007, doi:10.1088/1361-6560/ac29cc.
-* :class:`OSMK2023` -- Inaniwa & Kanematsu, *J. Radiat. Res.* **64** (2023)
+* [`OSMK2023`][] -- Inaniwa & Kanematsu, *J. Radiat. Res.* **64** (2023)
   685-692, doi:10.1093/jrr/rrad049, the "event-by-event" revision.
 
 Equations, both parameter tables and the sourcing caveats:
@@ -15,18 +15,20 @@ The idea in one paragraph
 Hypoxic cells resist radiation because some of the initial DNA damage is
 chemically repaired (within ~1 us) instead of being fixed by molecular oxygen.
 OSMK expresses that as a **relative radioresistance** ``R(pO2) >= 1``
-(:func:`~pyradbio.core.oxygen.relative_radioresistance`) which divides the
+([`relative_radioresistance`][]) which divides the
 *sub-lethal* lesion production rate, ``k_d -> k_d/R``, and leaves the *lethal*
 rate ``lambda_d`` alone -- clustered damage cannot be chemically repaired. Since
 SMK's ``alpha_S ∝ k_d`` and ``beta_0 ∝ k_d^2``, that single substitution is the
-whole model::
+whole model:
 
-    alpha'_SMK(pO2) = alpha_L + alpha_S R^-1 + z*_d,D beta_0 R^-2       (17)/(11)
-    beta'_SMK(pO2)  = beta_0 R^-2 (z*_d,D / z_d,D)                      (18)/(12)
+```text
+alpha'_SMK(pO2) = alpha_L + alpha_S R^-1 + z*_d,D beta_0 R^-2       (17)/(11)
+beta'_SMK(pO2)  = beta_0 R^-2 (z*_d,D / z_d,D)                      (18)/(12)
+```
 
 and survival is *unchanged* SMK eq. (24) with the primed pair substituted in
 (2021 eq. 16 = 2023 eq. 10). ``z_n,D`` is not touched by oxygen in either paper.
-So :class:`~pyradbio.models.mkm.spectrum_models.StochasticMKM` supplies
+So [`StochasticMKM`][] supplies
 everything except ``R``, and these classes are thin subclasses of it.
 
 Where the two papers differ
@@ -40,16 +42,16 @@ Only in how the measured *fall of the OER with LET* is produced:
   ``r_d' = r_d/f_rd(pO2)`` and ``z_0' = z_0 f_z0(pO2)`` (eqs. 6-9), then rescores
   ``z_d,D'`` and ``z*_d,D'`` at that geometry. This is the "event-by-event"
   content -- and it makes the domain ~3x smaller under anoxia, so a
-  :class:`~pyradbio.micro.lineal_energy.SpectrumEngine` bound to ``r_d`` is
+  [`SpectrumEngine`][pyradbio.micro.lineal_energy.SpectrumEngine] bound to ``r_d`` is
   **refused** rather than silently reused.
 
 The 2023 paper's own conclusion is that the difference is marginal for
 therapeutic beams (<= 1.9 %pt over an SOBP target), so neither supersedes the
 other; both are offered.
 
-Parameters
-----------
-Published fits: :meth:`OSMK2021.hsg_inaniwa2021` and siblings (HSG / V79 / CHO in
+Parameter sets
+--------------
+Published fits: [`OSMK2021.hsg_inaniwa2021`][] and siblings (HSG / V79 / CHO in
 both papers). **The three MKM-family fits of HSG are independent and must not be
 mixed**: ``z0`` is 66.0 Gy (SMK 2018) / 88.0 (OSMK 2021) / 60.0 (OSMK 2023), and
 ``r_d`` is 0.28 / 0.23 / 0.29 um. Constructing an OSMK from SMK parameters plus
@@ -85,9 +87,9 @@ from pyradbio.models.mkm.spectrum_models import SiteSpecificEnergies, Stochastic
 class _OSMKModel(StochasticMKM):
     """Shared OSMK machinery: the ``alpha'``/``beta'`` algebra and the OER.
 
-    Subclasses supply :meth:`max_radioresistance` (how ``Rmax`` depends -- or does
+    Subclasses supply `max_radioresistance` (how ``Rmax`` depends -- or does
     not -- on radiation quality) and, for the 2023 formulation, the ``pO2``
-    -dependent site geometry via :meth:`specific_energies_at`.
+    -dependent site geometry via `specific_energies_at`.
     """
 
     alpha_L_Gy_inv: float = 0.0
@@ -137,8 +139,8 @@ class _OSMKModel(StochasticMKM):
     def relative_radioresistance(self, pO2_mmHg: float, *, z_1D_Gy: float) -> float:
         """``R(pO2) = (pO2 + K)/(pO2 + K/Rmax)`` (2021 eq. 13 = 2023 eq. 1).
 
-        ``z_1D_Gy`` is used only by :class:`OSMK2021`, where ``Rmax`` depends on
-        radiation quality; :class:`OSMK2023` ignores it.
+        ``z_1D_Gy`` is used only by [`OSMK2021`][], where ``Rmax`` depends on
+        radiation quality; [`OSMK2023`][] ignores it.
         """
         return float(
             relative_radioresistance(
@@ -157,9 +159,9 @@ class _OSMKModel(StochasticMKM):
         """The oxygen-corrected LQ pair from the microdosimetric quantities.
 
         ``alpha' = alpha_L + alpha_S/R + z*_d,D beta_0/R^2`` and
-        ``beta' = (beta_0/R^2)(z*_d,D/z_d,D)``. For :class:`OSMK2023` the two
+        ``beta' = (beta_0/R^2)(z*_d,D/z_d,D)``. For [`OSMK2023`][] the two
         specific energies must already be the ones scored at the *hypoxic*
-        geometry (:meth:`specific_energies_at` does that).
+        geometry (`specific_energies_at` does that).
 
         This is the seam an external engine (pyMKM's ``z_bar_star_domain`` /
         ``z_bar_domain``) can drive directly.
@@ -179,7 +181,7 @@ class _OSMKModel(StochasticMKM):
         """Dose-mean specific energies for ``ion`` under ``pO2``.
 
         The 2021 formulation ignores ``pO2`` here (its microdosimetry is
-        oxygen-independent); :class:`OSMK2023` overrides this to rescore at the
+        oxygen-independent); [`OSMK2023`][] overrides this to rescore at the
         hypoxic domain radius and saturation parameter.
         """
         _validate_pO2(pO2_mmHg)
@@ -199,7 +201,7 @@ class _OSMKModel(StochasticMKM):
         ``pO2_mmHg`` defaults to the papers' experimental aerobic reference,
         160 mmHg -- where ``R`` is ~1.4% *above* unity, not equal to it. Pass
         ``math.inf`` for the strict ``R = 1`` limit, which reproduces
-        :class:`~pyradbio.models.mkm.spectrum_models.StochasticMKM` exactly.
+        [`StochasticMKM`][] exactly.
         Mixed fields are refused, as for the whole spectrum-MKM family.
         """
         lq, _z_n = self._lq_and_z_nucleus(self._require_ion(field), pO2_mmHg)
@@ -294,7 +296,7 @@ class _OSMKModel(StochasticMKM):
         Note the reference arm is *not* oxygen-corrected: ``alpha_ref``/``beta_ref``
         describe photons under the reference oxygenation, so this is an RBE at
         ``pO2``, not the combined ``RBE/OER`` isoeffective quantity of the paper's
-        eq. (20) -- form that by dividing by :meth:`oer_at_survival` if wanted.
+        eq. (20) -- form that by dividing by `oer_at_survival` if wanted.
         """
         lq, z_n = self._lq_and_z_nucleus(self._require_ion(field), pO2_mmHg)
         return self._rbe_numeric(survival_fraction, lq, z_n)
@@ -328,9 +330,11 @@ class OSMK2021(_OSMKModel):
     """OSMK 2021 -- the original (Inaniwa et al., doi:10.1088/1361-6560/ac29cc).
 
     The LET dependence of the OER lives entirely in ``Rmax``, made a function of
-    the beam's dose-mean domain specific energy (eq. 14)::
+    the beam's dose-mean domain specific energy (eq. 14):
 
-        Rmax(z_d,D) = [(z_d,D/z_R)^g + R_m] / [(z_d,D/z_R)^g + 1]
+    ```text
+    Rmax(z_d,D) = [(z_d,D/z_R)^g + R_m] / [(z_d,D/z_R)^g + 1]
+    ```
 
     which falls from ``R_m`` (sparse tracks -- chemical repair is effective) to 1
     (dense tracks -- clustered damage cannot be repaired, so oxygen stops
@@ -340,7 +344,7 @@ class OSMK2021(_OSMKModel):
     Its approximation, admitted in the paper's own discussion: ``R`` is evaluated
     from the *dose-averaged* ``z_d,D`` outside the rate equations, so a beam with a
     wide spread of per-event ``z_d`` (an SOBP) gets one representative quality.
-    :class:`OSMK2023` is the fix; the 2023 paper finds it changes little.
+    [`OSMK2023`][] is the fix; the 2023 paper finds it changes little.
     """
 
     z_R_Gy: float = 1.0
@@ -380,13 +384,15 @@ class OSMK2021(_OSMKModel):
 class OSMK2023(_OSMKModel):
     """OSMK 2023 -- the event-by-event revision (doi:10.1093/jrr/rrad049).
 
-    ``Rmax`` becomes a plain cell constant (:attr:`R_max`); the LET dependence
-    moves into the *site geometry*, which shrinks as the cell becomes hypoxic::
+    ``Rmax`` becomes a plain cell constant ([`R_max`][]); the LET dependence
+    moves into the *site geometry*, which shrinks as the cell becomes hypoxic:
 
-        r_d' = r_d / f_rd(pO2)                                              (6)
-        z_0' = z_0 * f_z0(pO2)                                              (7)
-        f_rd =  1 + ((f_rd_max - 1)/(Rmax - 1)) (R - 1)                     (8)
-        f_z0 = [1 + ((f_z0_max - 1)/(Rmax - 1)) (R - 1)]^2                  (9)
+    ```text
+    r_d' = r_d / f_rd(pO2)                                              (6)
+    z_0' = z_0 * f_z0(pO2)                                              (7)
+    f_rd =  1 + ((f_rd_max - 1)/(Rmax - 1)) (R - 1)                     (8)
+    f_z0 = [1 + ((f_z0_max - 1)/(Rmax - 1)) (R - 1)]^2                  (9)
+    ```
 
     **``f_z0`` is squared and ``f_rd`` is not** -- eq. (9) as printed. ``z_d,D``
     and ``z*_d,D`` are then rescored at ``(r_d', z_0')``, which is what makes the
@@ -401,7 +407,7 @@ class OSMK2023(_OSMKModel):
     Consequences worth knowing
     --------------------------
     * The domain is ~3x smaller under anoxia (HSG: 0.29 -> 0.097 um). Any injected
-      :class:`~pyradbio.micro.lineal_energy.SpectrumEngine` is bound to one site
+      [`SpectrumEngine`][pyradbio.micro.lineal_energy.SpectrumEngine] is bound to one site
       size, so hypoxic evaluation with an injected engine **raises** instead of
       silently scoring the wrong volume. The default impact-parameter route has
       no such problem.
@@ -464,7 +470,7 @@ class OSMK2023(_OSMKModel):
         """Rescore the domain at ``(r_d', z_0')``; the nucleus is unchanged.
 
         Raises when an engine is injected *and* the geometry actually moves: a
-        :class:`~pyradbio.micro.lineal_energy.SpectrumEngine` is constructed for
+        [`SpectrumEngine`][pyradbio.micro.lineal_energy.SpectrumEngine] is constructed for
         one site size, so reusing it at ``r_d'`` would score the wrong volume.
         """
         _validate_pO2(pO2_mmHg)

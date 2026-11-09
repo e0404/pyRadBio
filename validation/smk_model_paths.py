@@ -55,7 +55,7 @@ if quick_mode():
     print("QUICK MODE (PYRADBIO_QUICK=1): coarse grids; numbers are not the quoted ones")
 
 STOPPING = SimpleBetheStoppingPower()
-#: The quick-mode energy subset every panel's LET scan falls back to [MeV/u].
+# The quick-mode energy subset every panel's LET scan falls back to [MeV/u].
 QUICK_ENERGIES = [1.0, 10.0, 100.0]
 
 

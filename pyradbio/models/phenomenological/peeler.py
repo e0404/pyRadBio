@@ -7,12 +7,12 @@ from typing import ClassVar
 
 from pyradbio.models.phenomenological.base import RBEMinMax, RBEMinMaxModel
 
-#: ``RBE_max`` intercept [1] and cubic slope [Gy (keV/um)^-3].
 PEELER_RBE_MAX_INTERCEPT = 0.75
+"""``RBE_max`` intercept [1] and cubic slope [Gy (keV/um)^-3]."""
 PEELER_RBE_MAX_SLOPE = 0.00143
 
-#: ``RBE_min`` intercept [1] and cubic slope [Gy^-1 (keV/um)^-3].
 PEELER_RBE_MIN_INTERCEPT = 1.24
+"""``RBE_min`` intercept [1] and cubic slope [Gy^-1 (keV/um)^-3]."""
 PEELER_RBE_MIN_SLOPE = 0.00074
 
 
@@ -29,12 +29,14 @@ class Peeler(RBEMinMaxModel):
     121:395-401 (doi:10.1016/j.radonc.2016.11.001) -- a clinical-outcomes study of
     imaging changes after treatment, which fits no RBE_max/RBE_min to the 48
     in-vitro data points table 1 credits this model with. The dissertation is the
-    source; it has no DOI, hence :attr:`reference_citation`.
+    source; it has no DOI, hence [`reference_citation`][].
 
-    As reformulated by Rorvik et al. 2018 appendix B::
+    As reformulated by Rorvik et al. 2018 appendix B:
 
-        RBE_max(LET_d, r) = 0.75 + 0.00143 LET_d^3 / r
-        RBE_min(LET_d, r) = 1.24 + 0.00074 r LET_d^3          with r = (alpha/beta)_x
+    ```text
+    RBE_max(LET_d, r) = 0.75 + 0.00143 LET_d^3 / r
+    RBE_min(LET_d, r) = 1.24 + 0.00074 r LET_d^3          with r = (alpha/beta)_x
+    ```
 
     Fitted to MD Anderson clonogenic-survival experiments on **two human lung
     cancer lines, H460 and H1437**, at **12 dose-averaged LET values spanning
@@ -55,14 +57,14 @@ class Peeler(RBEMinMaxModel):
     reason Rorvik's table A.2 records PLR as failing all three of Paganetti's
     qualitative RBE expectations.
 
-    Like :class:`~pyradbio.models.phenomenological.carabe.Carabe`, it does **not**
+    Like [`Carabe`][], it does **not**
     reduce to RBE = 1 at zero LET (``RBE_max(0) = 0.75``, ``RBE_min(0) = 1.24``),
     so "RBE -> 1 as LET -> 0" is not an acceptance test for it.
     """
 
     model_id: ClassVar[str] = "PLR"
-    #: A dissertation, so no DOI exists to cite; see :attr:`reference_citation`.
     reference_doi: ClassVar[str] = ""
+    """A dissertation, so no DOI exists to cite; see [`reference_citation`][]."""
     reference_citation: ClassVar[str] = (
         "Peeler C R 2016, Assessing the Potential Clinical Impact of Variable "
         "Biological Effectiveness in Proton Radiotherapy (PhD dissertation); "

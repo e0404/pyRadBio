@@ -129,8 +129,9 @@ class SpecificEnergySurvival:
     The observable behind Scholz et al. 1997 Fig. 4's left-hand panels. ``z`` is
     a per-cell stochastic quantity -- the energy the nucleus actually received,
     divided by its mass -- so ``S(z)`` is not the dose-domain ``S(D)`` and is not
-    obtainable from :class:`TraversalConditionedSurvival` either: at a *fixed*
-    traversal count ``z`` still varies with the impact parameters.
+    obtainable from
+    [`TraversalConditionedSurvival`][pyradbio.models.lem.base.TraversalConditionedSurvival] either:
+    at a *fixed* traversal count ``z`` still varies with the impact parameters.
 
     ``z_Gy`` are the bin-mean specific energies and ``log_kill`` the
     corresponding ``-ln <S>``, with ``log_kill_err`` its standard error.
@@ -152,10 +153,10 @@ class SpecificEnergySurvival:
         """``d[-ln S]/dz`` by central differences on the binned curve.
 
         The quantity Fig. 4 plots. The fast path's answer is the straight line
-        ``alpha_z + 2 beta_z z`` (:meth:`LEM1.scholz1997_specific_energy_slope`);
+        ``alpha_z + 2 beta_z z`` ([`LEM1.scholz1997_specific_energy_slope`][]);
         this is what the spatially explicit model actually does.
 
-        Differencing amplifies noise, so prefer :meth:`straightness` for the
+        Differencing amplifies noise, so prefer [`straightness`][] for the
         question "is this a straight line" -- it asks the equivalent question of
         ``log_kill`` directly and never differentiates.
         """
@@ -197,7 +198,7 @@ class LEM1(LEMBase):
 
     Uses the shouldered->exponential photon reference directly (no high-dose
     cluster enhancement, which arrives in LEM II) and the effective nuclear
-    cross-section from :class:`~pyradbio.core.cell.CellTarget`.
+    cross-section from [`CellTarget`][].
     """
 
     beta_model: LEM1BetaModel = "slope_matching"
@@ -225,12 +226,13 @@ class LEM1(LEMBase):
         (``r_max <= R_eff``, i.e. ``E <= ~15 MeV/u`` for LEM I's
         ``r_max = 0.05 E^1.7``) rather than 1 plus a quadrature error.
 
-        This is the bookkeeping gap between :meth:`single_traversal_log_kill`,
+        This is the bookkeeping gap between
+        [`single_traversal_log_kill`][pyradbio.models.lem.lem1.LEM1.single_traversal_log_kill],
         which integrates the local dose over the *nucleus*, and
-        :meth:`mean_traversal_dose_Gy`, which converts the *whole* LET into a mean
-        nuclear dose. Measured for LEM I: 0.93 at 20 MeV/u, 0.68 at 100, 0.55 at
-        400 -- so at 400 MeV/u nearly half of the traversal's energy is deposited
-        outside the nucleus it is being charged to.
+        [`mean_traversal_dose_Gy`][pyradbio.models.lem.lem1.LEM1.mean_traversal_dose_Gy], which
+        converts the *whole* LET into a mean nuclear dose. Measured for LEM I: 0.93 at 20 MeV/u,
+        0.68 at 100, 0.55 at 400 -- so at 400 MeV/u nearly half of the traversal's energy is
+        deposited outside the nucleus it is being charged to.
         """
         r, dose, _r_lo, r_max = self._two_track_dose_profile(ion, _TWO_TRACK_RADIAL_NODES)
         r_top = min(self.cell.effective_nucleus_radius_um(), r_max)
@@ -249,11 +251,13 @@ class LEM1(LEMBase):
 
         The central-traversal shortcut ``(1 - S_1)/D_1`` (Scholz 1997 eqs. (5)-(6),
         the same algebra as Krämer & Scholz 2006 eq. 9) **plus the dose delivered
-        by tracks that miss the nucleus**::
+        by tracks that miss the nucleus**:
 
-            alpha = (1 - S_1)/D_1 + alpha_x * (1 - f)
+        ```text
+        alpha = (1 - S_1)/D_1 + alpha_x * (1 - f)
+        ```
 
-        with ``f`` from :meth:`traversal_energy_fraction`.
+        with ``f`` from [`traversal_energy_fraction`][].
 
         **Why the second term is not a fudge.** The first term's bookkeeping is
         self-consistent -- ``n = Phi A_eff`` traversals, each killing ``N_1``, over
@@ -330,14 +334,14 @@ class LEM1(LEMBase):
     def scholz1997_approximate_log_kills(
         self, ion: Ion, doses_Gy: Iterable[float]
     ) -> tuple[float, ...]:
-        """Bulk version of :meth:`scholz1997_approximate_log_kill` for one ion.
+        """Bulk version of [`scholz1997_approximate_log_kill`][] for one ion.
 
         The central-traversal quantities for ``ion`` are evaluated once and then
         reused for every dose. This keeps example/benchmark overlays cheap while
         preserving the scalar method's numerical path.
 
         Carries the same missed-track halo as
-        :meth:`scholz1997_central_initial_slope` -- the Poisson sum runs over
+        [`scholz1997_central_initial_slope`][] -- the Poisson sum runs over
         *nuclear traversals*, so like the initial slope it drops the tracks that
         pass outside while ``Delta z`` still charges the nucleus for the whole
         LET. Adding ``alpha_x (1 - f) D`` keeps this path's low-dose slope equal
@@ -401,12 +405,13 @@ class LEM1(LEMBase):
         nuclear-average specific energy, it does not resolve the outer-track
         overlap that generates the shoulder (Scholz & Kraft 1994) and it mis-states
         the low-energy carbon curvature. The full stochastic reference
-        :meth:`scholz1997_montecarlo_beta` confirms that the deterministic
-        :meth:`scholz1997_two_track_beta` matches the true dose-domain curvature
-        (both give a small low-energy carbon beta, an order of magnitude below the
-        z-domain curvature ``beta_z``), whereas this z-domain estimate should be
-        treated as indicative only. Prefer ``beta_model="scholz1997_two_track"``
-        for quantitative work.
+        [`scholz1997_montecarlo_beta`][pyradbio.models.lem.lem1.LEM1.scholz1997_montecarlo_beta]
+        confirms that the deterministic
+        [`scholz1997_two_track_beta`][pyradbio.models.lem.lem1.LEM1.scholz1997_two_track_beta]
+        matches the true dose-domain curvature (both give a small low-energy carbon beta, an order
+        of magnitude below the z-domain curvature ``beta_z``), whereas this z-domain estimate should
+        be treated as indicative only. Prefer ``beta_model="scholz1997_two_track"`` for quantitative
+        work.
         """
         delta_z = self.mean_traversal_dose_Gy(ion)
         n_1 = self.single_traversal_log_kill(ion)
@@ -439,9 +444,10 @@ class LEM1(LEMBase):
         from the central-traversal/specific-energy approximation used in the
         paper's right-hand and approximation panels.
 
-        The node parameters are forwarded to :meth:`scholz1997_two_track_beta`;
-        defaults are the quantitative reference resolution, while examples may
-        request a documented reduced quadrature for plotting.
+        The node parameters are forwarded to
+        [`scholz1997_two_track_beta`][pyradbio.models.lem.lem1.LEM1.scholz1997_two_track_beta];
+        defaults are the quantitative reference resolution, while examples may request a documented
+        reduced quadrature for plotting.
 
         Reference: Scholz et al. 1997 eqs. (2), (6), and (8),
         doi:10.1007/s004110050055.
@@ -476,19 +482,20 @@ class LEM1(LEMBase):
         r"""Exact ``S(z)`` from the spatially explicit model (Scholz 1997 Fig. 4).
 
         Reconstructs the paper's *exact* z-domain path, against which
-        :meth:`scholz1997_specific_energy_slope` is the fast approximation. For
+        [`scholz1997_specific_energy_slope`][] is the fast approximation. For
         each realization both quantities come out of the same track
         configuration: the nuclear specific energy ``z = sum_i d_bar(b_i)``
-        straight off :meth:`nuclear_dose_table`, and the survival
-        ``exp(-N_leth)`` from :meth:`kellerer_field_integral`. Binning by ``z``
-        then gives ``S(z) = E[exp(-N_leth) | z]``.
+        straight off [`nuclear_dose_table`][pyradbio.models.lem.lem1.LEM1.nuclear_dose_table], and
+        the survival ``exp(-N_leth)`` from
+        [`kellerer_field_integral`][pyradbio.models.lem.lem1.LEM1.kellerer_field_integral]. Binning
+        by ``z`` then gives ``S(z) = E[exp(-N_leth) | z]``.
 
         Note what this is *not*. It is not ``S(D)``, which averages over the
         specific energies a given dose produces, and it is not recoverable from
-        :meth:`scholz1997_traversal_conditioned_survival`: that conditions on the
-        traversal count, and ``z`` at fixed count still varies with the impact
-        parameters. Conditioning on ``z`` is the only way to reach this panel,
-        which is why it needs its own estimator.
+        [`scholz1997_traversal_conditioned_survival`][pyradbio.models.lem.lem1.LEM1.scholz1997_traversal_conditioned_survival]:
+        that conditions on the traversal count, and ``z`` at fixed count still varies with the
+        impact parameters. Conditioning on ``z`` is the only way to reach this panel, which is why
+        it needs its own estimator.
 
         Realizations are pooled across ``n_poisson_means`` fluences. That is
         exact, not an approximation: ``S(z)`` is conditioned on ``z``, so it does

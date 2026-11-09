@@ -29,13 +29,15 @@ its ``alpha_z`` matches 200 MeV/u (its approximation partner), so it is stored a
 200 — a paper typo. The Fig. 2/Fig. 5 carbon curves genuinely are 400 MeV/u.
 
 Each curve lives in its own CSV under ``data/`` named
-``scholz1997_figure<N>_<description>.csv`` with a four-line header::
+``scholz1997_figure<N>_<description>.csv`` with a four-line header:
 
-    <metadata keys>          e.g. figure,particle,calculation,energy_MeV_u,doi,source_page,note
-    <metadata values>
-    <x quantity>,<y quantity>   e.g. energy,alpha
-    <x unit>,<y unit>           e.g. MeV/u,Gy^-1
-    <x>,<y> data rows ...
+```text
+<metadata keys>          e.g. figure,particle,calculation,energy_MeV_u,doi,source_page,note
+<metadata values>
+<x quantity>,<y quantity>   e.g. energy,alpha
+<x unit>,<y unit>           e.g. MeV/u,Gy^-1
+<x>,<y> data rows ...
+```
 
 Identity/provenance live in the metadata block; the filename is human-facing.
 """
@@ -77,7 +79,7 @@ class PaperCellInputs:
     """Cell/target inputs a Scholz 1997 panel used (LEM I photon + geometry).
 
     All Figs. 1-5 in the paper use the same CHO reference cell, so this doubles
-    as the single :data:`CHO_INPUTS` record; it mirrors the per-figure inputs map
+    as the single [`CHO_INPUTS`][] record; it mirrors the per-figure inputs map
     of the Scholz & Kraft 1996 benchmark for parity between the two examples.
     """
 
@@ -252,14 +254,15 @@ def get_lem1_curve(
 
 
 def cho_lem1(stopping_power: StoppingPower | None = None, **model_kw: Any) -> LEM1:
-    """``LEM1`` for the Scholz 1997 CHO cell (:data:`CHO_INPUTS`), all figures.
+    """``LEM1`` for the Scholz 1997 CHO cell ([`CHO_INPUTS`][]), all figures.
 
     ``CHO_INPUTS.photon()`` and ``CHO_INPUTS.cell_target()`` supply the photon
     reference and the geometry; ``model_kw`` are further ``LEM1`` fields
     (``beta_model``, ``initial_slope_model``, ...). ``stopping_power=None`` keeps
-    the ``LEM1`` default (:func:`~pyradbio.track.stopping_power.default_stopping_power`),
-    which is what the ``z-slope`` generator uses; the reconstructions pass the
-    paper's ``ns1970`` choice explicitly.
+    the ``LEM1`` default
+    ([`default_stopping_power`][pyradbio.track.stopping_power.default_stopping_power]), which is
+    what the ``z-slope`` generator uses; the reconstructions pass the paper's ``ns1970`` choice
+    explicitly.
     """
     # Imported here: the LEM stack (and numba) is seconds of import time that the
     # digitized curves and the checkpoint loaders of this module never need.
@@ -270,13 +273,14 @@ def cho_lem1(stopping_power: StoppingPower | None = None, **model_kw: Any) -> LE
     return LEM1(photon=CHO_INPUTS.photon(), cell=CHO_INPUTS.cell_target(), **model_kw)
 
 
-#: Reduced (still <1%-converged) quadrature for ``LEM1.scholz1997_two_track_beta`` /
-#: ``scholz1997_explicit_lq``: the two-track overlap integral is the heavy part of the
-#: Fig. 3 and Fig. 2/5 panels, and refining every axis 4x moves it by <0.08%.
-#: Shared by ``validation/scholz1997_lem1.py`` and ``examples/lem1_variants.py``.
 TWO_TRACK_FAST_QUADRATURE: Mapping[str, int] = MappingProxyType(
     {"radial_nodes": 300, "separation_nodes": 50, "angular_nodes": 200, "impact_nodes": 60}
 )
+"""Reduced (still <1%-converged) quadrature for ``LEM1.scholz1997_two_track_beta`` /
+``scholz1997_explicit_lq``: the two-track overlap integral is the heavy part of the
+Fig. 3 and Fig. 2/5 panels, and refining every axis 4x moves it by <0.08%.
+Shared by ``validation/scholz1997_lem1.py`` and ``examples/lem1_variants.py``.
+"""
 
 
 # --- the stochastic-LEM Monte-Carlo reference (Figs. 1 and 3) -----------------------
@@ -284,32 +288,34 @@ TWO_TRACK_FAST_QUADRATURE: Mapping[str, int] = MappingProxyType(
 # The generator is scripts/lem1_mc_reference.py ``alpha-beta``; the checkpoint it
 # writes is validation/data/mc_results.csv.
 
-#: The two species the Scholz 1997 panels show, ``name -> (Z, A)``.
 SPECIES: Mapping[str, tuple[int, int]] = MappingProxyType({"proton": (1, 1), "carbon": (6, 12)})
+"""The two species the Scholz 1997 panels show, ``name -> (Z, A)``."""
 
-#: Survival doses of the alpha/beta fit (Scholz 1997 eq. 8 range) [Gy].
 MC_FIT_DOSES_GY: npt.NDArray[np.float64] = np.array([0.5, 1.0, 1.5, 2.0, 2.5, 3.0])
+"""Survival doses of the alpha/beta fit (Scholz 1997 eq. 8 range) [Gy]."""
 MC_FIT_DOSES_GY.flags.writeable = False
 
-#: Independent streams per point. The delete-one jackknife over them has
-#: ``MC_N_STREAMS - 1`` degrees of freedom; the history budget is split across the
-#: streams, not added to.
 MC_N_STREAMS = 8
+"""Independent streams per point. The delete-one jackknife over them has
+``MC_N_STREAMS - 1`` degrees of freedom; the history budget is split across the
+streams, not added to.
+"""
 
-#: Far tracks become one compound-Poisson background draw beyond this cut [um]. 10 um
-#: is safe for the high-energy points (far-field fluctuation 0.25-0.34%) but not below
-#: about carbon 40 MeV/u (4.5%), where the split is worth little anyway, so it is only
-#: applied from :data:`KELLERER_B_CUT_MIN_NBAR` traversals up.
 KELLERER_B_CUT_UM = 10.0
+"""Far tracks become one compound-Poisson background draw beyond this cut [um]. 10 um
+is safe for the high-energy points (far-field fluctuation 0.25-0.34%) but not below
+about carbon 40 MeV/u (4.5%), where the split is worth little anyway, so it is only
+applied from [`KELLERER_B_CUT_MIN_NBAR`][] traversals up.
+"""
 KELLERER_B_CUT_MIN_NBAR = 2000.0
 
-#: ``error_estimator_version`` of the rows :func:`montecarlo_lq_jackknife` writes.
-#: v3 is the delete-one jackknife over :data:`MC_N_STREAMS` streams with weighted
-#: (Kellerer) sampling, so no checkpoint mixes estimators. Rows of an older version
-#: are recomputed, never carried forward.
 MC_ERROR_ESTIMATOR_VERSION = 3
+"""``error_estimator_version`` of the rows [`montecarlo_lq_jackknife`][] writes.
+v3 is the delete-one jackknife over [`MC_N_STREAMS`][] streams with weighted
+(Kellerer) sampling, so no checkpoint mixes estimators. Rows of an older version
+are recomputed, never carried forward.
+"""
 
-#: Columns of ``mc_results.csv``, in file order.
 MC_REFERENCE_FIELDS: tuple[str, ...] = (
     "particle",
     "energy_MeV_u",
@@ -328,12 +334,14 @@ MC_REFERENCE_FIELDS: tuple[str, ...] = (
     "sampling",
     "stopping_power",
 )
-#: Provenance columns of ``mc_results.csv`` that are text, not numbers. ``sampling``
-#: is always ``"kellerer"`` (the only sampler); the column keeps the rows
-#: self-describing. ``stopping_power`` is the ``.name`` of the LET
-#: source a row was computed at: a row at another LET is a different point (13% in
-#: alpha at carbon 1 MeV/u between ``ns1970+bethe`` and analytic Bethe).
+"""Columns of ``mc_results.csv``, in file order."""
 MC_REFERENCE_TEXT_COLUMNS = frozenset({"particle", "sampling", "stopping_power"})
+"""Provenance columns of ``mc_results.csv`` that are text, not numbers. ``sampling``
+is always ``"kellerer"`` (the only sampler); the column keeps the rows
+self-describing. ``stopping_power`` is the ``.name`` of the LET
+source a row was computed at: a row at another LET is a different point (13% in
+alpha at carbon 1 MeV/u between ``ns1970+bethe`` and analytic Bethe).
+"""
 
 
 def montecarlo_lq_jackknife(
@@ -348,9 +356,9 @@ def montecarlo_lq_jackknife(
 
     Runs ``LEM1.scholz1997_montecarlo_survival`` (the paper's "exact" path, Kellerer
     weighted sampling, ``n_field_points = MC_KELLERER_FIELD_POINTS``) on
-    ``n_total // MC_N_STREAMS`` realizations per stream at :data:`MC_FIT_DOSES_GY`,
+    ``n_total // MC_N_STREAMS`` realizations per stream at [`MC_FIT_DOSES_GY`][],
     seeds ``seed + stream``. The fit (Scholz 1997 eq. 8, ``-ln S/D = alpha + beta D``,
-    :func:`~pyradbio.core.lq.fit_lq_linearised`) is nonlinear in the survivals, so
+    [`fit_lq_linearised`][]) is nonlinear in the survivals, so
     the streams are pooled *in survival* and fitted once -- averaging per-stream fits
     would return a different, biased quantity. The error is a delete-one jackknife
     over the streams. Neither coefficient is clamped.
@@ -365,14 +373,14 @@ def montecarlo_lq_jackknife(
     ratio 0.995 / 0.986 / 0.971 for windows 0.25-1.5 / 0.5-3.0 / 1.0-6.0 Gy).
 
     The near/far split (``b_cut_um = KELLERER_B_CUT_UM``) is applied when the mean
-    traversal count at 3 Gy reaches :data:`KELLERER_B_CUT_MIN_NBAR`. The field-point
+    traversal count at 3 Gy reaches [`KELLERER_B_CUT_MIN_NBAR`][]. The field-point
     budget is fixed rather than scaled with ``n_bar``: weighted-sampling precision is
     flat in the track count (relative SD 0.48/0.55/0.81% over a 36x range).
 
-    The alpha/beta fit is :func:`~pyradbio.core.lq.fit_lq_linearised` of ``-ln S``.
+    The alpha/beta fit is [`fit_lq_linearised`][] of ``-ln S``.
 
     Returns:
-        One row of ``mc_results.csv`` (:data:`MC_REFERENCE_FIELDS`), numbers as floats.
+        One row of ``mc_results.csv`` ([`MC_REFERENCE_FIELDS`][]), numbers as floats.
     """
     from pyradbio.models.lem.base import MC_KELLERER_FIELD_POINTS
 
@@ -436,7 +444,7 @@ class MCReference:
     """The ``mc_results.csv`` rows a reconstruction overlays (Figs. 1 and 3).
 
     ``rows`` maps particle -> rows sorted by energy, each row every numeric column
-    as ``float`` (the text columns :data:`MC_REFERENCE_TEXT_COLUMNS` are left out).
+    as ``float`` (the text columns [`MC_REFERENCE_TEXT_COLUMNS`][] are left out).
     ``dropped`` counts the rows skipped because they were computed at another LET:
     ``{stored stopping_power name: count}``.
     """
@@ -454,7 +462,7 @@ def load_mc_reference(
     and counted (``None`` keeps every row): the stars are overlaid on curves the
     reconstruction computes itself, so a row from another stopping power is a
     different point, not a noisier one. Provenance header lines (``# key: value``,
-    :mod:`pyradbio.benchmark.checkpoint`) are skipped.
+    [`pyradbio.benchmark.checkpoint`][]) are skipped.
 
     The dropped counts are returned, not printed; the caller reports them.
     """
@@ -480,24 +488,25 @@ def load_mc_reference(
 # The generator is scripts/lem1_mc_reference.py ``z-slope``; the checkpoint is
 # validation/data/sk1997_z_slope.csv.
 
-#: The (particle, energy) points Scholz 1997 Fig. 4 draws.
 Z_SLOPE_POINTS: tuple[tuple[str, float], ...] = tuple(
     (particle, energy) for particle in SPECIES for energy in (1.0, 8.0, 50.0, 200.0)
 )
+"""The (particle, energy) points Scholz 1997 Fig. 4 draws."""
 Z_SLOPE_Z_MAX_GY = 30.0
 Z_SLOPE_N_BINS = 12
-#: Many fluences, few realizations each: each fluence deposits a narrow bump in z, so
-#: coverage -- not history count -- limits the measured *shape*. At a fixed 48 000
-#: histories, 120 means instead of 12 drop the chi-square per degree of freedom of a
-#: quadratic fit from 64 to 7, for free.
 Z_SLOPE_N_POISSON_MEANS = 120
+"""Many fluences, few realizations each: each fluence deposits a narrow bump in z, so
+coverage -- not history count -- limits the measured *shape*. At a fixed 48 000
+histories, 120 means instead of 12 drop the chi-square per degree of freedom of a
+quadratic fit from 64 to 7, for free.
+"""
 Z_SLOPE_REALIZATIONS_PER_MEAN = 1200
 Z_SLOPE_N_FIELD_POINTS = 400
-#: Far tracks enter as a Gaussian background with closed-form moments; without it,
-#: proton 200 MeV/u would have to enumerate 2.3e8 traversals per realization.
 Z_SLOPE_B_CUT_UM = 10.0
+"""Far tracks enter as a Gaussian background with closed-form moments; without it,
+proton 200 MeV/u would have to enumerate 2.3e8 traversals per realization.
+"""
 
-#: Columns of ``sk1997_z_slope.csv``, in file order (several rows per point).
 Z_SLOPE_FIELDS: tuple[str, ...] = (
     "particle",
     "energy_MeV_u",
@@ -512,6 +521,7 @@ Z_SLOPE_FIELDS: tuple[str, ...] = (
     "alpha_z",
     "beta_z",
 )
+"""Columns of ``sk1997_z_slope.csv``, in file order (several rows per point)."""
 Z_SLOPE_TEXT_COLUMNS = frozenset({"particle"})
 
 
@@ -589,7 +599,7 @@ def z_slope_point(
 def z_traversals(model: LEM1, ion: Ion, z_Gy: float) -> float:
     """Mean traversals in the ``b_max = R_eff + r_max`` disc giving specific energy ``z_Gy``.
 
-    The cost driver of :func:`z_slope_point`: 23 for carbon at 1 MeV/u, 2.3e8 for
+    The cost driver of [`z_slope_point`][]: 23 for carbon at 1 MeV/u, 2.3e8 for
     protons at 200 MeV/u, where the track is 200 um wide.
     """
     r_eff = model.cell.effective_nucleus_radius_um()
@@ -620,25 +630,26 @@ def load_z_slope_reference(
 
 # --- numeric fingerprints of the committed checkpoints ---------
 
-#: The ``mc_results.csv`` fingerprint points: (particle, energy, n_total, seed). Carbon
-#: 6 MeV/u (n_bar 8.8) runs the plain weighted sampler; carbon 70 MeV/u (n_bar 9341,
-#: above :data:`KELLERER_B_CUT_MIN_NBAR`) runs the near/far split that produced the
-#: high-energy rows, so a change confined to either branch is caught.
 MC_REFERENCE_FINGERPRINT_POINTS: tuple[tuple[str, float, int, int], ...] = (
     ("carbon", 6.0, 16, 1),
     ("carbon", 70.0, 8, 1),
 )
-#: The ``sk1997_z_slope.csv`` fingerprint point and its reduced settings.
+"""The ``mc_results.csv`` fingerprint points: (particle, energy, n_total, seed). Carbon
+6 MeV/u (n_bar 8.8) runs the plain weighted sampler; carbon 70 MeV/u (n_bar 9341,
+above [`KELLERER_B_CUT_MIN_NBAR`][]) runs the near/far split that produced the
+high-energy rows, so a change confined to either branch is caught.
+"""
 Z_SLOPE_FINGERPRINT_POINT: tuple[str, float] = ("carbon", 8.0)
+"""The ``sk1997_z_slope.csv`` fingerprint point and its reduced settings."""
 Z_SLOPE_FINGERPRINT_SETTINGS: Mapping[str, int] = MappingProxyType(
     {"n_bins": 6, "n_poisson_means": 12, "realizations_per_mean": 20, "min_bin_count": 5, "seed": 7}
 )
 
 
 def mc_reference_fingerprint(stopping_power: StoppingPower) -> list[dict[str, Any]]:
-    """Recompute the ``mc_results.csv`` fingerprint: two tiny :func:`montecarlo_lq_jackknife`.
+    """Recompute the ``mc_results.csv`` fingerprint: two tiny [`montecarlo_lq_jackknife`][].
 
-    :data:`MC_REFERENCE_FINGERPRINT_POINTS` (carbon 6 MeV/u with 16 histories and
+    [`MC_REFERENCE_FINGERPRINT_POINTS`][] (carbon 6 MeV/u with 16 histories and
     carbon 70 MeV/u with 8, seed 1) on
     ``cho_lem1(stopping_power, beta_model="scholz1997_montecarlo")`` with
     ``engine="numpy"``; every column of each row is kept. A change in any of them
@@ -657,10 +668,10 @@ def mc_reference_fingerprint(stopping_power: StoppingPower) -> list[dict[str, An
 
 
 def z_slope_fingerprint(stopping_power: StoppingPower | None = None) -> list[dict[str, Any]]:
-    """Recompute the ``sk1997_z_slope.csv`` fingerprint: one reduced :func:`z_slope_point`.
+    """Recompute the ``sk1997_z_slope.csv`` fingerprint: one reduced [`z_slope_point`][].
 
-    :data:`Z_SLOPE_FINGERPRINT_POINT` (carbon 8 MeV/u) with
-    :data:`Z_SLOPE_FINGERPRINT_SETTINGS` and ``engine="numpy"`` on
+    [`Z_SLOPE_FINGERPRINT_POINT`][] (carbon 8 MeV/u) with
+    [`Z_SLOPE_FINGERPRINT_SETTINGS`][] and ``engine="numpy"`` on
     ``cho_lem1(stopping_power, beta_model="scholz1997_montecarlo")``; ``None`` keeps
     the ``LEM1`` default stopping power, like the generator.
     """

@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-#: Element symbol -> atomic number Z (H..Ne).
 SYMBOL_TO_Z: Mapping[str, int] = {
     "H": 1,
     "He": 2,
@@ -21,11 +20,11 @@ SYMBOL_TO_Z: Mapping[str, int] = {
     "F": 9,
     "Ne": 10,
 }
+"""Element symbol -> atomic number Z (H..Ne)."""
 
-#: Atomic number Z -> element symbol (inverse of :data:`SYMBOL_TO_Z`).
 Z_TO_SYMBOL: Mapping[int, str] = {z: sym for sym, z in SYMBOL_TO_Z.items()}
+"""Atomic number Z -> element symbol (inverse of [`SYMBOL_TO_Z`][])."""
 
-#: Most-abundant / therapy-relevant mass number A per Z (for Z-only inputs).
 MOST_ABUNDANT_A: Mapping[int, int] = {
     1: 1,
     2: 4,
@@ -38,6 +37,7 @@ MOST_ABUNDANT_A: Mapping[int, int] = {
     9: 19,
     10: 20,
 }
+"""Most-abundant / therapy-relevant mass number A per Z (for Z-only inputs)."""
 
 
 def default_mass_number(z: int) -> int:

@@ -92,7 +92,7 @@ class PhotonParameters:
     def dose_for_log_kill(self, log_kill: float) -> float:
         """The photon dose whose log-kill ``-ln S_x`` equals ``log_kill`` [Gy].
 
-        The inverse of :meth:`log_kill`, and the form iso-effect RBE needs at
+        The inverse of [`log_kill`][], and the form iso-effect RBE needs at
         high dose: going through ``S = exp(-log_kill)`` underflows to zero
         above a few hundred units of log-kill, which this never forms.
         """

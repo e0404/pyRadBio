@@ -1,6 +1,6 @@
 """The oxygen axis -- Alper & Howard-Flanders relative radioresistance.
 
-Physics acceptance for :mod:`pyradbio.core.oxygen`, the model-agnostic half of
+Physics acceptance for `pyradbio.core.oxygen`, the model-agnostic half of
 the OSMK work (Inaniwa & Kanematsu 2021 eq. 13 / 2023 eq. 1; restated in
 ``docs/references/OSMK_Inaniwa2021_2023.md``):
 

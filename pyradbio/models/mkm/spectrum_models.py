@@ -1,20 +1,20 @@
 """Spectrum-driven MKM family: LQ parameters / RBE from a lineal-energy spectrum.
 
 Microdosimetric-kinetic models that consume a single-event dose-weighted
-lineal-energy spectrum ``d(y)`` (our :class:`~pyradbio.micro.lineal_energy.Spectrum`
+lineal-energy spectrum ``d(y)`` (our [`Spectrum`][]
 or a digitized/library curve) and return ion LQ parameters, hence RBE. They share
-:class:`_SpectrumMKModel` -- cell/reference calibration, engine plumbing, RBE --
+`_SpectrumMKModel` -- cell/reference calibration, engine plumbing, RBE --
 and differ only in how radiation quality enters ``alpha``/``beta``:
 
-* :class:`ModifiedMKM` -- the **modified MKM** (Kase et al. 2006,
+* [`ModifiedMKM`][] -- the **modified MKM** (Kase et al. 2006,
   doi:10.1667/RR0536.1) as used by Hartzell 2025 eqs 10-12: ``alpha`` depends on
   the saturation-corrected dose-mean lineal energy ``y*_D``; ``beta = beta_ref``
   is radiation-independent. The clinical baseline and the natural cross-check.
-* :class:`MCFMKMModel` -- the **Mayo Clinic Florida MKM** (Parisi, Beltran &
+* [`MCFMKMModel`][] -- the **Mayo Clinic Florida MKM** (Parisi, Beltran &
   Furutani 2022, doi:10.3390/ijms232012491 and doi:10.1088/1361-6560/ac7375).
   Both ``alpha`` *and* ``beta`` depend on radiation quality through a
   saturation (non-Poisson, overkill) correction ``c(y)``.
-* :class:`StochasticMKM` -- the **SMK** (Inaniwa & Kanematsu 2018,
+* [`StochasticMKM`][] -- the **SMK** (Inaniwa & Kanematsu 2018,
   doi:10.1088/1361-6560/aabede). Adds *nucleus*-level stochastics on top of the
   domain-level saturation, so ``beta`` becomes quality-dependent and survival
   picks up a non-LQ dose-dependent correction. Unlike the other two it needs the
@@ -29,13 +29,13 @@ Formalism (single event, domain radius ``r_d``, nucleus ``R_n``)
 The single-event specific energy of a target of radius ``r`` crossed by a track
 of lineal energy ``y`` is ``z(y) = y / (rho * pi * r^2)``; the keV/um -> Gy
 conversion uses the repo's ``KEVUM_PER_GY_UM2_GCM3`` (see
-:func:`specific_energy_Gy`). That relation is geometry-agnostic between the two
+[`specific_energy_Gy`][]). That relation is geometry-agnostic between the two
 conventions in play: a sphere with ``l_bar = 4r/3``, ``V = 4 pi r^3/3`` and an
 axis-parallel cylinder of radius ``r`` and length ``2r`` both give it.
 
 The *distribution* is where geometry bites. The MKM scores a **disk/cylinder**
 (Inaniwa 2010; Inaniwa & Kanematsu 2018 sec 3.2), and a spherical site overshoots
-``z*_1D`` by up to ~32% at 400 MeV/u. :meth:`_SpectrumMKModel.specific_energies`
+``z*_1D`` by up to ~32% at 400 MeV/u. `_SpectrumMKModel.specific_energies`
 owns that choice via ``site_geometry`` (default ``"cylinder"``) for models driven
 by an *ion*; a supplied ``d(y)`` carries its own geometry and is left alone.
 
@@ -79,7 +79,7 @@ physics assumes ``integral d(y) dy = 1``; digitized/truncated spectra are not).
 This is appropriate for a *finely sampled* ``d(y)`` (the analytic engine's dense
 grid, or a hand-digitized smooth curve). It is **not** appropriate to feed a
 coarse log-binned count histogram through its geometric bin centres -- integrate
-such a :class:`~pyradbio.micro.lineal_energy.TabulatedLinealEnergySpectrum`
+such a [`TabulatedLinealEnergySpectrum`][pyradbio.micro.lineal_energy.TabulatedLinealEnergySpectrum]
 per-bin instead (see AGENTS.md -> Numerics).
 """
 
@@ -132,10 +132,11 @@ from pyradbio.track.stopping_power import (
 # is evaluated by its Taylor limit 1 - X/2 to avoid 0/0 cancellation noise.
 _SMALL_X: float = 1.0e-8
 
-#: How an *ion* is turned into specific energies -- see
-#: :meth:`_SpectrumMKModel.specific_energies`. ``"cylinder"`` is the MKM's own disk
-#: geometry (Inaniwa & Kanematsu 2018 sec 3.2); ``"sphere"`` is for comparison.
 SiteGeometry = Literal["cylinder", "sphere"]
+"""How an *ion* is turned into specific energies -- see
+`_SpectrumMKModel.specific_energies`. ``"cylinder"`` is the MKM's own disk
+geometry (Inaniwa & Kanematsu 2018 sec 3.2); ``"sphere"`` is for comparison.
+"""
 
 
 @cache
@@ -149,8 +150,9 @@ def _default_micro_engine(domain_radius_um: float, density_g_cm3: float) -> Amor
     heavy-ion / high-LET regime the MKM targets to a few percent (see
     ``docs/references/Microdosimetry.md``, "Amorphous-track engine"). Cached per
     ``(domain_radius_um, density)`` since it is stateless. For light ions / low LET,
-    inject an engine carrying a :class:`~pyradbio.micro.lineal_energy.DeltaRayMonteCarlo`
-    straggling layer, which lifts the (otherwise under-estimated) low-LET ``y_D``.
+    inject an engine carrying a
+    [`DeltaRayMonteCarlo`][pyradbio.micro.lineal_energy.DeltaRayMonteCarlo] straggling layer, which
+    lifts the (otherwise under-estimated) low-LET ``y_D``.
     """
     sp = default_stopping_power(density_g_cm3=density_g_cm3)
     return AmorphousTrackEngine(
@@ -204,7 +206,7 @@ def _normalized_dose_spectrum(
 def _dose_spectrum_of(
     spectrum: Spectrum,
 ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
-    """Extract the ``(y, d(y))`` dose-weighted spectrum from a :class:`Spectrum`."""
+    """Extract the ``(y, d(y))`` dose-weighted spectrum from a [`Spectrum`][]."""
     return spectrum.y_keV_um, spectrum.d
 
 
@@ -220,7 +222,7 @@ def saturation_y0_keV_um(
     """Saturation parameter ``y0`` [keV/um] (Hartzell eq 12 / Kase 2006).
 
     Depends only on the domain/nucleus geometry and ``beta`` -- not on the
-    spectrum -- so both :class:`ModifiedMKM` and a native MKM backend share it.
+    spectrum -- so both [`ModifiedMKM`][] and a native MKM backend share it.
     """
     r_d, r_n = domain_radius_um, nucleus_radius_um
     return (
@@ -254,7 +256,7 @@ def _y_frequency_means_keV_um(
 
     Sato & Furusawa 2012 eq. (30), ``z*_d,F = integral z'_d f_d,1(z_d) dz_d``, with
     ``z'_d = z0 sqrt(1 - exp[-(z_d/z0)^2])`` (their eq. 16). Note the **first**
-    power of the saturated variable, where the dose mean :func:`_y_star_D_keV_um`
+    power of the saturated variable, where the dose mean `_y_star_D_keV_um`
     carries its square -- that is the whole difference between the two means.
 
     Expressed on the dose-weighted ``d(y)`` so digitized spectra work, using
@@ -285,7 +287,7 @@ def z_star_1D_from_dose_spectrum(
     The Inaniwa 2010 MKM quantity (pyMKM's ``z_bar_star_domain``) computed from a
     single-event dose-weighted lineal-energy spectrum ``d(y)`` and the MKM
     geometry -- ``z*_1D = y*_D / (KEVUM * rho * pi * r_d^2)``. This is the seam a
-    native (pyMKM-free) :class:`~pyradbio.models.mkm.base.MKMBackend` uses.
+    native (pyMKM-free) [`MKMBackend`][] uses.
     """
     y0 = saturation_y0_keV_um(
         domain_radius_um=domain_radius_um,
@@ -312,12 +314,13 @@ class SiteSpecificEnergies:
     z_1D_Gy: float
     z_star_1D_Gy: float
     z_nucleus_Gy: float
-    #: Frequency means, plain and saturation-corrected (Sato & Furusawa 2012
-    #: eq. 30). ``None`` when the route that produced these moments cannot define
-    #: them -- specifically the analytic impact-parameter route, which carries no
-    #: minimum-energy-deposition threshold and so has no event definition to
-    #: frequency-average over. Only ``domain_treatment="sato_moments"`` needs them.
     z_F_Gy: float | None = None
+    """Frequency means, plain and saturation-corrected (Sato & Furusawa 2012
+    eq. 30). ``None`` when the route that produced these moments cannot define
+    them -- specifically the analytic impact-parameter route, which carries no
+    minimum-energy-deposition threshold and so has no event definition to
+    frequency-average over. Only ``domain_treatment="sato_moments"`` needs them.
+    """
     z_star_F_Gy: float | None = None
 
 
@@ -328,24 +331,26 @@ _IMPACT_RADIAL_NODES: int = 700
 _IMPACT_CORE_NODES: int = 600
 _IMPACT_PENUMBRA_NODES: int = 600
 
-#: Bound on the number of ``(site, ion)`` entries the route cache keeps.
 _MICRODOSIMETRY_CACHE_SIZE: int = 4096
-#: Switch for tests and timing runs; the cache is on in normal use.
+"""Bound on the number of ``(site, ion)`` entries the route cache keeps."""
 _MICRODOSIMETRY_CACHE_ENABLED: bool = True
+"""Switch for tests and timing runs; the cache is on in normal use."""
 
-#: Stopping powers whose LET is a pure function of the ion (exact types: a subclass
-#: may add state, so it is not trusted -- a new stateless subclass must be listed
-#: here or it silently bypasses the cache). ``DefaultStoppingPower`` memoizes its
-#: anchor factors, which does not change any value; ``BetheOnly`` is
-#: ``SimpleBetheStoppingPower`` plus a class-level ``name``. Stateful sources such as
-#: :class:`~pyradbio.track.northcliffe_schilling.NorthcliffeSchillingWithBetheTail`
-#: (it tallies table hits and fallbacks) must see every call, so they bypass.
 _CACHEABLE_STOPPING_POWERS: frozenset[type] = frozenset(
     {DefaultStoppingPower, SimpleBetheStoppingPower, TabularStoppingPower, BetheOnly}
 )
-#: Radial-dose models that are pure functions of the ion (and of their own stopping
-#: power, which must itself be cacheable).
+"""Stopping powers whose LET is a pure function of the ion (exact types: a subclass
+may add state, so it is not trusted -- a new stateless subclass must be listed
+here or it silently bypasses the cache). ``DefaultStoppingPower`` memoizes its
+anchor factors, which does not change any value; ``BetheOnly`` is
+``SimpleBetheStoppingPower`` plus a class-level ``name``. Stateful sources such as
+[`NorthcliffeSchillingWithBetheTail`][pyradbio.track.northcliffe_schilling.NorthcliffeSchillingWithBetheTail]
+(it tallies table hits and fallbacks) must see every call, so they bypass.
+"""
 _CACHEABLE_RADIAL_DOSES: frozenset[type] = frozenset({KieferChatterjeeRadialDose})
+"""Radial-dose models that are pure functions of the ion (and of their own stopping
+power, which must itself be cacheable).
+"""
 
 
 class _MicrodosimetryKey(NamedTuple):
@@ -363,10 +368,10 @@ class _MicrodosimetryKey(NamedTuple):
     evaluates differently, ``value_types`` records their types, keeping such
     twins in separate entries; ``radial_dose_value_types`` does the same for the
     fields of a value-hashing (dataclass) radial dose. The ion's field types are
-    added per call (see :func:`_impact_parameter_moments_finite`).
+    added per call (see `_impact_parameter_moments_finite`).
 
-    ``resolvers`` are the module-level :func:`default_stopping_power` and
-    :class:`KieferChatterjeeRadialDose` that resolve ``None`` at call time, so a
+    ``resolvers`` are the module-level [`default_stopping_power`][] and
+    [`KieferChatterjeeRadialDose`][] that resolve ``None`` at call time, so a
     monkeypatched default is a different key rather than a stale hit.
     """
 
@@ -395,7 +400,7 @@ def _field_value_types(obj: object) -> tuple[type, ...]:
 def _resolve_stopping_power(
     stopping_power: StoppingPower | None, density_g_cm3: float
 ) -> StoppingPower:
-    """``stopping_power``, else :func:`default_stopping_power` at ``density_g_cm3``."""
+    """``stopping_power``, else [`default_stopping_power`][] at ``density_g_cm3``."""
     if stopping_power is not None:
         return stopping_power
     return default_stopping_power(density_g_cm3=density_g_cm3)
@@ -415,7 +420,7 @@ def _resolve_radial_dose(
 
 
 def _impact_parameter_moments(key: _MicrodosimetryKey, ion: Ion) -> SiteSpecificEnergies:
-    """The analytic impact-parameter route of :meth:`_SpectrumMKModel.specific_energies`.
+    """The analytic impact-parameter route of `_SpectrumMKModel.specific_energies`.
 
     A pure function of ``(key, ion)``, which is what makes it safe to memoize.
     """
@@ -454,7 +459,7 @@ def _impact_parameter_moments(key: _MicrodosimetryKey, ion: Ion) -> SiteSpecific
 
 
 class _NonFiniteMoments(Exception):
-    """Carries a non-finite route result past :func:`functools.lru_cache` uncached."""
+    """Carries a non-finite route result past `functools.lru_cache` uncached."""
 
     def __init__(self, moments: SiteSpecificEnergies) -> None:
         super().__init__("non-finite impact-parameter moments")
@@ -464,12 +469,12 @@ class _NonFiniteMoments(Exception):
 def _impact_parameter_moments_finite(
     key: _MicrodosimetryKey, ion: Ion, ion_value_types: tuple[type, ...]
 ) -> SiteSpecificEnergies:
-    """:func:`_impact_parameter_moments`, as the memoized target.
+    """`_impact_parameter_moments`, as the memoized target.
 
     ``ion_value_types`` is not read: it only splits the entries of an ``Ion``
     and its numpy-scalar twin (equal and equal-hashing, yet evaluated
     differently). A non-finite result (a degenerate input such as ``z0 = 0``)
-    is raised rather than returned, because :func:`functools.lru_cache` does not
+    is raised rather than returned, because `functools.lru_cache` does not
     cache exceptions -- so every such call re-evaluates and re-warns exactly as
     an uncached call would.
     """
@@ -491,7 +496,7 @@ _impact_parameter_moments_cached = lru_cache(maxsize=_MICRODOSIMETRY_CACHE_SIZE)
 class MicrodosimetryCacheInfo(NamedTuple):
     """Statistics of the impact-parameter microdosimetry cache.
 
-    Same fields as :func:`functools.lru_cache`'s ``cache_info()``.
+    Same fields as `functools.lru_cache`'s ``cache_info()``.
     """
 
     hits: int
@@ -503,7 +508,7 @@ class MicrodosimetryCacheInfo(NamedTuple):
 def clear_microdosimetry_cache() -> None:
     """Empty the spectrum-MKM family's impact-parameter microdosimetry cache.
 
-    :meth:`_SpectrumMKModel.specific_energies` memoizes its analytic
+    `_SpectrumMKModel.specific_energies` memoizes its analytic
     impact-parameter route (no injected engine) across model instances, keyed on
     the fields that route reads -- so the many instances of a parameter scan that
     share one site geometry (e.g. the oxygen scan in
@@ -522,7 +527,7 @@ def clear_microdosimetry_cache() -> None:
 def microdosimetry_cache_info() -> MicrodosimetryCacheInfo:
     """``(hits, misses, maxsize, currsize)`` of the impact-parameter cache.
 
-    See :func:`clear_microdosimetry_cache` for what is cached.
+    See [`clear_microdosimetry_cache`][] for what is cached.
     """
     return MicrodosimetryCacheInfo(*_impact_parameter_moments_cached.cache_info())
 
@@ -543,18 +548,18 @@ def _cacheable_radial_dose(radial_dose: object) -> bool:
 class _SpectrumMKModel(BiophysicalModel):
     """Shared cell/reference parameters, engine plumbing and RBE for the family.
 
-    Subclasses implement :meth:`alpha_beta_from_dose_spectrum`; everything else
+    Subclasses implement `alpha_beta_from_dose_spectrum`; everything else
     (spectrum extraction, ion -> spectrum via an injected engine, the
     ``alpha0``/``beta0`` reference calibration, RBE) is shared.
 
     ``site_geometry`` selects how an *ion* (rather than a supplied ``d(y)``) is
-    turned into specific energies -- see :meth:`specific_energies`.
+    turned into specific energies -- see `specific_energies`.
     """
 
-    #: Ion and spectrum routes; mixed fields are a follow-up (see ``_alpha_beta_field``).
     capabilities: ClassVar[ModelCapabilities] = ModelCapabilities(
         mixed_field=False, spectrum_route=True
     )
+    """Ion and spectrum routes; mixed fields are a follow-up (see ``_alpha_beta_field``)."""
 
     nucleus_radius_um: float
     domain_radius_um: float = 0.28
@@ -568,11 +573,12 @@ class _SpectrumMKModel(BiophysicalModel):
     radial_dose: RadialDoseModel | None = None
     alpha0_Gy_inv: float | None = None  # fitted alpha0; see the alpha0 property
     beta0_Gy2: float | None = None  # fitted beta0; see the beta0 property
-    #: Where LET comes from. Defaults to :func:`default_stopping_power` at this
-    #: model's density. Explicit because more than one thing needs it -- the
-    #: default radial dose and (for the numerical nucleus route) the single-event
-    #: nucleus density -- and they must not be able to disagree.
     stopping_power: StoppingPower | None = None
+    """Where LET comes from. Defaults to [`default_stopping_power`][] at this
+    model's density. Explicit because more than one thing needs it -- the
+    default radial dose and (for the numerical nucleus route) the single-event
+    nucleus density -- and they must not be able to disagree.
+    """
 
     def __post_init__(self) -> None:
         check_choice("site_geometry", self.site_geometry, get_args(SiteGeometry))
@@ -607,8 +613,8 @@ class _SpectrumMKModel(BiophysicalModel):
 
         MKM papers usually quote ``alpha0``/``beta0`` directly instead -- e.g.
         Inaniwa & Kanematsu 2018 table 1 -- so ``alpha0_Gy_inv`` takes the fitted
-        number as-is. See :meth:`StochasticMKM.hsg_inaniwa2018` and
-        :meth:`ModifiedMKM.hsg_mk_inaniwa2018`.
+        number as-is. See [`StochasticMKM.hsg_inaniwa2018`][] and
+        [`ModifiedMKM.hsg_mk_inaniwa2018`][].
         """
         if self.alpha0_Gy_inv is not None:
             return self.alpha0_Gy_inv
@@ -643,7 +649,7 @@ class _SpectrumMKModel(BiophysicalModel):
         """Saturation-corrected dose-mean lineal energy ``y*_D`` [keV/um] (eq 11).
 
         ``y*_D = y0^2 * integral (1 - exp(-(y/y0)^2)) d(y)/y dy`` for a unit-area
-        ``d(y)`` -- identical to :meth:`Spectrum.y_star` (verified in tests) but
+        ``d(y)`` -- identical to [`Spectrum.y_star`][] (verified in tests) but
         expressed on the dose-weighted spectrum so digitized ``d(y)`` curves work.
         """
         return _y_star_D_keV_um(y_keV_um, d_of_y, self.y0_keV_um)
@@ -663,9 +669,9 @@ class _SpectrumMKModel(BiophysicalModel):
     def z_1D_Gy(self, y_keV_um: npt.NDArray[np.float64], d_of_y: npt.NDArray[np.float64]) -> float:
         """**Un**corrected dose-mean domain specific energy ``z_1D = y_D / scale`` [Gy].
 
-        The ``y0 -> infinity`` (no-saturation) counterpart of :meth:`z_star_1D_Gy`.
+        The ``y0 -> infinity`` (no-saturation) counterpart of `z_star_1D_Gy`.
         SMK needs both: their *ratio* is the quality dependence of ``beta``
-        (:class:`StochasticMKM`, eq. 2).
+        ([`StochasticMKM`][], eq. 2).
         """
         y, d = _normalized_dose_spectrum(y_keV_um, d_of_y)
         y_D = float(simpson(y * d, x=y))
@@ -675,7 +681,7 @@ class _SpectrumMKModel(BiophysicalModel):
         """**Un**corrected *frequency*-mean domain specific energy ``z_d,F`` [Gy].
 
         The frequency mean weights every event equally, where the dose mean
-        weights by the energy deposited; see :func:`_y_frequency_means_keV_um`.
+        weights by the energy deposited; see `_y_frequency_means_keV_um`.
         Used by Sato & Furusawa 2012 eq. (33).
         """
         y_F, _ = _y_frequency_means_keV_um(y_keV_um, d_of_y, self.y0_keV_um)
@@ -686,9 +692,9 @@ class _SpectrumMKModel(BiophysicalModel):
     ) -> float:
         """Saturation-corrected frequency-mean domain specific energy ``z*_d,F`` [Gy].
 
-        Sato & Furusawa 2012 eq. (30). Its ratio to :meth:`z_F_Gy` is the factor
+        Sato & Furusawa 2012 eq. (30). Its ratio to `z_F_Gy` is the factor
         that paper applies to the ``alpha0`` term and Inaniwa & Kanematsu 2018
-        takes as 1 -- see :class:`StochasticMKM`'s ``domain_treatment``.
+        takes as 1 -- see [`StochasticMKM`][]'s ``domain_treatment``.
         """
         _, y_star_F = _y_frequency_means_keV_um(y_keV_um, d_of_y, self.y0_keV_um)
         return y_star_F / self._z_domain_scale_keV_um_per_Gy
@@ -700,7 +706,7 @@ class _SpectrumMKModel(BiophysicalModel):
 
         ``z_n = y_D / (KEVUM * rho * pi * R_n^2)`` from a spectrum scored *in the
         nucleus* -- note the caller must pass the nucleus-scored ``d(y)``, not the
-        domain one. Used only by :class:`StochasticMKM` (eq. 3).
+        domain one. Used only by [`StochasticMKM`][] (eq. 3).
         """
         y, d = _normalized_dose_spectrum(y_keV_um, d_of_y)
         y_D = float(simpson(y * d, x=y))
@@ -715,7 +721,7 @@ class _SpectrumMKModel(BiophysicalModel):
         raise NotImplementedError  # pragma: no cover -- implemented by subclasses
 
     def alpha_beta_from_spectrum(self, spectrum: Spectrum) -> LQParameters:
-        """LQ parameters from a :class:`Spectrum` (its dose-weighted ``d(y)``)."""
+        """LQ parameters from a [`Spectrum`][] (its dose-weighted ``d(y)``)."""
         y, d = _dose_spectrum_of(spectrum)
         return self.alpha_beta_from_dose_spectrum(y, d)
 
@@ -724,13 +730,13 @@ class _SpectrumMKModel(BiophysicalModel):
 
         Default: build the single-event ``d(y)`` and use the spectral formulae.
         Models whose ``alpha``/``beta`` depend on ``d(y)`` only through its
-        *moments* (mMKM, SMK) override this to go through :meth:`specific_energies`,
+        *moments* (mMKM, SMK) override this to go through `specific_energies`,
         which honours ``site_geometry``.
         """
         return self.alpha_beta_from_spectrum(self._single_event_spectrum(ion))
 
     def _require_ion(self, field: Ion | RadiationField) -> Ion:
-        """The ion of a single-ion call; mixed fields are refused like :meth:`alpha_beta`."""
+        """The ion of a single-ion call; mixed fields are refused like `alpha_beta`."""
         if isinstance(field, Ion):
             return field
         raise NotImplementedError(
@@ -741,7 +747,7 @@ class _SpectrumMKModel(BiophysicalModel):
     def _alpha_beta_field(
         self, field: RadiationField, *, sub_nodes: int, spacing: Spacing
     ) -> LQParameters:
-        """Mixed :class:`RadiationField` support is a follow-up.
+        """Mixed [`RadiationField`][] support is a follow-up.
 
         The field's combined ``d(y)`` is the natural input; per-component
         dose-averaging of ``alpha``/``sqrt(beta)`` is the alternative (Hartzell
@@ -755,7 +761,7 @@ class _SpectrumMKModel(BiophysicalModel):
     def _single_event_spectrum(self, ion: Ion) -> Spectrum:
         """Single-event ``d(y)`` for ``ion``, scored in the **domain**.
 
-        Falls back to the deterministic amorphous engine (:func:`_default_micro_engine`)
+        Falls back to the deterministic amorphous engine (`_default_micro_engine`)
         built from this model's ``domain_radius_um`` when no engine is injected, so
         ``MCFMKMModel(...).alpha_beta(ion)`` works out of the box without pyMKM or an
         external microdosimetry table.
@@ -765,16 +771,16 @@ class _SpectrumMKModel(BiophysicalModel):
     # ---- ion -> specific energies (the geometry seam) -------------------
     @property
     def z0_effective_Gy(self) -> float:
-        """The saturation parameter actually in force, in Gy (see :attr:`y0_keV_um`)."""
+        """The saturation parameter actually in force, in Gy (see `y0_keV_um`)."""
         return self.y0_keV_um / self._z_domain_scale_keV_um_per_Gy
 
     @property
     def _uses_injected_engine(self) -> bool:
-        """Whether :meth:`specific_energies` must defer to a caller-supplied engine."""
+        """Whether `specific_energies` must defer to a caller-supplied engine."""
         return self.engine is not None
 
     def _stopping_power(self) -> StoppingPower:
-        """The model's LET source; :func:`default_stopping_power` by default."""
+        """The model's LET source; [`default_stopping_power`][] by default."""
         return _resolve_stopping_power(self.stopping_power, self.density_g_cm3)
 
     def _microdosimetry_key(self) -> _MicrodosimetryKey:
@@ -824,12 +830,12 @@ class _SpectrumMKModel(BiophysicalModel):
         """Dose-mean specific energies for ``ion`` at the domain and nucleus sizes.
 
         Two routes, and which one runs is decided by whether an ``engine`` is
-        injected -- because a :class:`~pyradbio.micro.lineal_energy.SpectrumEngine`
+        injected -- because a [`SpectrumEngine`][]
         already fixes its own site geometry, and silently overriding it would be
         exactly the kind of hidden physics ``AGENTS.md`` forbids:
 
         * **no engine (default)** -- the analytic **impact-parameter** route
-          (:func:`~pyradbio.micro.impact_parameter.specific_energy_impact_profile`)
+          ([`specific_energy_impact_profile`][])
           in ``site_geometry``. ``"cylinder"`` is the default and the correct MKM
           convention: Inaniwa & Kanematsu 2018 sec 3.2 (and Inaniwa 2010 before it)
           take the domain and nucleus to be **cylinders of radius ``r`` and length
@@ -838,7 +844,7 @@ class _SpectrumMKModel(BiophysicalModel):
           geometry, so ``z*_1D`` reproduces ``z_bar_star_domain``. ``"sphere"`` is
           selectable for comparison but **overshoots ``z*_1D`` by ~25-40% at high
           energy** -- see ``docs/references/SMK_Inaniwa2018.md`` and
-          :mod:`pyradbio.micro.impact_parameter`.
+          [`pyradbio.micro.impact_parameter`][].
         * **engine injected** -- the single-event ``d(y)`` route, scored at each
           site size by that engine, with the moments taken as in the ``d(y)``
           formulae. Use this to drive the models from a measured / digitized /
@@ -848,7 +854,7 @@ class _SpectrumMKModel(BiophysicalModel):
         this entirely -- there the caller owns the geometry.
 
         The impact-parameter route is memoized across instances in a bounded
-        module-level LRU keyed on the fields it reads (:meth:`_microdosimetry_key`),
+        module-level LRU keyed on the fields it reads (`_microdosimetry_key`),
         so a scan over cell or oxygen parameters at one site geometry scores each
         ion once. It is bypassed for an injected engine, an unhashable key, and a
         stopping power / radial dose not known to be stateless, and a non-finite
@@ -857,7 +863,7 @@ class _SpectrumMKModel(BiophysicalModel):
         ``float`` input gets its own entry, and the cached value is bit-identical
         to a fresh evaluation. Stopping powers are keyed by identity: after
         mutating one in place, or patching a module global outside this module
-        that the route reaches, call :func:`clear_microdosimetry_cache`.
+        that the route reaches, call [`clear_microdosimetry_cache`][].
         """
         if self._uses_injected_engine:
             return self._specific_energies_from_spectra(ion)
@@ -876,7 +882,7 @@ class _SpectrumMKModel(BiophysicalModel):
         return _impact_parameter_moments(key, ion)
 
     def _specific_energies_from_spectra(self, ion: Ion) -> SiteSpecificEnergies:
-        """:meth:`specific_energies` via the injected spectrum engine(s)."""
+        """`specific_energies` via the injected spectrum engine(s)."""
         domain = self._spectrum_at_site(ion, self.domain_radius_um, self.engine)
         nucleus = self._nucleus_spectrum(ion)
         return SiteSpecificEnergies(
@@ -896,12 +902,12 @@ class _SpectrumMKModel(BiophysicalModel):
     ) -> Spectrum:
         """Single-event ``d(y)`` for ``ion`` scored in a sphere of ``site_radius_um``.
 
-        A :class:`~pyradbio.micro.lineal_energy.SpectrumEngine` is bound to one site
+        A [`SpectrumEngine`][] is bound to one site
         size at construction, so an injected ``engine`` is used as-is and the caller
         is responsible for having sized it to ``site_radius_um``. With no engine we
         build (and cache) the deterministic amorphous default at that radius. SMK is
         the reason this is parameterised: it scores the **nucleus** as well as the
-        domain (:class:`StochasticMKM`).
+        domain ([`StochasticMKM`][]).
         """
         chosen = engine or _default_micro_engine(site_radius_um, self.density_g_cm3)
         return chosen.single_event_spectrum(ion)
@@ -914,10 +920,10 @@ class _SpectrumMKModel(BiophysicalModel):
     def rbe_at_survival_from_spectrum(
         self, spectrum: Spectrum, survival_fraction: float = 0.1
     ) -> float:
-        """Iso-survival RBE of a :class:`Spectrum` vs the photon reference.
+        """Iso-survival RBE of a [`Spectrum`][] vs the photon reference.
 
         ``RBE_S = D_ref(S) / D_ion(S)`` (Hartzell eq 7). The ion-driven form is
-        the inherited :meth:`~pyradbio.models.base.BiophysicalModel.rbe_at_survival`.
+        the inherited [`rbe_at_survival`][pyradbio.models.base.BiophysicalModel.rbe_at_survival].
         """
         lq = self.alpha_beta_from_spectrum(spectrum)
         return self._rbe_at_survival_from_lq(lq, survival_fraction)
@@ -942,7 +948,7 @@ class MCFMKMModel(_SpectrumMKModel):
     saturation correction ``c(y)``.
 
     With no ``engine`` injected, ``alpha_beta(ion)`` uses the **deterministic
-    amorphous** default (:func:`_default_micro_engine`) -- dependency-light, no
+    amorphous** default (`_default_micro_engine`) -- dependency-light, no
     pyMKM/PHITS, and accurate for the heavy-ion / high-LET regime. For light ions
     / low LET inject an engine with a ``DeltaRayMonteCarlo`` straggling layer (it
     lifts the otherwise under-estimated low-LET ``y_D``).
@@ -956,12 +962,12 @@ class MCFMKMModel(_SpectrumMKModel):
     sites have independent ``z(b)`` profiles -- does not reproduce. Re-deriving MCF
     on disk geometry would be a change to the published model, so it is tracked in
     ``ROADMAP.md`` rather than done silently here. ``site_geometry``
-    therefore has no effect on :class:`MCFMKMModel`.
+    therefore has no effect on [`MCFMKMModel`][].
 
     Parisi sizes the subnuclear domain ``r_d`` (and picks ``R_n``) *a priori* per
     cell line from its DNA content (Parisi eqs 15-17). That geometry is general
-    biophysics, so it lives in :mod:`pyradbio.core.chromatin`
-    (:func:`~pyradbio.core.chromatin.domain_radius_from_genome`) rather than here;
+    biophysics, so it lives in [`pyradbio.core.chromatin`][]
+    ([`domain_radius_from_genome`][]) rather than here;
     pass its result as ``domain_radius_um`` to reproduce the paper's per-cell-line
     parameters. Note ``yD_ref_keV_um`` must also match the reference radiation
     (~2.3 keV/um for 60Co/6 MV, ~4.3 for 200 kVp X-rays; Parisi sec 2.5.3).
@@ -1019,7 +1025,7 @@ class ModifiedMKM(_SpectrumMKModel):
         curves of the paper's figs. 2-3, fitted to the same Furusawa et al. 2000
         data as the SMK column. Note ``R_n`` here is the MKM's effective radius,
         entangled with the saturation, **not** the 8.1 um measured nucleus the SMK
-        column uses (see :meth:`StochasticMKM.hsg_inaniwa2018`).
+        column uses (see [`StochasticMKM.hsg_inaniwa2018`][]).
         """
         return apply_preset(cls, _HSG_MK_INANIWA2018, overrides)
 
@@ -1049,7 +1055,7 @@ class ModifiedMKM(_SpectrumMKModel):
     def alpha_beta_from_z_star_1D(self, z_star_1D_Gy: float) -> LQParameters:
         """``alpha = alpha0 + beta0 z*_1D``; ``beta = beta0``.
 
-        The moment-level form of :meth:`alpha_beta_from_dose_spectrum`, so an
+        The moment-level form of [`alpha_beta_from_dose_spectrum`][], so an
         external ``z*_1D`` (a backend, a pyMKM table) can drive mMKM directly.
 
         Identical to the Hartzell eq.-10 form ``alpha_ref + beta_ref (z*_1D -
@@ -1062,31 +1068,33 @@ class ModifiedMKM(_SpectrumMKModel):
         return LQParameters(alpha=max(alpha, 0.0), beta=self.beta0)
 
 
-#: How the *domain* stochastics are treated in the SMK family. All three are
-#: published readings of the same model lineage -- Inaniwa & Kanematsu 2018 is the
-#: treatment-planning adaptation of Sato & Furusawa 2012, not a separate model.
-#:
-#: * ``"inaniwa_moments"`` -- Inaniwa & Kanematsu 2018 eqs. (1)-(2). The default,
-#:   and what this package has always shipped.
-#: * ``"sato_moments"`` -- Sato & Furusawa 2012 eq. (33). Identical ``beta``; the
-#:   ``alpha0`` term additionally carries ``z*_d,F / z_d,F`` (their eq. 30), which
-#:   Inaniwa takes as 1. The ratio is <= 1 and falls with LET, so this lowers
-#:   ``alpha`` at high LET and agrees at low LET.
 DomainTreatment = Literal["inaniwa_moments", "sato_moments"]
+"""How the *domain* stochastics are treated in the SMK family. All three are
+published readings of the same model lineage -- Inaniwa & Kanematsu 2018 is the
+treatment-planning adaptation of Sato & Furusawa 2012, not a separate model.
 
-#: How the *nucleus* stochastics are evaluated.
-#:
-#: * ``"taylor"`` -- Inaniwa & Kanematsu 2018's second-order expansion of
-#:   ``S_n(z_n)`` about ``z_n = D``, i.e. the ``(1 + gamma D)`` factor. The
-#:   default and what this package has always shipped. Fast and closed form, but
-#:   ``1 + gamma D`` grows without bound, so it stops being a survival curve at
-#:   large ``z_n D`` -- see ``expansion_validity_limit``.
-#: * ``"numerical"`` -- Sato & Furusawa 2012 eq. (7) itself,
-#:   ``S(D) = integral S_n(z_n) f_n(z_n; D) dz_n``, evaluated on the multi-event
-#:   density from :mod:`pyradbio.micro.multi_event`. A weighted average of
-#:   ``exp(-...)`` terms, so it is in ``(0, 1]`` by construction at any dose and
-#:   needs no validity ceiling.
+* ``"inaniwa_moments"`` -- Inaniwa & Kanematsu 2018 eqs. (1)-(2). The default,
+  and what this package has always shipped.
+* ``"sato_moments"`` -- Sato & Furusawa 2012 eq. (33). Identical ``beta``; the
+  ``alpha0`` term additionally carries ``z*_d,F / z_d,F`` (their eq. 30), which
+  Inaniwa takes as 1. The ratio is <= 1 and falls with LET, so this lowers
+  ``alpha`` at high LET and agrees at low LET.
+"""
+
 NucleusTreatment = Literal["taylor", "numerical"]
+"""How the *nucleus* stochastics are evaluated.
+
+* ``"taylor"`` -- Inaniwa & Kanematsu 2018's second-order expansion of
+  ``S_n(z_n)`` about ``z_n = D``, i.e. the ``(1 + gamma D)`` factor. The
+  default and what this package has always shipped. Fast and closed form, but
+  ``1 + gamma D`` grows without bound, so it stops being a survival curve at
+  large ``z_n D`` -- see ``expansion_validity_limit``.
+* ``"numerical"`` -- Sato & Furusawa 2012 eq. (7) itself,
+  ``S(D) = integral S_n(z_n) f_n(z_n; D) dz_n``, evaluated on the multi-event
+  density from [`pyradbio.micro.multi_event`][]. A weighted average of
+  ``exp(-...)`` terms, so it is in ``(0, 1]`` by construction at any dose and
+  needs no validity ceiling.
+"""
 
 
 @dataclass(frozen=True, slots=True)
@@ -1101,12 +1109,14 @@ class StochasticMKM(_SpectrumMKModel):
     large events per nucleus) and high dose per fraction. mMKM patches this with a
     saturation correction on the **domain** only. SMK additionally carries the
     **nucleus**-level stochastics, treating the accumulated nucleus specific energy
-    as a random variable about the macroscopic dose ``D``::
+    as a random variable about the macroscopic dose ``D``:
 
-        alpha_SMK = alpha0 + beta0 * z*_1D                                  (1)
-        beta_SMK  = (z*_1D / z_1D) * beta0                                  (2)
-        gamma(D)  = z_n * (0.5 * (alpha_SMK + 2 beta_SMK D)^2 - beta_SMK)   (3)
-        S(D)      = exp(-(alpha_SMK D + beta_SMK D^2)) * (1 + gamma(D) D)   (4)
+    ```text
+    alpha_SMK = alpha0 + beta0 * z*_1D                                  (1)
+    beta_SMK  = (z*_1D / z_1D) * beta0                                  (2)
+    gamma(D)  = z_n * (0.5 * (alpha_SMK + 2 beta_SMK D)^2 - beta_SMK)   (3)
+    S(D)      = exp(-(alpha_SMK D + beta_SMK D^2)) * (1 + gamma(D) D)   (4)
+    ```
 
     Two consequences distinguish it from mMKM: ``beta`` becomes quality-dependent
     (eq. 2 -- it *falls* with LET, since saturation makes ``z*_1D < z_1D``), and
@@ -1119,12 +1129,12 @@ class StochasticMKM(_SpectrumMKModel):
     and ``R_n`` -- the one structural difference from its siblings. With no engines
     injected, two default amorphous engines are built (one per site size). Inject
     ``engine`` for the domain and ``nucleus_engine`` for the nucleus; a
-    :class:`~pyradbio.micro.lineal_energy.SpectrumEngine` is bound to one site size,
+    [`SpectrumEngine`][] is bound to one site size,
     so these cannot be the same object.
 
-    Parameters
-    ----------
-    Published fits are available as :meth:`hsg_inaniwa2018` / :meth:`v79_inaniwa2018`
+    Parameter sets
+    --------------
+    Published fits are available as [`hsg_inaniwa2018`][] / [`v79_inaniwa2018`][]
     (paper table 1). Two things differ from the mMKM conventions and are easy to
     get wrong:
 
@@ -1141,25 +1151,25 @@ class StochasticMKM(_SpectrumMKModel):
     energy-deposition events to a cell nucleus is large" (paper sec 3.1): ``1 +
     gamma D`` grows without bound, so at large ``z_n * D`` the raw expression stops
     being a survival curve. Results are clipped to ``[0, 1]`` and
-    :meth:`survival_valid_to_Gy` reports where the correction reaches
+    [`survival_valid_to_Gy`][] reports where the correction reaches
     ``expansion_validity_limit`` (default 1.0, i.e. a 100% correction); beyond that
     the curve is extrapolation. Nothing here is silently rescaled. With the paper's
     own HSG parameters that ceiling is ~4-18 Gy for carbon -- the same order as the
     ``D <~ 10 Gy`` range the paper works in, so check it per case.
     """
 
-    #: Survival is eq. (24), not LQ: ``alpha_beta`` is the LQ core only.
     capabilities: ClassVar[ModelCapabilities] = ModelCapabilities(
         mixed_field=False, lq_exact=False, spectrum_route=True
     )
+    """Survival is eq. (24), not LQ: ``alpha_beta`` is the LQ core only."""
 
     nucleus_radius_um: float = 8.1
     nucleus_engine: SpectrumEngine | None = None
     expansion_validity_limit: float = 1.0
     domain_treatment: DomainTreatment = "inaniwa_moments"
     nucleus_treatment: NucleusTreatment = "taylor"
-    #: Grid resolution for the ``"numerical"`` nucleus route's single-event density.
     nucleus_density_nodes: int = 4096
+    """Grid resolution for the ``"numerical"`` nucleus route's single-event density."""
 
     def __post_init__(self) -> None:
         _SpectrumMKModel.__post_init__(self)
@@ -1208,7 +1218,7 @@ class StochasticMKM(_SpectrumMKModel):
         ``alpha0_saturation_ratio`` is Sato & Furusawa 2012's ``z*_d,F / z_d,F``
         factor on the ``alpha0`` term (their eq. 33). It defaults to ``1.0``, the
         Inaniwa & Kanematsu 2018 reading, so callers driving this seam directly are
-        unaffected; :meth:`alpha_beta_from_dose_spectrum` supplies it from the
+        unaffected; [`alpha_beta_from_dose_spectrum`][] supplies it from the
         spectrum when ``domain_treatment="sato_moments"``.
         """
         a0 = self.alpha0 if alpha0 is None else alpha0
@@ -1226,7 +1236,7 @@ class StochasticMKM(_SpectrumMKModel):
 
         Eqs. (1)-(2) need only the domain-scored ``d(y)``. This deliberately omits
         the non-LQ ``(1 + gamma D)`` factor of eq. (4), which needs the nucleus
-        spectrum -- use :meth:`survival_from_spectra` for the actual survival curve.
+        spectrum -- use [`survival_from_spectra`][] for the actual survival curve.
         """
         ratio = 1.0
         if self.domain_treatment == "sato_moments":
@@ -1312,7 +1322,7 @@ class StochasticMKM(_SpectrumMKModel):
 
         ``S(D) = integral exp(-(alpha z_n + beta z_n^2)) f_n(z_n; D) dz_n`` with the
         multi-event density built by
-        :func:`pyradbio.micro.multi_event.multi_event_density`. The seam that lets a
+        [`pyradbio.micro.multi_event.multi_event_density`][]. The seam that lets a
         caller supply any single-event nucleus density -- notably the paper's own
         LET-based Fermi form, which is what its fig. A1 is specified in terms of.
 
@@ -1365,7 +1375,7 @@ class StochasticMKM(_SpectrumMKModel):
     ) -> float | npt.NDArray[np.float64]:
         """Eq. (24) survival for one ion, scoring both site sizes (scalar or array dose).
 
-        Goes through :meth:`_SpectrumMKModel.specific_energies`, so it honours
+        Goes through `_SpectrumMKModel.specific_energies`, so it honours
         ``site_geometry`` (cylinder by default -- the paper's own geometry), and
         ``nucleus_treatment`` decides which survival curve is evaluated.
         """
@@ -1377,7 +1387,7 @@ class StochasticMKM(_SpectrumMKModel):
 
         Taylor: Inaniwa 2018 eq. (24), doi:10.1088/1361-6560/aabede.
         Numerical: log-sum-exp of Sato 2012 eq. (7), doi:10.1667/RR2842.1,
-        using the same multi-event masses as :meth:`survival`. Log arithmetic
+        using the same multi-event masses as [`survival`][]. Log arithmetic
         prevents survival underflow; it does not improve the FFT tail accuracy
         or extend the physical validity of the Taylor expansion.
         """
@@ -1400,7 +1410,7 @@ class StochasticMKM(_SpectrumMKModel):
     def _taylor_log_kill(self, dose_Gy: float, lq: LQParameters, z_nucleus_Gy: float) -> float:
         """Eq. (24): ``alpha D + beta D^2 - log1p(gamma D)``.
 
-        Match :meth:`_survival`'s clipping: a nonpositive correction gives
+        Match `_survival`'s clipping: a nonpositive correction gives
         zero survival (infinite effect), and survival above one gives zero
         effect. Neither case legitimises extrapolating the Taylor expansion.
         """
@@ -1470,7 +1480,7 @@ class StochasticMKM(_SpectrumMKModel):
         """Eqs. (15)-(16) from the ion, in ``site_geometry`` -- the LQ core only.
 
         The non-LQ ``(1 + gamma D)`` factor is not in these parameters; use
-        :meth:`survival` / :meth:`dose_for_survival` for the actual curve.
+        [`survival`][] / [`dose_for_survival`][] for the actual curve.
         """
         z = self.specific_energies(ion)
         return self.alpha_beta_from_specific_energies(
@@ -1480,7 +1490,7 @@ class StochasticMKM(_SpectrumMKModel):
         )
 
     def _nucleus_spectrum(self, ion: Ion) -> Spectrum:
-        """Nucleus-scored ``d(y)`` from :attr:`nucleus_engine` (or the default engine)."""
+        """Nucleus-scored ``d(y)`` from [`nucleus_engine`][] (or the default engine)."""
         return self._spectrum_at_site(ion, self.nucleus_radius_um, self.nucleus_engine)
 
     @property
@@ -1501,9 +1511,10 @@ class StochasticMKM(_SpectrumMKModel):
         multi-event density is built from -- has been divided out of it. Quietly
         evaluating the Taylor form instead would return a number computed by a
         route the caller did not select, so this raises. Use
-        :meth:`survival` / :meth:`rbe_at_survival` (which build the density
-        from the ion), or pass the density yourself to
-        :meth:`survival_from_nucleus_density`.
+        [`survival`][] /
+        [`rbe_at_survival`][pyradbio.models.mkm.spectrum_models.StochasticMKM.rbe_at_survival]
+        (which build the density from the ion), or pass the density yourself to
+        [`survival_from_nucleus_density`][].
         """
         if self.nucleus_treatment == "numerical":
             raise ValueError(
@@ -1556,7 +1567,7 @@ class StochasticMKM(_SpectrumMKModel):
         """Iso-survival RBE from spectra, inverting eq. (4) numerically.
 
         Widens the family's signature with the required ``nucleus_spectrum``: the
-        LQ closed form in :mod:`pyradbio.core.lq` does **not** apply to SMK, and
+        LQ closed form in [`pyradbio.core.lq`][] does **not** apply to SMK, and
         silently dropping the ``(1 + gamma D)`` factor would be exactly the kind of
         hidden physics ``AGENTS.md`` forbids -- so this raises rather than guesses.
         """
@@ -1594,8 +1605,8 @@ class StochasticMKM(_SpectrumMKModel):
         """Dose reaching ``survival_fraction`` for one ion [Gy], on the active paths.
 
         The single place both treatment axes are resolved for an ion, so the
-        inherited :meth:`~pyradbio.models.base.BiophysicalModel.rbe_at_survival`
-        cannot drift away from :meth:`survival`. That is not free:
+        inherited [`rbe_at_survival`][pyradbio.models.base.BiophysicalModel.rbe_at_survival]
+        cannot drift away from [`survival`][]. That is not free:
         ``domain_treatment`` enters through the eq.-(33) factor on ``alpha0``, and
         ``nucleus_treatment`` decides which survival curve is inverted. Getting
         either wrong is silent -- the RBE is a perfectly plausible number either way.
@@ -1623,7 +1634,7 @@ class StochasticMKM(_SpectrumMKModel):
     def survival_valid_to_Gy(self, ion: Ion) -> float:
         """Where the eq.-(24) expansion stops being controlled for one ion [Gy].
 
-        See :meth:`survival_valid_to_Gy_from_spectra`; this scores the ion in
+        See [`survival_valid_to_Gy_from_spectra`][]; this scores the ion in
         ``site_geometry``.
 
         ``inf`` under ``nucleus_treatment="numerical"``: that route averages
@@ -1645,9 +1656,9 @@ class StochasticMKM(_SpectrumMKModel):
     ) -> float:
         """Invert eq. (24) numerically: the dose reaching ``survival_fraction`` [Gy].
 
-        Eq. (24) is **not** LQ, so the closed form in :mod:`pyradbio.core.lq` does
+        Eq. (24) is **not** LQ, so the closed form in [`pyradbio.core.lq`][] does
         not apply; this is a bracketed root solve on the curve itself. Shared by
-        the RBE (:meth:`_rbe_numeric`) and, in :mod:`~pyradbio.models.mkm.osmk`,
+        the RBE (`_rbe_numeric`) and, in [`osmk`][],
         by the OER -- which needs the ion arm at two oxygen conditions.
         """
         return self._invert_survival_curve(
@@ -1660,7 +1671,7 @@ class StochasticMKM(_SpectrumMKModel):
         """Dose at which ``curve`` reaches ``survival_fraction`` [Gy].
 
         Neither SMK survival form is LQ, so the closed form in
-        :mod:`pyradbio.core.lq` does not apply to either -- this brackets and
+        [`pyradbio.core.lq`][] does not apply to either -- this brackets and
         solves on the curve itself. Taking the curve as an argument is what lets
         the ``"numerical"`` nucleus route be inverted by the same code as the
         ``"taylor"`` one; before this existed, every RBE went through the Taylor

@@ -7,17 +7,19 @@ anything with a matplotlib-style ``savefig(fname, **kwargs)`` method (duck
 typing).
 
 They replace the block every script carried (e.g. ``examples/survival_and_rbe.py:34-39``,
-``examples/dose_protraction_and_bed.py:42-46`` and ``:211-213``)::
+``examples/dose_protraction_and_bed.py:42-46`` and ``:211-213``):
 
-    try:
-        HERE = Path(__file__).resolve().parent
-    except NameError:  # inside a notebook, where __file__ is undefined
-        HERE = Path.cwd()
-    FIGURES = HERE / "figures"
-    FIGURES.mkdir(exist_ok=True)
-    ...
-    fig.savefig(out, dpi=130)
-    print(f"wrote {out}")
+```text
+try:
+    HERE = Path(__file__).resolve().parent
+except NameError:  # inside a notebook, where __file__ is undefined
+    HERE = Path.cwd()
+FIGURES = HERE / "figures"
+FIGURES.mkdir(exist_ok=True)
+...
+fig.savefig(out, dpi=130)
+print(f"wrote {out}")
+```
 
 with ``figures_dir(globals().get("__file__"))`` and ``save_figure(fig, name, dpi=130)``.
 """
@@ -30,9 +32,10 @@ from typing import Any, Protocol
 
 __all__ = ["FIGURES_DIR_ENV", "SavesFigure", "figures_dir", "save_figure"]
 
-#: Environment variable that, when set (non-empty), overrides every script's
-#: figure folder -- the smoke tests point it at a temporary directory.
 FIGURES_DIR_ENV = "PYRADBIO_FIGURES_DIR"
+"""Environment variable that, when set (non-empty), overrides every script's
+figure folder -- the smoke tests point it at a temporary directory.
+"""
 
 
 class SavesFigure(Protocol):
@@ -48,7 +51,7 @@ def figures_dir(script_file: str | None = None) -> Path:
 
     Resolution order:
 
-    1. ``$PYRADBIO_FIGURES_DIR`` (:data:`FIGURES_DIR_ENV`) when set and non-empty;
+    1. ``$PYRADBIO_FIGURES_DIR`` ([`FIGURES_DIR_ENV`][]) when set and non-empty;
     2. ``<folder of script_file>/figures`` when ``script_file`` is given;
     3. ``<current working directory>/figures`` otherwise (a notebook kernel, where
        ``__file__`` is undefined -- callers pass ``globals().get("__file__")``).
@@ -91,7 +94,7 @@ def save_figure(
     name:
         File name including the extension (``"survival_and_rbe.png"``).
     directory:
-        Target folder; ``None`` uses :func:`figures_dir` with no script file
+        Target folder; ``None`` uses [`figures_dir`][] with no script file
         (environment variable, else ``cwd/figures``). Scripts pass
         ``figures_dir(globals().get("__file__"))`` to keep their own folder.
     dpi:

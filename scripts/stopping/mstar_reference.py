@@ -31,7 +31,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 RAW = REPO_ROOT / "data" / "stopping"
 
-#: Driver program (ours, not part of MSTAR): reads "Z1 MODE E" lines, calls MSTAR1.
+# Driver program (ours, not part of MSTAR): reads "Z1 MODE E" lines, calls MSTAR1.
 DRIVER = """\
 * Reference-value driver for the pyRadBio MSTAR port (not part of MSTAR).
       PROGRAM REFDRV

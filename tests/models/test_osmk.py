@@ -1,6 +1,6 @@
 """OSMK -- oxygen-effect-incorporated SMK (Inaniwa & Kanematsu 2021 and 2023).
 
-Physics acceptance for :mod:`pyradbio.models.mkm.osmk`
+Physics acceptance for `pyradbio.models.mkm.osmk`
 (doi:10.1088/1361-6560/ac29cc and doi:10.1093/jrr/rrad049; equations restated in
 ``docs/references/OSMK_Inaniwa2021_2023.md``):
 

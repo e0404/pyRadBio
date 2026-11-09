@@ -1,9 +1,9 @@
 """Loaders for external lineal-energy spectrum libraries (CSV).
 
 Reads binned single-event lineal-energy spectra ``N(y)`` from CSV files into
-:class:`~pyradbio.micro.lineal_energy.TabulatedLinealEnergySpectrum` objects,
+[`TabulatedLinealEnergySpectrum`][] objects,
 so measured / Monte-Carlo libraries can be compared against the analytic engine
-through the shared :class:`~pyradbio.micro.lineal_energy.Spectrum` moments.
+through the shared [`Spectrum`][] moments.
 
 Supported format -- DeCunha et al. 2025 proton library (Med. Phys. 52(5),
 3471-3480, doi:10.1002/mp.17561; Geant4-DNA, liquid water, 1 um diameter target
@@ -116,9 +116,9 @@ class DeCunhaLinealEnergyLibrary:
     """An indexed folder of DeCunha-2025 per-energy lineal-energy CSV files.
 
     Indexes file names once; individual spectra are read on demand via
-    :meth:`load` (exact energy) or :meth:`nearest` (closest available energy).
+    [`load`][] (exact energy) or [`nearest`][] (closest available energy).
     Each spectrum is a source-agnostic
-    :class:`~pyradbio.micro.lineal_energy.TabulatedLinealEnergySpectrum`.
+    [`TabulatedLinealEnergySpectrum`][].
     """
 
     directory: Path

@@ -31,8 +31,8 @@ def test_is_eq_1_with_the_alpha_at_equal_velocity() -> None:
     np.testing.assert_allclose(model.mass_stopping_power(z, a, e), expected, rtol=1e-12)
 
 
-#: Worst |S/S_ref - 1| per band [2.5-10, 10-50, 50-300 MeV/u], ~1.5x the measured
-#: value (vs MSTAR; vs ICRU 73 errata all within 4.7%).
+# Worst |S/S_ref - 1| per band [2.5-10, 10-50, 50-300 MeV/u], ~1.5x the measured
+# value (vs MSTAR; vs ICRU 73 errata all within 4.7%).
 HUBERT_VS_MSTAR = {
     3: (0.04, 0.02, 0.016),
     6: (0.035, 0.03, 0.018),
@@ -135,8 +135,8 @@ def test_default_switches_branch_within_one_call() -> None:
     assert lets[1] == pytest.approx(HubertAlphaScaling().let_keV_um(Ion(26, 56, 10.0)), rel=1e-12)
 
 
-#: Bound on |d ln S/d ln E (above) - d ln S/d ln E (below)| at the seam, ~1.5x the
-#: measurement (K 0.012, Fe 0.006, Kr 0.009, Xe 0.005, Pb 0.052, U 0.085).
+# Bound on |d ln S/d ln E (above) - d ln S/d ln E (below)| at the seam, ~1.5x the
+# measurement (K 0.012, Fe 0.006, Kr 0.009, Xe 0.005, Pb 0.052, U 0.085).
 SEAM_SLOPE_KINK = {19: 0.018, 26: 0.009, 36: 0.013, 54: 0.008, 82: 0.078, 92: 0.128}
 
 
