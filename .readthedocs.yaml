@@ -12,7 +12,9 @@ build:
       - python -m pip install ".[docs]"
     build:
       html:
-        - zensical build --strict
+        # Through the interpreter: Read the Docs installs into its asdf Python,
+        # whose shims do not pick up the new `zensical` console script.
+        - python -m zensical build --strict
     post_build:
       # Copy the built site into the directory Read the Docs publishes.
       - mkdir -p $READTHEDOCS_OUTPUT/html/
