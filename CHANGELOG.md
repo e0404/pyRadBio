@@ -14,7 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - `tests/docs` runs every `python` code block in the README and the documentation, and keeps Sphinx/reST syntax out of the docstrings.
 
 ### Changed
-- The README installs from PyPI (`pip install pyradbio`).
+- The README install section separates the user install from PyPI (`pip install pyradbio`), the editable developer install and the optional extras, each extra listed with what it enables.
 - Docstrings are Markdown instead of Sphinx/reST: mkdocstrings cross-references instead of roles, attribute docstrings instead of `#:` comments, admonitions and fenced code instead of directives and literal blocks (conventions in `AGENTS.md`).
 
 ### Fixed

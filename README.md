@@ -73,12 +73,51 @@ reference, is in `ROADMAP.md`.
 
 ## Install
 
+pyRadBio supports Python 3.10 to 3.14.
+
+**Using pyRadBio.** The core install depends only on NumPy and SciPy. It covers
+every model, the LQ utilities, the stopping powers and the `pyradbio`
+command-line tool:
+
 ```bash
-pip install pyradbio         # core only
-pip install "pyradbio[all]"  # + tables, benchmark, fast (numba), plot and dev tools
-pip install "pyradbio[mkm]"  # optional: pyMKM, for cross-checking the MKM family
-pip install -e ".[all]"      # development, from a clone (see CONTRIBUTING.md)
+pip install pyradbio
 ```
+
+**Developing pyRadBio.** Install an editable copy from a clone with the
+development tools and the extras the tests and scripts use. Add `docs` to build
+the documentation site (Python 3.11 or newer):
+
+```bash
+git clone https://github.com/e0404/pyRadBio.git
+cd pyRadBio
+pip install -e ".[all]"   # or ".[all,docs]"
+```
+
+The workflow and the checks to run before a pull request are in
+[CONTRIBUTING.md](https://github.com/e0404/pyRadBio/blob/develop/CONTRIBUTING.md).
+
+**Optional extras.** Install only the extras you need. This command lists all
+of them:
+
+```bash
+pip install "pyradbio[tables,benchmark,fast,plot,dev,docs,mkm]"
+```
+
+- `tables`: pandas, pyarrow and openpyxl, for Parquet I/O, pandas views of the
+  tables, Excel reading and the PIDE benchmark harness. CSV works without it.
+- `benchmark`: python-dotenv, which reads the locations of external reference
+  data from a local `.env` file.
+- `fast`: numba, for the compiled LEM Monte-Carlo and radial-dose kernels.
+- `plot`: matplotlib, for the `examples/` and `validation/` scripts. The
+  library itself never imports it.
+- `dev`: pytest, hypothesis, ruff, mypy and pre-commit, for running the tests
+  and the linters.
+- `docs`: Zensical and mkdocstrings, for building the documentation site.
+  Needs Python 3.11 or newer.
+- `mkm`: the external [pyMKM](https://github.com/BeppeMagro/pymkm) package,
+  which cross-checks the MKM family independently. It is never a default and
+  is not part of `all`. It also keeps NumPy below 2.4.
+- `all`: `tables`, `benchmark`, `fast`, `plot` and `dev`.
 
 ## Quick start
 
