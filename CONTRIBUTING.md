@@ -33,8 +33,23 @@ CHANGELOG check.
 - One logical change per commit, with a conventional-commit message
   (`feat(lem): ...`, `fix(mixing): ...`, `test(core): ...`).
 - Add a line under `[Unreleased]` in `CHANGELOG.md`.
-- `main` only receives releases: a merge of `develop`, then a `vX.Y.Z` tag on
-  the merge commit, which publishes the release to PyPI.
+- `main` only receives releases (see below).
+
+## Releases
+
+1. Branch `rc/vX.Y.Z` from `develop`, without a version bump, and open a pull
+   request against `main`.
+2. Fix whatever CI or the review turns up on the `rc/` branch until the pull
+   request is green and approved.
+3. Only then bump the version: `version` in `pyproject.toml`, `version` and
+   `date-released` in `CITATION.cff`, and a dated `[X.Y.Z]` section in
+   `CHANGELOG.md` (keep an empty `[Unreleased]` above it and update the compare
+   links), as a `chore(release): X.Y.Z` commit.
+4. Merge the pull request.
+5. Tag the merge commit on `main` as `vX.Y.Z` and push the tag. The `Publish`
+   workflow checks that the tag matches `pyproject.toml` and uploads the release
+   to PyPI; wait for it to succeed.
+6. Merge `main` back into `develop`.
 
 ## Data and references
 
