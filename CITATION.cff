@@ -3,8 +3,8 @@ message: "If you use pyRadBio, please cite it as below, together with the papers
 title: "pyRadBio: radiobiological modelling for ion-beam therapy"
 abstract: "LQ-centred implementations of the LEM, MKM and related radiobiological models: alpha-beta and z* tables, survival and RBE for single ions and mixed fields."
 type: software
-version: 0.1.0
-date-released: 2026-11-08
+version: 0.1.1
+date-released: 2026-11-09
 doi: 10.5281/zenodo.24046436
 authors:
   - family-names: Wahl

@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-09
+
 ### Added
 - `publish.yml` builds and `twine check`s the sdist and wheel on pushes and pull requests to `main`/`develop`, and uploads a `vX.Y.Z` tag to PyPI by trusted publishing.
 - `mirror.yml` mirrors `main`, `develop` and the tags to the internal GitLab, never forced.
@@ -162,7 +164,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Time axis** (`core/protraction.py`): dose schedules and the Lea-Catcheside `G` factor; `survival`, `log_kill`, `dose_for_survival` and `rbe` take a keyword-only `g` (default `1.0`, an acute dose).
 - **Packaging:** extras `tables`, `benchmark`, `fast` (numba), `plot`, `dev` and `all`, plus `mkm` (pyMKM, not in `all`); numpy below 2.3 on Python 3.10-3.13 and >= 2.3 on 3.14; `pyradbio.__version__` read from the installed distribution.
 
-[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/e0404/pyRadBio/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/e0404/pyRadBio/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/e0404/pyRadBio/compare/v0.0.20...v0.1.0
 [0.0.20]: https://github.com/e0404/pyRadBio/compare/v0.0.19...v0.0.20
 [0.0.19]: https://github.com/e0404/pyRadBio/compare/v0.0.18...v0.0.19
